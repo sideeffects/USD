@@ -418,7 +418,7 @@ struct _AlembicPropertyHelper<ITypedScalarProperty<T> > {
     operator()(const ICompoundProperty& parent, const std::string& name) const
     {
         if (const PropertyHeader* header = parent.getPropertyHeader(name)) {
-            if (ITypedScalarProperty<T>::matches(*header)) {
+            if (ITypedScalarProperty<T>::matches(*header, kNoMatching)) {
                 return ITypedScalarProperty<T>(parent, name);
             }
         }
@@ -444,7 +444,7 @@ struct _AlembicPropertyHelper<ITypedArrayProperty<T> > {
     operator()(const ICompoundProperty& parent, const std::string& name) const
     {
         if (const PropertyHeader* header = parent.getPropertyHeader(name)) {
-            if (ITypedArrayProperty<T>::matches(*header)) {
+            if (ITypedArrayProperty<T>::matches(*header, kNoMatching)) {
                 return ITypedArrayProperty<T>(parent, name);
             }
         }
@@ -457,7 +457,7 @@ struct _AlembicPropertyHelper<ITypedGeomParam<T> > {
     operator()(const ICompoundProperty& parent, const std::string& name) const
     {
         if (const PropertyHeader* header = parent.getPropertyHeader(name)) {
-            if (ITypedGeomParam<T>::matches(*header)) {
+            if (ITypedGeomParam<T>::matches(*header, kNoMatching)) {
                 return ITypedGeomParam<T>(parent, name);
             }
         }
