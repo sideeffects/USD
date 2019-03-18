@@ -509,18 +509,14 @@ GusdGU_USD::BindPrimsFromPackedPrims(
     for (GA_Iterator it(rng); !it.atEnd(); ++it, ++i) {
 
         const GEO_Primitive* p = gdp->getGEOPrimitive(*it);
-        const GU_PrimPacked* pp = dynamic_cast<const GU_PrimPacked*>(p);
-        if (!pp) {
+        if (p->getTypeId() != GusdGU_PackedUSD::typeId()) {
             continue;
         }
 
+        const GU_PrimPacked* pp = UTverify_cast<const GU_PrimPacked*>(p);
         const GusdGU_PackedUSD* prim =
-            dynamic_cast<const GusdGU_PackedUSD*>(pp->implementation());
+            UTverify_cast<const GusdGU_PackedUSD*>(pp->implementation());
         
-        if (!prim) {
-            continue;
-        }
-
         prims(i) = prim->getUsdPrim(sev);
 
         SdfPath primPath, variantPath;
@@ -576,17 +572,13 @@ GusdGU_USD::GetTimeCodesFromPackedPrims(const GA_Range& rng,
     for (GA_Iterator it(rng); !it.atEnd(); ++it, ++i) {
 
         const GEO_Primitive* p = gdp->getGEOPrimitive(*it);
-        const GU_PrimPacked* pp = dynamic_cast<const GU_PrimPacked*>(p);
-        if (!pp) {
+        if (p->getTypeId() != GusdGU_PackedUSD::typeId()) {
             continue;
         }
 
+        const GU_PrimPacked* pp = UTverify_cast<const GU_PrimPacked*>(p);
         const GusdGU_PackedUSD* prim =
-            dynamic_cast<const GusdGU_PackedUSD*>(pp->implementation());
-
-        if (!prim) {
-            continue;
-        }
+            UTverify_cast<const GusdGU_PackedUSD*>(pp->implementation());
 
         times(i) = prim->frame();
     }
@@ -894,37 +886,41 @@ GusdGU_USD::AppendExpandedPackedPrims(
             }
 
             const GEO_Primitive* p = gdPtr->getGEOPrimitive(*it);
-            const GU_PrimPacked* pp = dynamic_cast<const GU_PrimPacked*>(p);
-            if (!pp) {
+            if (p->getTypeId() != GusdGU_PackedUSD::typeId()) {
                 continue;
             }
 
-            if (const GusdGU_PackedUSD* prim =
-                dynamic_cast<const GusdGU_PackedUSD*>(pp->implementation())) {
+            const GU_PrimPacked* pp = UTverify_cast<const GU_PrimPacked*>(p);
+            const GusdGU_PackedUSD* prim =
+                UTverify_cast<const GusdGU_PackedUSD*>(pp->implementation());
 
-                GA_Size gdCurrent = gd.getNumPrimitives();
+            GA_Size gdCurrent = gd.getNumPrimitives();
 
 #if SYS_VERSION_FULL_INT >= 0x11000000
-                UT_Matrix4D transform;
-                pp->getFullTransform4(transform);
+            UT_Matrix4D transform;
+            pp->getFullTransform4(transform);
 
-                // Unpack this prim.
-                if (!prim->unpackGeometry(gd, primvarPattern.c_str(), &transform)) {
-                    return false;
-                }
+            // Unpack this prim.
+            if (!prim->unpackGeometry(gd,
+#if SYS_VERSION_FULL_INT >= 0x12000000
+                static_cast<const GU_Detail*>(&pp->getDetail()),
+                pp->getMapOffset(),
+#endif
+                primvarPattern.c_str(), &transform)) {
+                return false;
+            }
 #else
-                // Unpack this prim.
-                if (!prim->unpackGeometry(gd, primvarPattern.c_str())) {
-                    return false;
-                }
+            // Unpack this prim.
+            if (!prim->unpackGeometry(gd, primvarPattern.c_str())) {
+                return false;
+            }
 #endif
 
-                const GA_Offset offset =
-                    indexToOffset(primIndexPairs(i).second);
-                const exint count = gd.getNumPrimitives() - gdCurrent;
-                for (exint j = 0; j < count; ++j) {
-                    srcOffsets.append(offset);
-                }
+            const GA_Offset offset =
+                indexToOffset(primIndexPairs(i).second);
+            const exint count = gd.getNumPrimitives() - gdCurrent;
+            for (exint j = 0; j < count; ++j) {
+                srcOffsets.append(offset);
             }
         }
 
@@ -1345,21 +1341,20 @@ GusdGU_USD::GetPackedPrimViewportLODAndPurposes(
     for (exint i = 0; i < offsets.size(); ++i) {
 
         const GA_Primitive* p = gd.getPrimitive(offsets(i));
-        const GU_PrimPacked* pp = dynamic_cast<const GU_PrimPacked*>(p);
-        if (!pp) {
+        if (p->getTypeId() != GusdGU_PackedUSD::typeId()) {
             continue;
         }
 
-        if (const GusdGU_PackedUSD* prim =
-            dynamic_cast<const GusdGU_PackedUSD*>(pp->implementation())) {
+        const GU_PrimPacked* pp = UTverify_cast<const GU_PrimPacked*>(p);
+        const GusdGU_PackedUSD* prim =
+            UTverify_cast<const GusdGU_PackedUSD*>(pp->implementation());
 
 #if SYS_VERSION_FULL_INT < 0x10050000
-            viewportLOD(i) = prim->intrinsicViewportLOD();
+        viewportLOD(i) = prim->intrinsicViewportLOD();
 #else
-            viewportLOD(i) = prim->intrinsicViewportLOD(pp);
+        viewportLOD(i) = prim->intrinsicViewportLOD(pp);
 #endif
-            purposes(i) = prim->getPurposes();
-        }
+        purposes(i) = prim->getPurposes();
     }
     return true;
 }
@@ -1594,7 +1589,7 @@ GusdGU_USD::SetPackedPrimTransforms(GU_Detail& gd,
 
         if ( p->getTypeId() == GusdGU_PackedUSD::typeId() ) {
             auto prim = UTverify_cast<GU_PrimPacked*>(p);
-            auto packedUSD = UTverify_cast<GusdGU_PackedUSD*>(prim->implementation());
+            auto packedUSD = UTverify_cast<const GusdGU_PackedUSD*>(prim->implementation());
 
             // The transforms on a USD packed prim contains the combination
             // of the transform in the USD file and any transform the user
@@ -1695,26 +1690,31 @@ GusdGU_USD::ImportPrimUnpacked(GU_Detail& gd,
         // Create a packed prim on a temporary detail.
         
         GU_Detail tmpGd;
-
-        if (auto* packedPrim =
-            GusdGU_PackedUSD::Build(tmpGd, prim, time, lod, purpose, xform)) {
+        auto* packedPrim =
+            GusdGU_PackedUSD::Build(tmpGd, prim, time, lod, purpose, xform);
+        UT_ASSERT_P(packedPrim);
+        UT_ASSERT_P(packedPrim->getTypeId() == GusdGU_PackedUSD::typeId());
             
-            const GusdGU_PackedUSD* impl = 
-                dynamic_cast<const GusdGU_PackedUSD*>(
-                    packedPrim->implementation());
-            UT_ASSERT_P(impl);
+        const GusdGU_PackedUSD* impl = 
+            UTverify_cast<const GusdGU_PackedUSD*>(
+                packedPrim->implementation());
+        UT_ASSERT_P(impl);
 
-            // Unpack the prims.
-            
+        // Unpack the prims.
+
 #if SYS_VERSION_FULL_INT >= 0x11000000
-            UT_Matrix4D xform;
-            packedPrim->getFullTransform4(xform);
+        UT_Matrix4D xform;
+        packedPrim->getFullTransform4(xform);
 
-            return impl->unpackGeometry(gd, primvarPattern, &xform);
-#else
-            return impl->unpackGeometry(gd, primvarPattern);
+        return impl->unpackGeometry(gd,
+#if SYS_VERSION_FULL_INT >= 0x12000000
+            static_cast<const GU_Detail*>(&packedPrim->getDetail()),
+            packedPrim->getMapOffset(),
 #endif
-        }
+            primvarPattern, &xform);
+#else
+        return impl->unpackGeometry(gd, primvarPattern);
+#endif
     }
     return false;
 }
