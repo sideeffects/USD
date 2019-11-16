@@ -102,7 +102,8 @@ void HdxPrman_InteractiveContext::_Initialize()
     }
 
     // Must invoke PRManBegin() before we start using Riley.
-    char* argv[] = { "hdxPrman" };
+    char arg0[] = "hdxPrman";
+    char* argv[] = { arg0 };
     ri->PRManBegin(1, argv);
 
     // Register an Xcpt handler
