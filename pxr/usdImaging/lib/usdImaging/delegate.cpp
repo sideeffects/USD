@@ -1243,6 +1243,7 @@ UsdImagingDelegate::_RefreshUsdObject(SdfPath const& usdPath,
     TF_DEBUG(USDIMAGING_CHANGES).Msg("[Refresh Object]: %s %s\n",
             usdPath.GetText(), TfStringify(changedInfoFields).c_str());
 
+    static TfToken primvarsPrefix("primvars:");
     SdfPathVector affectedCachePaths;
 
     if (usdPath.IsAbsoluteRootOrPrimPath()) {
@@ -1257,9 +1258,6 @@ UsdImagingDelegate::_RefreshUsdObject(SdfPath const& usdPath,
         SdfPath const& usdPrimPath = usdPath.GetPrimPath();
         TfToken const& attrName = usdPath.GetNameToken();
         UsdPrim usdPrim = _stage->GetPrimAtPath(usdPrimPath);
-        UsdAttribute attr = usdPrim
-            ? usdPrim.GetAttribute(attrName)
-            : UsdAttribute();
 
         // If either model:drawMode or model:applyDrawMode changes, we need to
         // repopulate the whole subtree starting at the owning prim.
@@ -1285,11 +1283,9 @@ UsdImagingDelegate::_RefreshUsdObject(SdfPath const& usdPath,
             // Because these are inherited attributes, we must update all
             // children.
             _GatherDependencies(usdPrimPath, &affectedCachePaths);
-        } else if (attr && UsdGeomPrimvar::IsPrimvar(attr) &&
-                   UsdGeomPrimvar(attr).GetInterpolation() ==
-                       UsdGeomTokens->constant) {
-            // Constant attributes in the "primvars:" namespace are considered
-            // inherited, so update all children.
+        } else if (TfStringStartsWith(attrName, primvarsPrefix)) {
+            // Attributes in the "primvars:" namespace are may be or may have
+            // been inherited, so update all children.
             _GatherDependencies(usdPrimPath, &affectedCachePaths);
         } else if (TfStringStartsWith(attrName, UsdTokens->collection)) {
             // XXX Performance: Collections used for material bindings
