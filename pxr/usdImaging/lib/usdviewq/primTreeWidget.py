@@ -64,7 +64,7 @@ def _GetBackgroundColor(item, option):
     return background
 
 class PrimViewColumnIndex(ConstantGroup):
-    NAME, TYPE, VIS, DRAWMODE = range(4)
+    NAME, TYPE, VIS, DRAWMODE = list(range(4))
 
 class DrawModes(ConstantGroup):
     DEFAULT = "default"

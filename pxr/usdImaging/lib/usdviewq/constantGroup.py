@@ -88,7 +88,6 @@ class ConstantGroup(object):
     """The base constant group class, intended to be inherited by actual groups
     of constants.
     """
-    __metaclass__ = _MetaConstantGroup
 
     def __new__(cls, *args, **kwargs):
         raise TypeError("ConstantGroup objects cannot be created.")

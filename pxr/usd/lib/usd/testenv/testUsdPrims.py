@@ -523,7 +523,7 @@ class TestUsdPrim(unittest.TestCase):
             # but paths to non-existent files fail
             assert s2.ResolveIdentifierToEditTarget("./noFile."+fmt) == ""
             # and paths relative to in-memory layers fail (expected errors?)
-            print "bazRefs = " + s1.ResolveIdentifierToEditTarget("./refTest2."+fmt)
+            print("bazRefs = " + s1.ResolveIdentifierToEditTarget("./refTest2."+fmt))
             assert s1.ResolveIdentifierToEditTarget("./refTest2."+fmt) == "" 
 
             # A good reference generates no errors or exceptions

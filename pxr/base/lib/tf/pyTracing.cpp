@@ -110,8 +110,13 @@ static int _TracePythonFn(PyObject *, PyFrameObject *frame,
     // Build up a trace info struct.
     TfPyTraceInfo info;
     info.arg = arg;
+#if PY_MAJOR_VERSION >= 3
+    info.funcName = PyUnicode_AsUTF8(frame->f_code->co_name);
+    info.fileName = PyUnicode_AsUTF8(frame->f_code->co_filename);
+#else
     info.funcName = PyString_AS_STRING(frame->f_code->co_name);
     info.fileName = PyString_AS_STRING(frame->f_code->co_filename);
+#endif
     info.funcLine = frame->f_code->co_firstlineno;
     info.what = what;
 

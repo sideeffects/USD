@@ -22,10 +22,12 @@
 # KIND, either express or implied. See the Apache License for the # specific
 # language governing permissions and limitations under the Apache # License.
 
+from __future__ import absolute_import
+
 import types
 
 from pxr import Gf
-from qt import QtCore
+from .qt import QtCore
 
 
 class UsdviewApi(object):

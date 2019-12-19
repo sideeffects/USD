@@ -22,6 +22,8 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 
+from __future__ import print_function
+
 from pxr import Usd, UsdSkel, UsdGeom, Vt, Sdf
 import unittest
 
@@ -139,7 +141,7 @@ class TestUsdSkelCache(unittest.TestCase):
 
         cache = UsdSkel.Cache()
         root = UsdSkel.Root(stage.GetPrimAtPath(rootPath))
-        print "Expect warnings about invalid skel:skeletonInstance targets"
+        print("Expect warnings about invalid skel:skeletonInstance targets")
         self.assertTrue(cache.Populate(root))
 
         def _GetSkelQuery(path):

@@ -62,7 +62,11 @@ namespace {
 static TfType
 _GetTfTypeFromPython(PyObject *p)
 {
+#if PY_MAJOR_VERSION >= 3
+    if (PyUnicode_Check(p))
+#else
     if (PyString_Check(p))
+#endif
         return TfType::FindByName( extract<string>(p)() );
     else
         return TfType::FindByPythonClass( object(borrowed(p)) );
@@ -222,7 +226,11 @@ _FindByPythonClass(const boost::python::object & classObj)
     // string typename.  Rather than returning the unknown type (assuming
     // of course that we never declare Python's string type as a TfType),
     // we instead direct the caller to use FindByName().
+#if PY_MAJOR_VERSION >= 3
+    if (PyUnicode_Check(classObj.ptr())) {
+#else
     if (PyString_Check(classObj.ptr())) {
+#endif
         TfPyThrowTypeError("String passed to Tf.Type.Find() -- you probably "
                            "want Tf.Type.FindByName() instead");
     }

@@ -23,6 +23,8 @@
 # language governing permissions and limitations under the Apache License.
 #
 
+from __future__ import print_function
+
 import sys, math
 import unittest
 from pxr import Gf, Tf
@@ -31,7 +33,7 @@ try:
     import numpy
     hasNumpy = True
 except ImportError:
-    print 'numpy not available, skipping buffer protocol tests'
+    print('numpy not available, skipping buffer protocol tests')
     hasNumpy = False
 
 def makeValue( Value, vals ):
@@ -343,7 +345,7 @@ class TestGfMatrix(unittest.TestCase):
                 
             m = Matrix(1,0,0, 1,0,0, 1,0,0)
             # should print a warning
-            print "expect a warning about failed convergence in OrthogonalizeBasis:"
+            print("expect a warning about failed convergence in OrthogonalizeBasis:")
             m.Orthonormalize()
 
             m = Matrix(1,0,0, 1,0,.0001, 0,1,0)
@@ -576,7 +578,7 @@ class TestGfMatrix(unittest.TestCase):
 
             m = Matrix(1,0,0,0,  1,0,0,0,  1,0,0,0,  0,0,0,1)
             # should print a warning
-            print "expect a warning about failed convergence in OrthogonalizeBasis:"
+            print("expect a warning about failed convergence in OrthogonalizeBasis:")
             m.Orthonormalize()
 
             m = Matrix(1,0,0,0,  1,0,.0001,0,  0,1,0,0,  0,0,0,1)

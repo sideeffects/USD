@@ -22,6 +22,8 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 
+from __future__ import print_function
+
 import sys, os, unittest
 from pxr import Usd, Sdf, Gf, Tf
 
@@ -29,7 +31,7 @@ allFormats = ['usd' + x for x in 'ac']
 
 def _AssertTrue(test, errorMessage):
     if not test:
-        print >> sys.stderr, "*** ERROR: " + errorMessage
+        print("*** ERROR: " + errorMessage, file=sys.stderr)
         sys.exit(1)
 
 def _AssertFalse(test, errorMessage):
@@ -414,10 +416,10 @@ class TestUsdCreateProperties(unittest.TestCase):
         self.assertEqual(graphica.SplitName(), ['graphica'])
 
     def test_Namespaces(self):
-        print "Testing namespaces in memory..."
+        print("Testing namespaces in memory...")
         for fmt in allFormats:
             self._NamespacesTestRun(Usd.Stage.CreateInMemory('tag.'+fmt))
-        print "Testing namespaces in binary file..."
+        print("Testing namespaces in binary file...")
         for fmt in allFormats:
             self._NamespacesTestRun(Usd.Stage.CreateNew("namespaceTest."+fmt))
 
@@ -435,7 +437,7 @@ class TestUsdCreateProperties(unittest.TestCase):
             self.assertTrue(Usd.Relationship in map(type, p.GetProperties()))
 
     def test_ResolvedAssetPaths(self):
-        print 'Testing that asset-path-valued attributes give resolved values'
+        print('Testing that asset-path-valued attributes give resolved values')
         import os
 
         for fmt in allFormats:
@@ -444,7 +446,7 @@ class TestUsdCreateProperties(unittest.TestCase):
 
                 self.assertEqual(os.path.split(rootFile.name)[0],
                                  os.path.split(targetFile.name)[0])
-                print rootFile.name, targetFile.name
+                print(rootFile.name, targetFile.name)
 
                 s = Usd.Stage.CreateNew(rootFile.name)
                 foo = s.DefinePrim('/foo')

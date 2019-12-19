@@ -112,7 +112,7 @@ class OpenLayerMenuItem(LayerStackContextMenuItem):
         # Get layer path from item
         layerPath = getattr(self._item, "layerPath")
         if not layerPath:
-            print "Error: Could not find layer file."
+            print("Error: Could not find layer file.")
             return
 
         if Ar.IsPackageRelativePath(layerPath):
@@ -125,10 +125,10 @@ class OpenLayerMenuItem(LayerStackContextMenuItem):
 
         usdeditExe = self._FindUsdEdit()
         if not usdeditExe:
-            print "Warning: Could not find 'usdedit', expected it to be in PATH."
+            print("Warning: Could not find 'usdedit', expected it to be in PATH.")
             return
 
-        print "Opening file: %s" % layerPath
+        print("Opening file: %s" % layerPath)
 
         command =  [usdeditExe,'-n',layerPath,'-p',layerName]
 
@@ -154,7 +154,7 @@ class UsdviewLayerMenuItem(LayerStackContextMenuItem):
         if not layerPath:
             return
 
-        print "Spawning usdview %s" % layerPath
+        print("Spawning usdview %s" % layerPath)
         os.system("usdview %s &" % layerPath)
 
 #

@@ -83,7 +83,12 @@ TfPyInitialize()
 
         // Setting the program name is necessary in order for python to 
         // find the correct built-in modules. 
+#if PY_MAJOR_VERSION >= 3
+	std::wstring wide_program_name(programName.begin(), programName.end());
+        Py_SetProgramName(wide_program_name.c_str());
+#else
         Py_SetProgramName(const_cast<char*>(programName.c_str()));
+#endif
 
         // We're here when this is a C++ program initializing python (i.e. this
         // is a case of "embedding" a python interpreter, as opposed to
@@ -102,9 +107,15 @@ TfPyInitialize()
         sigaction(SIGINT, &origSigintHandler, NULL);
 #endif
 
+#if PY_MAJOR_VERSION >= 3
+        wchar_t emptyArg[] = {'\0'};
+        wchar_t *empty[] = {emptyArg};
+        PySys_SetArgv(1, empty);
+#else
         char emptyArg[] = {'\0'};
         char *empty[] = {emptyArg};
         PySys_SetArgv(1, empty);
+#endif
 
         // Kick the module loading mechanism for any loaded libs that have
         // corresponding python binding modules.  We do this after we've

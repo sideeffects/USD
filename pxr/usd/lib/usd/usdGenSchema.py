@@ -36,6 +36,8 @@ generated that will compile and work with USD Core successfully:
         directly subLayer.
 """
 
+from __future__ import print_function
+
 import sys, os, re, inspect
 from argparse import ArgumentParser
 from collections import namedtuple
@@ -53,11 +55,9 @@ class _Printer():
 
     def __PrintImpl(self, stream, *args):
         if len(args):
-            for arg in args[:-1]:
-                print >>stream, arg,
-            print >>stream, args[-1]
+            print(*args, file=stream)
         else:
-             print >>stream, '\n'
+            print('\n', file=stream)
 
     def __call__(self, *args):
         if not self._quiet:

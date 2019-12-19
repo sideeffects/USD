@@ -182,10 +182,15 @@ struct Vt_ValueFromPython {
         }
         if (PyBool_Check(obj_ptr)) {
             // Python bool -> C++ bool.
+#if PY_MAJOR_VERSION >= 3
+            new (storage) VtValue(bool(PyLong_AS_LONG(obj_ptr)));
+#else
             new (storage) VtValue(bool(PyInt_AS_LONG(obj_ptr)));
+#endif
             data->convertible = storage;
             return;
         }
+#if PY_MAJOR_VERSION < 3
         if (PyInt_Check(obj_ptr)) {
             // Python int -> either c++ int or long depending on range.
             long val = PyInt_AS_LONG(obj_ptr);
@@ -198,6 +203,7 @@ struct Vt_ValueFromPython {
             data->convertible = storage;
             return;
         }
+#endif
         if (PyLong_Check(obj_ptr)) {
             // Python long -> either c++ int or long or unsigned long or long
             // long or unsigned long long or fail, depending on range.
@@ -233,7 +239,11 @@ struct Vt_ValueFromPython {
             data->convertible = storage;
             return;
         }
+#if PY_MAJOR_VERSION >= 3
+        if (PyUnicode_Check(obj_ptr)) {
+#else
         if (PyString_Check(obj_ptr) || PyUnicode_Check(obj_ptr)) {
+#endif
             // Py string or unicode -> std::string.
             new (storage) VtValue(std::string(extract<std::string>(obj_ptr)));
             data->convertible = storage;

@@ -133,9 +133,11 @@ TfPyLock::EndAllowThreads()
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
+#if PY_MAJOR_VERSION < 3
 // See https://github.com/pankajp/pygilstate_check
 //
 PyAPI_DATA(PyThreadState *) _PyThreadState_Current;
+#endif
 
 PXR_NAMESPACE_OPEN_SCOPE
 
@@ -145,7 +147,11 @@ TfPyEnsureGILUnlockedObj::TfPyEnsureGILUnlockedObj()
     // If we have the python lock, call Acquire() (to get the _lock object into
     // the correct state) and then BeginAllowThreads() to unlock it.  Otherwise
     // do nothing.  In Python 3.4+, this can be replaced by PyGILState_Check().
+#if PY_MAJOR_VERSION >= 3
+    PyThreadState *tstate = PyThreadState_GET();
+#else
     PyThreadState *tstate = _PyThreadState_Current;
+#endif
     if (tstate && (tstate == PyGILState_GetThisThreadState())) {
         _lock.Acquire();
         _lock.BeginAllowThreads();

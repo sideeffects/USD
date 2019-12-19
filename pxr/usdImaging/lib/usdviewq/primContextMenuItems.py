@@ -408,7 +408,7 @@ class IsolateAssetMenuItem(PrimContextMenuItem):
         return "usdview asset%s" % name
 
     def RunCommand(self):
-        print "Spawning usdview %s" % self._filePath
+        print("Spawning usdview %s" % self._filePath)
         os.system("usdview %s &" % self._filePath)
 
 #

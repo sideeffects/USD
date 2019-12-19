@@ -23,6 +23,8 @@
 # language governing permissions and limitations under the Apache License.
 #
 
+from __future__ import print_function
+
 import sys, os
 from pxr import Trace, Tf
 
@@ -275,4 +277,4 @@ gc.EndEventAtTime('A', 8.0)
 
 WriteReport(gr, gc, "recursion_marker_merge.out")
 
-print "Test SUCCEEDED"
+print("Test SUCCEEDED")

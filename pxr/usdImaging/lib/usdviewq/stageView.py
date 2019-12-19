@@ -105,9 +105,9 @@ class GLSLProgram():
         GL.glLinkProgram(self.program)
 
         if GL.glGetProgramiv(self.program, GL.GL_LINK_STATUS) == GL.GL_FALSE:
-            print GL.glGetShaderInfoLog(vertexShader)
-            print GL.glGetShaderInfoLog(fragmentShader)
-            print GL.glGetProgramInfoLog(self.program)
+            print(GL.glGetShaderInfoLog(vertexShader))
+            print(GL.glGetShaderInfoLog(fragmentShader))
+            print(GL.glGetProgramInfoLog(self.program))
             GL.glDeleteShader(vertexShader)
             GL.glDeleteShader(fragmentShader)
             GL.glDeleteProgram(self.program)
@@ -546,7 +546,7 @@ class HUD():
         yy = 10 * self._pixelRatio
         lineSpacing = self._HUDLineSpacing * self._pixelRatio
         for key in keys:
-            if not dic.has_key(key):
+            if key not in dic:
                 continue
             line = key.rjust(margin) + ": " + str(prettyPrint(dic[key]))
             # Shadow of text
@@ -2031,7 +2031,7 @@ class StageView(QtOpenGL.QGLWidget):
                 Gf.Range1d(trueFar/FreeCamera.maxSafeZResolution, trueFar)
             pickResults = self.pick(cameraFrustum)
             if Tf.Debug.IsDebugSymbolNameEnabled(DEBUG_CLIPPING):
-                print "computeAndSetClosestDistance: Needed to call pick() a second time"
+                print("computeAndSetClosestDistance: Needed to call pick() a second time")
 
         if pickResults[0] is not None and pickResults[1] != Sdf.Path.emptyPath:
             self._dataModel.viewSettings.freeCamera.setClosestVisibleDistFromPoint(pickResults[0])
@@ -2079,7 +2079,7 @@ class StageView(QtOpenGL.QGLWidget):
                 Gf.Matrix4d(1.0),
                 self._dataModel.stage.GetPseudoRoot(), self._renderParams)
         if Tf.Debug.IsDebugSymbolNameEnabled(DEBUG_CLIPPING):
-            print "Pick results = {}".format(results)
+            print("Pick results = {}".format(results))
 
         self.doneCurrent()
         return results

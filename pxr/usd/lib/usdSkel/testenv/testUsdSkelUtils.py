@@ -22,6 +22,8 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 
+from __future__ import print_function
+
 from pxr import Usd, UsdSkel, Vt, Sdf, Gf, Tf
 import unittest, random
 
@@ -133,7 +135,7 @@ class TestUsdSkelUtils(unittest.TestCase):
 
         # Decomposing singular matrices should fail!
         with self.assertRaises(Tf.ErrorException):
-            print "expect a warning about decomposing a singular matrix"
+            print("expect a warning about decomposing a singular matrix")
             UsdSkel.DecomposeTransform(Gf.Matrix4d(0))
         with self.assertRaises(Tf.ErrorException):
             UsdSkel.DecomposeTransforms(
@@ -158,9 +160,9 @@ class TestUsdSkelUtils(unittest.TestCase):
         assert UsdSkel.NormalizeWeights(Vt.FloatArray(), 4)
 
         # Failure cases.
-        print "expect a warning about an invalid array shape"
+        print("expect a warning about an invalid array shape")
         assert not UsdSkel.NormalizeWeights(Vt.FloatArray([1]), 4)
-        print "expect a warning about an invalid array shape"
+        print("expect a warning about an invalid array shape")
         assert not UsdSkel.NormalizeWeights(Vt.FloatArray([1]), 0)
 
 
@@ -228,9 +230,9 @@ class TestUsdSkelUtils(unittest.TestCase):
 
         # Failure cases
         array = Vt.FloatArray([1])
-        print "expect a warning about an invalid array shape"
+        print("expect a warning about an invalid array shape")
         assert not UsdSkel.ResizeInfluences(array, 3, 2)
-        print "expect a warning about an invalid array shape"
+        print("expect a warning about an invalid array shape")
         assert not UsdSkel.ResizeInfluences(array, 3, 0)
 
 

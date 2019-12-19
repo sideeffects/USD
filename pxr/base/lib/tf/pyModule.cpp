@@ -72,7 +72,11 @@ public:
     {
         if (!_cachedBPFuncType) {
             handle<> typeStr(PyObject_Str((PyObject *)obj.ptr()->ob_type));
+#if PY_MAJOR_VERSION >= 3
+            if (strstr(PyUnicode_AsUTF8(typeStr.get()), "Boost.Python.function")) {
+#else
             if (strstr(PyString_AS_STRING(typeStr.get()), "Boost.Python.function")) {
+#endif
                 _cachedBPFuncType = (PyObject *)obj.ptr()->ob_type;
                 return true;
             }
@@ -85,7 +89,11 @@ public:
     { 
         if (!_cachedBPClassType) {
             handle<> typeStr(PyObject_Str((PyObject *)obj.ptr()->ob_type));
+#if PY_MAJOR_VERSION >= 3
+            if (strstr(PyUnicode_AsUTF8(typeStr.get()), "Boost.Python.class")) {
+#else
             if (strstr(PyString_AS_STRING(typeStr.get()), "Boost.Python.class")) {
+#endif
                 _cachedBPClassType = (PyObject *)obj.ptr()->ob_type;
                 return true;
             }
@@ -119,7 +127,11 @@ private:
             for (size_t i = 0; i < lenItems; ++i) {
                 object value = items[i][1];
                 if (!visitedObjs->count(value.ptr())) {
+#if PY_MAJOR_VERSION >= 3
+                    char const *name = PyUnicode_AsUTF8(object(items[i][0]).ptr());
+#else
                     char const *name = PyString_AS_STRING(object(items[i][0]).ptr());
+#endif
                     bool keepGoing = (this->*callback)(name, obj, value);
                     visitedObjs->insert(value.ptr());
                     if (IsBoostPythonClass(value) && keepGoing) {
@@ -208,9 +220,15 @@ public:
             string *fullNamePrefix = &_newModuleName;
             string localPrefix;
             if (PyObject_HasAttrString(owner.ptr(), "__module__")) {
+#if PY_MAJOR_VERSION >= 3
+                char const *ownerName =
+                    PyUnicode_AsUTF8(PyObject_GetAttrString
+                                       (owner.ptr(), "__name__"));
+#else
                 char const *ownerName =
                     PyString_AS_STRING(PyObject_GetAttrString
                                        (owner.ptr(), "__name__"));
+#endif
                 localPrefix.append(_newModuleName);
                 localPrefix.push_back('.');
                 localPrefix.append(ownerName);
@@ -341,8 +359,13 @@ public:
         , _cachedBPFuncType(0)
         , _cachedBPClassType(0)
     {
+#if PY_MAJOR_VERSION >= 3
+        _oldModuleName =
+            PyUnicode_AsUTF8(object(module.attr("__name__")).ptr());
+#else
         _oldModuleName =
             PyString_AS_STRING(object(module.attr("__name__")).ptr());
+#endif
         _newModuleName = TfStringGetBeforeSuffix(_oldModuleName);
         _newModuleNameObj = object(_newModuleName);
     }

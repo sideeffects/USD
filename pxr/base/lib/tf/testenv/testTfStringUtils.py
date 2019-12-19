@@ -63,14 +63,14 @@ class TestStringUtils(unittest.TestCase):
         functions expecting std::string"""
         self.log.info("Testing unicode calls")
         self.assertEqual(Tf.StringSplit('123', '2'), ['1', '3'])
-        self.assertEqual(Tf.StringSplit('123', u'2'), ['1', '3'])
-        self.assertEqual(Tf.StringSplit(u'123', '2'), ['1', '3'])
-        self.assertEqual(Tf.StringSplit(u'123', u'2'), ['1', '3'])
+        self.assertEqual(Tf.StringSplit('123', '2'), ['1', '3'])
+        self.assertEqual(Tf.StringSplit('123', '2'), ['1', '3'])
+        self.assertEqual(Tf.StringSplit('123', '2'), ['1', '3'])
 
         self.assertEqual(Tf.DictionaryStrcmp('apple', 'banana'), -1)
-        self.assertEqual(Tf.DictionaryStrcmp('apple', u'banana'), -1)
-        self.assertEqual(Tf.DictionaryStrcmp(u'apple', 'banana'), -1)
-        self.assertEqual(Tf.DictionaryStrcmp(u'apple', u'banana'), -1)
+        self.assertEqual(Tf.DictionaryStrcmp('apple', 'banana'), -1)
+        self.assertEqual(Tf.DictionaryStrcmp('apple', 'banana'), -1)
+        self.assertEqual(Tf.DictionaryStrcmp('apple', 'banana'), -1)
 
     def test_StringToLong(self):
 

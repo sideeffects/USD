@@ -21,9 +21,12 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
-from qt import QtCore, QtGui, QtWidgets
 
-from common import Timer
+from __future__ import absolute_import
+
+from .qt import QtCore, QtGui, QtWidgets
+
+from .common import Timer
 
 class VariantComboBox(QtWidgets.QComboBox):
     def __init__(self, parent, prim, variantSetName, mainWindow):

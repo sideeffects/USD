@@ -23,6 +23,8 @@
 # language governing permissions and limitations under the Apache License.
 #
 
+from __future__ import print_function
+
 import sys
 import os
 import time
@@ -80,7 +82,7 @@ class TestTrace(unittest.TestCase):
         gr.UpdateAggregateTree()
 
         beginNodes = GetNodesByKey(gr, 'Begin')
-        print len(beginNodes)
+        print(len(beginNodes))
         self.assertEqual(len(beginNodes) , 3)
 
         for eventNode in beginNodes:
@@ -153,9 +155,9 @@ class TestTrace(unittest.TestCase):
         rootNode = gr.aggregateTreeRoot
         # code cover and check some of the exposed parts of EventNode
         for child in rootNode.children :
-            print "inc: ", "%.3f" % child.inclusiveTime 
-            print "exc: ", "%.3f" % child.exclusiveTime
-            print "cnt: ", "%d" % child.count
+            print("inc: ", "%.3f" % child.inclusiveTime) 
+            print("exc: ", "%.3f" % child.exclusiveTime)
+            print("cnt: ", "%d" % child.count)
             child.expanded = True
             self.assertTrue(child.expanded)
             
@@ -209,7 +211,7 @@ class TestTrace(unittest.TestCase):
         gr.Report()
         self.assertTrue(abs(elapsedSeconds - sleepTime) < 0.05)
 
-        print ""
+        print("")
 
 if __name__ == '__main__':
     unittest.main()

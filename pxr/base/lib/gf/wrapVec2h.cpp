@@ -149,6 +149,13 @@ getbuffer(PyObject *self, Py_buffer *view, int flags) {
 
 // This structure serves to instantiate a PyBufferProcs instance with pointers
 // to the right buffer protocol functions.
+#if PY_MAJOR_VERSION >= 3
+// TODO: This feels like a loss of functionality.
+static PyBufferProcs bufferProcs = {
+    (getbufferproc) getbuffer,
+    (releasebufferproc) 0,
+};
+#else
 static PyBufferProcs bufferProcs = {
     (readbufferproc) getreadbuf,   /*bf_getreadbuffer*/
     (writebufferproc) getwritebuf, /*bf_getwritebuffer*/
@@ -157,6 +164,7 @@ static PyBufferProcs bufferProcs = {
     (getbufferproc) getbuffer,
     (releasebufferproc) 0,
 };
+#endif
 
 // End python buffer protocol support.
 ////////////////////////////////////////////////////////////////////////
@@ -478,8 +486,10 @@ void wrapVec2h()
     // buffer protocol.
     auto *typeObj = reinterpret_cast<PyTypeObject *>(cls.ptr());
     typeObj->tp_as_buffer = &bufferProcs;
+#if PY_MAJOR_VERSION < 3
     typeObj->tp_flags |= (Py_TPFLAGS_HAVE_NEWBUFFER |
                           Py_TPFLAGS_HAVE_GETCHARBUFFER);
+#endif
 
     // Allow appropriate tuples to be passed where Vecs are expected.
     FromPythonTuple();

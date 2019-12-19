@@ -36,6 +36,22 @@ namespace {
 static void
 _SetOutputFile(object const &file)
 {
+#if PY_MAJOR_VERSION >= 3
+    FILE *fp = nullptr;
+
+    object sys(handle<>(PyImport_ImportModule("sys")));
+    if (object(sys.attr("__stdout__")).ptr() == file.ptr()) {
+	fp = stdout;
+    }
+    else if (object(sys.attr("__stderr__")).ptr() == file.ptr()) {
+	fp = stderr;
+    }
+    else
+    {
+	// TfDebug::SetOutputFile(fp) expects either stdout or stderr.
+	TfPyThrowTypeError("expected stdout or stderr object");
+    }
+#else
     FILE *fp = PyFile_AsFile(file.ptr());
     if (!fp)
         TfPyThrowTypeError("expected file object");
@@ -53,6 +69,7 @@ _SetOutputFile(object const &file)
             fp = stderr;
         }
     }
+#endif
 
     TfDebug::SetOutputFile(fp);
 }
