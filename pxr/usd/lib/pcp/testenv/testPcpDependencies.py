@@ -35,6 +35,8 @@ from __future__ import print_function
 from pxr import Sdf, Pcp, Tf
 import os, unittest
 
+from functools import cmp_to_key
+
 class TestPcpDependencies(unittest.TestCase):
     # Fully populate a PcpCache so we can examine its full dependencies.
     def _ForcePopulateCache(self, cache):
@@ -67,6 +69,14 @@ class TestPcpDependencies(unittest.TestCase):
 
     # Helper to compare dep results and print diffs.
     def _AssertDepsEqual(self, deps_lhs, deps_rhs):
+        def _cmp(v1, v2):
+            if v1 < v2:
+                return -1
+            elif v1 == v2:
+                return 0
+            elif v1 > v2:
+                return 1
+
         def _LessThan(a, b):
             if a.indexPath < b.indexPath:
                 return -1
@@ -76,9 +86,9 @@ class TestPcpDependencies(unittest.TestCase):
                 return -1
             if a.sitePath > b.sitePath:
                 return 1
-            return cmp(id(a.mapFunc), id(b.mapFunc))
-        a = sorted(deps_lhs, _LessThan)
-        b = sorted(deps_rhs, _LessThan)
+            return _cmp(id(a.mapFunc), id(b.mapFunc))
+        a = sorted(deps_lhs, key=cmp_to_key(_LessThan))
+        b = sorted(deps_rhs, key=cmp_to_key(_LessThan))
         if a != b:
             print('Only in a:')
             for i in a:

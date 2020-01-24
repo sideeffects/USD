@@ -22,8 +22,12 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 
+from __future__ import print_function
+
 from pxr import Tf, Sdf, Usd, UsdMtlx, UsdShade
 import unittest
+
+import six
 
 def _EmptyLayer():
     stage = Usd.Stage.CreateInMemory()
@@ -139,7 +143,7 @@ class TestFileFormat(unittest.TestCase):
             'weight_3':
             '/MaterialX/Materials/layered/NodeGraphs/layered_layer3_gradient'
         }
-        for inputName, source in inputToSource.iteritems():
+        for inputName, source in six.iteritems(inputToSource):
             input = nodeGraph.GetInput(inputName)
             self.assertEqual(input.HasConnectedSource(), True)
             self.assertEqual(input.GetConnectedSource()[0].GetPath(), source)

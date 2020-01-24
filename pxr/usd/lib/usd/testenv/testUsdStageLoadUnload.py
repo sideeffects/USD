@@ -396,8 +396,9 @@ class TestUsdLoadUnload(unittest.TestCase):
             prim.GetPayloads().AddInternalPayload(payload.GetPath())
 
         # Add payloads to all prims except leaf 'prim's and '__payload'.
-        map(addPayload, [prim for prim in s.TraverseAll()
-                         if prim.GetName() not in ('prim', '__payload')])
+        for prim in s.TraverseAll():
+            if prim.GetName() not in ('prim', '__payload'):
+                addPayload(prim)
 
         # Create a new stage, with nothing loaded.
         testStage = Usd.Stage.Open(s.GetRootLayer(), load=Usd.Stage.LoadNone)

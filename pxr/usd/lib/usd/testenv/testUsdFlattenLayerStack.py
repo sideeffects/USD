@@ -21,6 +21,9 @@
 # distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
+
+from __future__ import print_function
+
 from pxr import Sdf, Usd, Gf, Vt, Plug
 import os, unittest
 
@@ -35,10 +38,10 @@ class TestUsdFlattenLayerStack(unittest.TestCase):
         # Confirm that the tag makde it into the display name.
         self.assertTrue('test.usda' in layer.GetDisplayName())
 
-        print '#'*72
-        print 'Flattened layer:'
-        print layer.ExportToString()
-        print '#'*72
+        print('#'*72)
+        print('Flattened layer:')
+        print(layer.ExportToString())
+        print('#'*72)
 
         # Run the same set of queries against the src and dest stages.
         # They should yield the same results.

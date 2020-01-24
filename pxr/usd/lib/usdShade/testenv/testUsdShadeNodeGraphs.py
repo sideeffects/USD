@@ -25,6 +25,8 @@
 from pxr import Sdf, Usd, UsdShade
 import unittest
 
+import six
+
 NODEGRAPH_PATH = Sdf.Path('/MyNodeGraph')
 NESTED_NODEGRAPH_PATH = Sdf.Path('/MyNodeGraph/NestedNodeGraph')
 NESTED_NODEGRAPH_SHADER_PATH = Sdf.Path('/MyNodeGraph/NestedNodeGraph/NestedShader')
@@ -179,7 +181,7 @@ class TestUsdShadeNodeGraphs(unittest.TestCase):
     
         # Test ComputeInterfaceInputConsumersMap.
         inputConsumersMap = nodeGraph.ComputeInterfaceInputConsumersMap()
-        for shadeInput, consumers in inputConsumersMap.iteritems():
+        for shadeInput, consumers in six.iteritems(inputConsumersMap):
             if shadeInput.GetBaseName() == "InputOne":
                 self.assertEqual(len(consumers), 1)
                 self.assertEqual(consumers[0].GetFullName(), "inputs:ParamOne")

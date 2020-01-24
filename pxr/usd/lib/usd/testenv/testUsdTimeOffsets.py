@@ -298,8 +298,8 @@ class TestUsdTimeOffsets(unittest.TestCase):
                      attr.Get(time=2.0)))
                 # Check that the time value in the reference is correctly
                 # transformed.
-                authoredTime = barRef.attributes[
-                    'attr'].GetInfo('timeSamples').keys()[0]
+                authoredTime = list(barRef.attributes[
+                    'attr'].GetInfo('timeSamples').keys())[0]
                 self.assertEqual(
                     Usd.PrepLayerOffset(refOffset).GetInverse() * 2.0,
                     authoredTime)
@@ -316,8 +316,8 @@ class TestUsdTimeOffsets(unittest.TestCase):
                      attr.Get(time=2.0)))
                 # Check that the time value in the payload is correctly
                 # transformed.
-                authoredTime = bazPayload.attributes[
-                    'attrFromBaz'].GetInfo('timeSamples').keys()[0]
+                authoredTime = list(bazPayload.attributes[
+                    'attrFromBaz'].GetInfo('timeSamples').keys())[0]
                 self.assertEqual(
                     Usd.PrepLayerOffset(payloadOffset).GetInverse() * 2.0,
                     authoredTime)
@@ -332,8 +332,8 @@ class TestUsdTimeOffsets(unittest.TestCase):
                          attr.Get(time=2.0)))
                 # Check that the time value in the sublayer is correctly
                 # transformed.
-                authoredTime = subLayer.GetAttributeAtPath(
-                    '/Foo.attr').GetInfo('timeSamples').keys()[0]
+                authoredTime = list(subLayer.GetAttributeAtPath(
+                    '/Foo.attr').GetInfo('timeSamples').keys())[0]
                 self.assertEqual(
                     Usd.PrepLayerOffset(subOffset).GetInverse() * 2.0,
                     authoredTime)

@@ -29,10 +29,6 @@
 
 #include <boost/python/def.hpp>
 
-#if PY_MAJOR_VERSION >= 3
-#include <stdio.h>
-#endif
-
 using namespace boost::python;
 
 PXR_NAMESPACE_USING_DIRECTIVE
@@ -42,30 +38,28 @@ namespace {
 static void
 _PrintStackTrace(object &obj, const std::string &reason)
 {
-#if PY_MAJOR_VERSION >= 3
-    int fd = PyObject_AsFileDescriptor(obj.ptr());
-    if (fd != -1) {
-        FILE * file = ::fdopen(fd, "a");
-        if (file)
-            TfPrintStackTrace(file, reason);
-	::fflush(file);
-	::fclose(file);
-    }
-    else {
-        // Wrong type for obj
-        TfPyThrowTypeError("Expected file object.");
-    }
-#else
+#if PY_MAJOR_VERSION < 3
     if (PyFile_Check(obj.ptr())) {
         FILE * file = expect_non_null(PyFile_AsFile(obj.ptr()));
         if (file)
             TfPrintStackTrace(file, reason);
     }
+#else
+    int fd = PyObject_AsFileDescriptor(obj.ptr());
+    if (fd >= 0)
+    {
+        FILE * file = expect_non_null(fdopen(fd, "w"));
+        if (file)
+        {
+            TfPrintStackTrace(file, reason);
+            fclose(file);
+        }
+    }
+#endif
     else {
         // Wrong type for obj
         TfPyThrowTypeError("Expected file object.");
     }
-#endif
 }
 
 } // anonymous namespace 

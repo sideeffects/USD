@@ -51,9 +51,9 @@ class TestGfIntervalSet(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Test utility functions
-        self.assertEqual(list(subsets([1,2,3])),
+        cls.assertEqual(list(subsets([1,2,3])),
             [[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]])
-        self.assertEqual(list(permute([1,2,3])),
+        cls.assertEqual(list(permute([1,2,3])),
             [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]])
 
     def runTest(self):

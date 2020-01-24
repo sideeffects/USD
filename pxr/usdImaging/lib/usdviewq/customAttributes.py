@@ -23,7 +23,7 @@
 #
 
 from pxr import Usd, UsdGeom, UsdShade
-from constantGroup import ConstantGroup
+from .constantGroup import ConstantGroup
 
 
 class ComputedPropertyNames(ConstantGroup):

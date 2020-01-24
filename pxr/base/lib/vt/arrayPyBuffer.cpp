@@ -330,24 +330,17 @@ struct Vt_ArrayBufferProcs
 {
     static PyBufferProcs procs;
 };
-#if PY_MAJOR_VERSION >= 3
-// TODO: This feels like a loss of functionality.
 template <class T>
 PyBufferProcs Vt_ArrayBufferProcs<T>::procs = {
-    (getbufferproc) Vt_getbuffer<T>,
-    (releasebufferproc) Vt_releasebuffer<T>,
-};
-#else
-template <class T>
-PyBufferProcs Vt_ArrayBufferProcs<T>::procs = {
+#if PY_MAJOR_VERSION < 3
     (readbufferproc) Vt_getreadbuf<T>,   /*bf_getreadbuffer*/
     (writebufferproc) Vt_getwritebuf<T>, /*bf_getwritebuffer*/
     (segcountproc) Vt_getsegcount<T>,    /*bf_getsegcount*/
     (charbufferproc) Vt_getcharbuf<T>,   /*bf_getcharbuffer*/
+#endif
     (getbufferproc) Vt_getbuffer<T>,
     (releasebufferproc) Vt_releasebuffer<T>,
 };
-#endif
 
 ////////////////////////////////////////////////////////////////////////
 // Top-level protocol install functions.
@@ -371,10 +364,8 @@ Vt_AddBufferProtocol()
     // to indicate that this type supports the buffer protocol.
     auto *typeObj = reinterpret_cast<PyTypeObject *>(cls.ptr());
     typeObj->tp_as_buffer = &Vt_ArrayBufferProcs<ArrayType>::procs;
-#if PY_MAJOR_VERSION < 3
     typeObj->tp_flags |= (Py_TPFLAGS_HAVE_NEWBUFFER |
                           Py_TPFLAGS_HAVE_GETCHARBUFFER);
-#endif
 }
 
 

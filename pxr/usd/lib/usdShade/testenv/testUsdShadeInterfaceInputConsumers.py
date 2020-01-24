@@ -25,6 +25,8 @@
 from pxr import Sdf, Usd, UsdShade
 import unittest
 
+import six
+
 MaterialPath = Sdf.Path("/Material")
 
 Shader1Path = Sdf.Path("/Material/Shader1")
@@ -143,7 +145,7 @@ class TestUsdShadeInterfaceInputConsumer(unittest.TestCase):
         interfaceConsumersMapping = material.ComputeInterfaceInputConsumersMap()
         self.assertEqual(len(interfaceConsumersMapping), 2)
 
-        for interfaceInput, consumers in interfaceConsumersMapping.iteritems():
+        for interfaceInput, consumers in six.iteritems(interfaceConsumersMapping):
             if interfaceInput.GetAttr().GetBaseName() == "floatInput":
                 self.assertEqual(set([i.GetAttr().GetBaseName() for i in consumers]), 
                                  set(["nodeGraph1FloatInput", "nodeGraph2FloatInput",
@@ -159,7 +161,7 @@ class TestUsdShadeInterfaceInputConsumer(unittest.TestCase):
         transitiveInterfaceMapping = material.ComputeInterfaceInputConsumersMap(True)
         self.assertEqual(len(transitiveInterfaceMapping), 2)
 
-        for interfaceInput, consumers in transitiveInterfaceMapping.iteritems():
+        for interfaceInput, consumers in six.iteritems(transitiveInterfaceMapping):
             if interfaceInput.GetAttr().GetBaseName() == "floatInput":
                 self.assertEqual(set([i.GetAttr().GetBaseName() for i in consumers]), 
                                  set(["nestedShader1Input2", "nestedShader2Input1",

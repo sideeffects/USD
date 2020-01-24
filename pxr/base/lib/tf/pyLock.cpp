@@ -147,12 +147,12 @@ TfPyEnsureGILUnlockedObj::TfPyEnsureGILUnlockedObj()
     // If we have the python lock, call Acquire() (to get the _lock object into
     // the correct state) and then BeginAllowThreads() to unlock it.  Otherwise
     // do nothing.  In Python 3.4+, this can be replaced by PyGILState_Check().
-#if PY_MAJOR_VERSION >= 3
-    PyThreadState *tstate = PyThreadState_GET();
-#else
+#if PY_MAJOR_VERSION < 3
     PyThreadState *tstate = _PyThreadState_Current;
-#endif
     if (tstate && (tstate == PyGILState_GetThisThreadState())) {
+#else
+    if (PyGILState_Check()) {
+#endif
         _lock.Acquire();
         _lock.BeginAllowThreads();
     }        

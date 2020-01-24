@@ -25,10 +25,10 @@
 from collections import OrderedDict
 
 from pxr import Sdf, Gf
-from qt import QtCore
+from .qt import QtCore
 
-from customAttributes import (ComputedPropertyNames, BoundingBoxAttribute,
-    LocalToWorldXformAttribute, ComputedPropertyFactory)
+from .customAttributes import (ComputedPropertyNames, BoundingBoxAttribute,
+                               LocalToWorldXformAttribute, ComputedPropertyFactory)
 
 
 # Indicates that all instances of a prim are selected.

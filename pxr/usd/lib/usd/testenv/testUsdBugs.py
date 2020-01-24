@@ -24,6 +24,8 @@
 
 import unittest
 
+import six
+
 class TestUsdBugs(unittest.TestCase):
     def test_153956(self):
         from pixar import Sdf
@@ -193,7 +195,7 @@ class TestUsdBugs(unittest.TestCase):
         # but it's easier to reproduce with more instance prims.
         numInstancePrims = 50
         instancePrimPaths = [Sdf.Path('/Instance_{}'.format(i))
-                             for i in xrange(numInstancePrims)]
+                             for i in six.moves.range(numInstancePrims)]
         for path in instancePrimPaths:
             instancePrim = Sdf.CreatePrimInLayer(l, path)
             instancePrim.instanceable = True
@@ -420,6 +422,8 @@ class TestUsdBugs(unittest.TestCase):
             foo = Sdf.CreatePrimInLayer(layer, '/foo')
             attr = Sdf.AttributeSpec(foo, 'attr', Sdf.ValueTypeNames.IntArray)
             ints = range(1024**2)
+            if sys.version_info.major >= 3:
+                ints = list(ints)
             random.shuffle(ints)
             attr.default = Vt.IntArray(ints)
             layer.Save()

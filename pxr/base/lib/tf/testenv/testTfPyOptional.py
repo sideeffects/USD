@@ -48,8 +48,12 @@ class TestTfPyOptional(unittest.TestCase):
         self.assertEqual(Test.TestOptionalDouble(-7e-7), -7e-7)
         self.assertAlmostEqual(Test.TestOptionalFloat(7e-7), 7e-7)
         self.assertAlmostEqual(Test.TestOptionalFloat(7e-7), 7e-7)
-        self.assertEqual(Test.TestOptionalLong(-sys.maxint - 1), -sys.maxint - 1)
-        self.assertEqual(Test.TestOptionalULong(sys.maxint + 1),  sys.maxint + 1)
+        if sys.version_info.major >= 3:
+            self.assertEqual(Test.TestOptionalLong(-sys.maxsize - 1), -sys.maxsize - 1)
+            self.assertEqual(Test.TestOptionalULong(sys.maxsize + 1),  sys.maxsize + 1)
+        else:
+            self.assertEqual(Test.TestOptionalLong(-sys.maxint - 1), -sys.maxint - 1)
+            self.assertEqual(Test.TestOptionalULong(sys.maxint + 1),  sys.maxint + 1)
         self.assertEqual(Test.TestOptionalInt(-7), -7)
         self.assertEqual(Test.TestOptionalUInt(7), 7)
         self.assertEqual(Test.TestOptionalChar('c'), 'c')
@@ -60,7 +64,10 @@ class TestTfPyOptional(unittest.TestCase):
         with self.assertRaises(Exception):
             Test.TestOptionalString(43)
         with self.assertRaises(Exception):
-            Test.TestOptionalInt(sys.maxint + 1)
+            if sys.version_info.major >= 3:
+                Test.TestOptionalInt(sys.maxsize + 1)
+            else:
+                Test.TestOptionalInt(sys.maxint + 1)
         with self.assertRaises(Exception):
             Test.TestOptionalUInt(-7)
         with self.assertRaises(Exception):

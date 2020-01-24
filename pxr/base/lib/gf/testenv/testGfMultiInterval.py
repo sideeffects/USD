@@ -68,6 +68,9 @@ class TestGfMultiInterval(unittest.TestCase):
 
         testSets = map(Gf.MultiInterval, intervals)
 
+        if sys.version_info.major >= 3:
+            testSets = list(testSets)
+
         # Test empty multi-intervals
         self.assertEqual(Gf.MultiInterval(), Gf.MultiInterval())
         self.assertEqual(Gf.MultiInterval(), Gf.MultiInterval( Gf.Interval() ))
@@ -139,7 +142,7 @@ class TestGfMultiInterval(unittest.TestCase):
         for r in range(num):
             # Testing only on at least two intervals
             s = r + 2
-            for p in permute(range(s)):
+            for p in permute(list(range(s))):
                 # Adding range of [i, i+1) intervals should leave one interval in the set
                 x = Gf.MultiInterval()
                 for i in p:

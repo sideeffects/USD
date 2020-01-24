@@ -24,7 +24,14 @@
 """A module for persisting usdview settings
 """
 
-from cPickle import dump, load
+from __future__ import print_function
+
+import sys
+
+if sys.version_info.major >= 3:
+    from pickle import dump, load
+else:
+    from cPickle import dump, load
 
 def EmitWarning(filePath):
     """Send a warning because the settings file should never fail to load
@@ -32,17 +39,17 @@ def EmitWarning(filePath):
     import traceback
     import sys
     msg = sys.stderr
-    print >> msg, "------------------------------------------------------------"
-    print >> msg, "WARNING: Unknown problem while trying to access settings:"
-    print >> msg, "------------------------------------------------------------"
-    print >> msg, "This message is being sent because the settings file (%s) " \
-                  "could not be read" % filePath
-    print >> msg, "--"
+    print("------------------------------------------------------------", file=msg)
+    print("WARNING: Unknown problem while trying to access settings:", file=msg)
+    print("------------------------------------------------------------", file=msg)
+    print("This message is being sent because the settings file (%s) " \
+                  "could not be read" % filePath, file=msg)
+    print("--", file=msg)
     traceback.print_exc(file=msg)
-    print >> msg, "--"
-    print >> msg, "Please file a bug if this warning persists"
-    print >> msg, "Attempting to continue... "
-    print >> msg, "------------------------------------------------------------"
+    print("--", file=msg)
+    print("Please file a bug if this warning persists", file=msg)
+    print("Attempting to continue... ", file=msg)
+    print("------------------------------------------------------------", file=msg)
 
 class Settings(dict):
     """A small wrapper around the standard Python dictionary.

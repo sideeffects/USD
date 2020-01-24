@@ -33,6 +33,8 @@ from __future__ import print_function
 from pxr import Usd, Sdf, Tf
 import unittest
 
+import six
+
 def ValidateExpectedInstances(stage, expectedInstances):
     """
     Validate the expected instances and masters on the given stage.
@@ -500,7 +502,7 @@ class TestUsdInstancing(unittest.TestCase):
         print("-" * 60)
         print("Stress-test loading and unloading instances")
 
-        for _ in xrange(100):
+        for _ in six.moves.range(100):
             s.LoadAndUnload(instances, [])
             s.LoadAndUnload([], instances)
 
@@ -567,7 +569,7 @@ class TestUsdInstancing(unittest.TestCase):
         ValidateExpectedChanges(nl, ['/ModelGroup_2'])
 
         print("-" * 60)
-        print "Unloading instance /ModelGroup_1"
+        print("Unloading instance /ModelGroup_1")
         group_1.Unload()
 
         ValidateExpectedInstances(s, 

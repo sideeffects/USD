@@ -72,47 +72,14 @@ void BOOST_PP_CAT(init_module_, MFB_PACKAGE_NAME)() {
 
 PXR_NAMESPACE_CLOSE_SCOPE
 
+#if PY_MAJOR_VERSION < 3
 // When we generate boost python bindings for a library named Foo, 
 // we generate a python package that has __init__.py and _Foo.so, 
 // and we put all the python bindings in _Foo.so.  The __init__.py 
 // file imports _Foo and then publishes _Foo's symbols as its own.  
 // Since the module with the bindings is named _Foo, the init routine 
-// must be named init_Foo (Python 2) or PyInit_Foo (Python 3).
-// This little block produces that function.
+// must be named init_Foo.  This little block produces that function.
 //
-#if PY_MAJOR_VERSION >= 3
-
-// TODO: This was pulled from boost/python/module_init.hpp.
-//	 Perhaps BOOST_PYTHON_MODULE_INIT() could be used instead?
-extern "C"
-ARCH_EXPORT
-PyObject* BOOST_PP_CAT(PyInit__, MFB_PACKAGE_NAME)() {
-    PXR_NAMESPACE_USING_DIRECTIVE
-
-    static PyModuleDef_Base initial_m_base = {
-        PyObject_HEAD_INIT(NULL)
-        0, /* m_init */
-        0, /* m_index */
-        0 /* m_copy */ }; 
-    static PyMethodDef initial_methods[] = { { 0, 0, 0, 0 } };
-
-    static struct PyModuleDef moduledef = {
-        initial_m_base,
-        BOOST_PP_STRINGIZE(BOOST_PP_CAT(_,MFB_PACKAGE_NAME)),
-        0, /* m_doc */
-        -1, /* m_size */
-        initial_methods,
-        0,  /* m_reload */
-        0, /* m_traverse */
-        0, /* m_clear */
-        0,  /* m_free */
-    };
-
-    return boost::python::detail::init_module(
-        moduledef, BOOST_PP_CAT(&init_module_, MFB_PACKAGE_NAME) );
-}
-
-#else
 extern "C"
 ARCH_EXPORT
 void BOOST_PP_CAT(init_, MFB_PACKAGE_NAME)() {
@@ -121,7 +88,6 @@ void BOOST_PP_CAT(init_, MFB_PACKAGE_NAME)() {
         (BOOST_PP_STRINGIZE(BOOST_PP_CAT(_,MFB_PACKAGE_NAME)),
          BOOST_PP_CAT(&init_module_, MFB_PACKAGE_NAME));
 }
-#endif
 
 // We also support the case where both the library contents and the 
 // python bindings go into libfoo.so.  We still generate a package named foo
@@ -135,23 +101,31 @@ void BOOST_PP_CAT(init_, MFB_PACKAGE_NAME)() {
 // when the module is imported.  So the total cost is a 1-line
 // function that doesn't get called.
 //
-#if PY_MAJOR_VERSION >= 3
-// This was pulled from boost/python/module_init.hpp.
 extern "C"
 ARCH_EXPORT
-PyObject* BOOST_PP_CAT(PyInit_lib, MFB_PACKAGE_NAME)() {
+void BOOST_PP_CAT(initlib, MFB_PACKAGE_NAME)() {
     PXR_NAMESPACE_USING_DIRECTIVE
+    boost::python::detail::init_module
+        (BOOST_PP_STRINGIZE(BOOST_PP_CAT(lib,MFB_PACKAGE_NAME)),
+         BOOST_PP_CAT(&init_module_, MFB_PACKAGE_NAME));
+}
+
+#else // Python 3:
+
+extern "C"
+ARCH_EXPORT
+PyObject* BOOST_PP_CAT(PyInit__, MFB_PACKAGE_NAME)() {
 
     static PyModuleDef_Base initial_m_base = {
         PyObject_HEAD_INIT(NULL)
         0, /* m_init */
         0, /* m_index */
-        0 /* m_copy */ }; 
+        0 /* m_copy */ };
     static PyMethodDef initial_methods[] = { { 0, 0, 0, 0 } };
 
     static struct PyModuleDef moduledef = {
         initial_m_base,
-        BOOST_PP_STRINGIZE(BOOST_PP_CAT(lib,MFB_PACKAGE_NAME)),
+        BOOST_PP_STRINGIZE(BOOST_PP_CAT(_, MFB_PACKAGE_NAME)),
         0, /* m_doc */
         -1, /* m_size */
         initial_methods,
@@ -161,20 +135,39 @@ PyObject* BOOST_PP_CAT(PyInit_lib, MFB_PACKAGE_NAME)() {
         0,  /* m_free */
     };
 
-    return boost::python::detail::init_module(
-        moduledef, BOOST_PP_CAT(&init_module_, MFB_PACKAGE_NAME) );
+    PXR_NAMESPACE_USING_DIRECTIVE
+    return boost::python::detail::init_module(moduledef, BOOST_PP_CAT(init_module_, MFB_PACKAGE_NAME));
 }
 
-#else
 extern "C"
 ARCH_EXPORT
-void BOOST_PP_CAT(initlib, MFB_PACKAGE_NAME)() {
+PyObject* BOOST_PP_CAT(PyInit_lib, MFB_PACKAGE_NAME)() {
+    static PyModuleDef_Base initial_m_base = {
+        PyObject_HEAD_INIT(NULL)
+        0, /* m_init */
+        0, /* m_index */
+        0 /* m_copy */ };
+    static PyMethodDef initial_methods[] = { { 0, 0, 0, 0 } };
+
+    static struct PyModuleDef moduledef = {
+        initial_m_base,
+        BOOST_PP_STRINGIZE(BOOST_PP_CAT(lib, MFB_PACKAGE_NAME)),
+        0, /* m_doc */
+        -1, /* m_size */
+        initial_methods,
+        0,  /* m_reload */
+        0, /* m_traverse */
+        0, /* m_clear */
+        0,  /* m_free */
+    };
+
     PXR_NAMESPACE_USING_DIRECTIVE
-    boost::python::detail::init_module
-        (BOOST_PP_STRINGIZE(BOOST_PP_CAT(lib,MFB_PACKAGE_NAME)),
-         BOOST_PP_CAT(&init_module_, MFB_PACKAGE_NAME));
+        return boost::python::detail::init_module(moduledef, BOOST_PP_CAT(init_module_, MFB_PACKAGE_NAME));
 }
+
+
 #endif
+
 
 #define TF_WRAP_MODULE static void WrapModule()
 

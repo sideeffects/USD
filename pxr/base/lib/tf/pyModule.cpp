@@ -72,11 +72,7 @@ public:
     {
         if (!_cachedBPFuncType) {
             handle<> typeStr(PyObject_Str((PyObject *)obj.ptr()->ob_type));
-#if PY_MAJOR_VERSION >= 3
-            if (strstr(PyUnicode_AsUTF8(typeStr.get()), "Boost.Python.function")) {
-#else
-            if (strstr(PyString_AS_STRING(typeStr.get()), "Boost.Python.function")) {
-#endif
+            if (strstr(PyString_AsStdString(typeStr.get()).c_str(), "Boost.Python.function")) {
                 _cachedBPFuncType = (PyObject *)obj.ptr()->ob_type;
                 return true;
             }
@@ -89,11 +85,7 @@ public:
     { 
         if (!_cachedBPClassType) {
             handle<> typeStr(PyObject_Str((PyObject *)obj.ptr()->ob_type));
-#if PY_MAJOR_VERSION >= 3
-            if (strstr(PyUnicode_AsUTF8(typeStr.get()), "Boost.Python.class")) {
-#else
-            if (strstr(PyString_AS_STRING(typeStr.get()), "Boost.Python.class")) {
-#endif
+            if (strstr(PyString_AsStdString(typeStr.get()).c_str(), "Boost.Python.class")) {
                 _cachedBPClassType = (PyObject *)obj.ptr()->ob_type;
                 return true;
             }
@@ -121,18 +113,22 @@ private:
     void _WalkModule(object const &obj, WalkCallbackFn callback,
                      TfHashSet<PyObject *, TfHash> *visitedObjs)
     {
+#if PY_MAJOR_VERSION >= 3
+        if (PyObject_HasAttrString(obj.ptr(), "__dict__")) {
+
+            object itemsObject = obj.attr("__dict__").attr("items")();
+            handle<> listDebug(PyObject_CallFunction((PyObject*)&PyList_Type, "O", itemsObject.ptr()));
+            list items = list(listDebug);
+#else
         if (PyObject_HasAttrString(obj.ptr(), "__dict__")) {
             list items = extract<list>(obj.attr("__dict__").attr("items")());
+#endif
             size_t lenItems = len(items);
             for (size_t i = 0; i < lenItems; ++i) {
                 object value = items[i][1];
                 if (!visitedObjs->count(value.ptr())) {
-#if PY_MAJOR_VERSION >= 3
-                    char const *name = PyUnicode_AsUTF8(object(items[i][0]).ptr());
-#else
-                    char const *name = PyString_AS_STRING(object(items[i][0]).ptr());
-#endif
-                    bool keepGoing = (this->*callback)(name, obj, value);
+                    const std::string name = PyString_AsStdString(object(items[i][0]).ptr());
+                    bool keepGoing = (this->*callback)(name.c_str(), obj, value);
                     visitedObjs->insert(value.ptr());
                     if (IsBoostPythonClass(value) && keepGoing) {
                         _WalkModule(value, callback, visitedObjs);
@@ -220,18 +216,12 @@ public:
             string *fullNamePrefix = &_newModuleName;
             string localPrefix;
             if (PyObject_HasAttrString(owner.ptr(), "__module__")) {
-#if PY_MAJOR_VERSION >= 3
-                char const *ownerName =
-                    PyUnicode_AsUTF8(PyObject_GetAttrString
+                const std::string ownerName =
+                    PyString_AsStdString(PyObject_GetAttrString
                                        (owner.ptr(), "__name__"));
-#else
-                char const *ownerName =
-                    PyString_AS_STRING(PyObject_GetAttrString
-                                       (owner.ptr(), "__name__"));
-#endif
                 localPrefix.append(_newModuleName);
                 localPrefix.push_back('.');
-                localPrefix.append(ownerName);
+                localPrefix.append(ownerName.c_str());
                 fullNamePrefix = &localPrefix;
             }
 
@@ -313,7 +303,7 @@ public:
             }
             return false;
         } else if (IsClassMethod(obj)) {
-            object underlyingFn = obj.attr("__get__")(owner).attr("im_func");
+            object underlyingFn = obj.attr("__get__")(owner).attr(PyClassMethodFuncName);
             if (IsBoostPythonFunc(underlyingFn)) {
                 // Replace owner's name attribute with a new classmethod, decorating
                 // the underlying function.
@@ -359,13 +349,9 @@ public:
         , _cachedBPFuncType(0)
         , _cachedBPClassType(0)
     {
-#if PY_MAJOR_VERSION >= 3
+        auto obj = object(module.attr("__name__"));
         _oldModuleName =
-            PyUnicode_AsUTF8(object(module.attr("__name__")).ptr());
-#else
-        _oldModuleName =
-            PyString_AS_STRING(object(module.attr("__name__")).ptr());
-#endif
+            PyString_AsStdString(obj.ptr());
         _newModuleName = TfStringGetBeforeSuffix(_oldModuleName);
         _newModuleNameObj = object(_newModuleName);
     }

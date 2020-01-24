@@ -29,7 +29,7 @@ from math import tan, floor, ceil, radians as rad, isinf
 import os, sys
 from time import time
 
-from qt import QtCore, QtGui, QtWidgets, QtOpenGL
+from .qt import QtCore, QtGui, QtWidgets, QtOpenGL
 
 from pxr import Tf
 from pxr import Gf
@@ -38,13 +38,13 @@ from pxr import Sdf, Usd, UsdGeom
 from pxr import UsdImagingGL
 from pxr import CameraUtil
 
-from common import (RenderModes, ColorCorrectionModes, ShadedRenderModes, Timer,
-                    ReportMetricSize, GetInstanceIndicesForIds,
-                    SelectionHighlightModes, DEBUG_CLIPPING)
-from rootDataModel import RootDataModel
-from selectionDataModel import ALL_INSTANCES, SelectionDataModel
-from viewSettingsDataModel import ViewSettingsDataModel
-from freeCamera import FreeCamera
+from .common import (RenderModes, ColorCorrectionModes, ShadedRenderModes, Timer,
+                     ReportMetricSize, GetInstanceIndicesForIds,
+                     SelectionHighlightModes, DEBUG_CLIPPING)
+from .rootDataModel import RootDataModel
+from .selectionDataModel import ALL_INSTANCES, SelectionDataModel
+from .viewSettingsDataModel import ViewSettingsDataModel
+from .freeCamera import FreeCamera
 
 # A viewport rectangle to be used for GL must be integer values.
 # In order to loose the least amount of precision the viewport
@@ -532,7 +532,7 @@ class HUD():
         painter = group.painter
         painter.begin(group.qimage)
 
-        from prettyPrint import prettyPrint
+        from .prettyPrint import prettyPrint
         if keys is None:
             keys = sorted(dic.keys())
 

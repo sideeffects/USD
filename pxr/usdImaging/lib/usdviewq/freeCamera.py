@@ -22,11 +22,13 @@
 # language governing permissions and limitations under the Apache License.
 #
 
+from __future__ import absolute_import
+
 from math import atan, radians as rad
 from pxr import Gf, Tf
 
-from qt import QtCore
-from common import DEBUG_CLIPPING
+from .qt import QtCore
+from .common import DEBUG_CLIPPING
 
 # FreeCamera inherits from QObject only so that it can send signals...
 # which is really a pretty nice, easy to use notification system.

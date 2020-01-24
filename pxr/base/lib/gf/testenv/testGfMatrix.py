@@ -124,6 +124,8 @@ class TestGfMatrix(unittest.TestCase):
             #
             size = Matrix.dimension[0] * Matrix.dimension[1]
             contents = range(1, size + 1)
+            if sys.version_info.major >= 3:
+                contents = list(contents)
             md = Matrix(*contents)
             mf = Matrixf(*contents)
             self.assertEqual(md, mf)

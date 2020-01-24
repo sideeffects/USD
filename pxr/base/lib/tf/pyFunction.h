@@ -168,18 +168,14 @@ struct TfPyFunctionFromPython<Ret (Args...)>
                 object func(handle<>(borrowed(PyMethod_GET_FUNCTION(
                                                   pyCallable))));
                 object weakSelf(handle<>(PyWeakref_NewRef(self, NULL)));
-#if PY_MAJOR_VERSION >= 3
                 new (storage)
                     FuncType(CallMethod{
                             TfPyObjWrapper(func),
-                                TfPyObjWrapper(weakSelf)});
-#else
-                new (storage)
-                    FuncType(CallMethod{
-                            TfPyObjWrapper(func),
-                                TfPyObjWrapper(weakSelf),
-                                TfPyObjWrapper(cls)});
+                                TfPyObjWrapper(weakSelf)
+#if PY_MAJOR_VERSION == 2
+                                , TfPyObjWrapper(cls)
 #endif
+                        });
                 
             } else if (PyObject_HasAttrString(pyCallable, "__name__") &&
                        extract<string>(callable.attr("__name__"))()

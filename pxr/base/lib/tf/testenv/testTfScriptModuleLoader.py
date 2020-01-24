@@ -22,6 +22,11 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
+
+from __future__ import print_function
+
+import sys
+
 from pxr import Tf
 
 # On Windows if this script is run with stdout redirected then the C++
@@ -31,8 +36,15 @@ from pxr import Tf
 # in Python here.
 import platform
 if platform.system() == 'Windows':
-    import os, sys
+    import os
     sys.stdout = os.fdopen(sys.stdout.fileno(), 'a+', 0)
+
+# Python 3 buffers output by default. We monkey-patch the print function
+# here so that stdout is flushed after each print statement, thus
+# producing the correct output.
+if sys.version_info.major >= 3:
+    import functools
+    print = functools.partial(print, flush=True)
 
 sml = Tf.ScriptModuleLoader()
 

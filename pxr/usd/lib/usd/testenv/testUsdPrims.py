@@ -22,6 +22,8 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 
+from __future__ import print_function
+
 import sys, unittest
 from pxr import Sdf,Usd,Tf
 
@@ -647,7 +649,7 @@ class TestUsdPrim(unittest.TestCase):
     def test_GetNextSibling(self):
         import random, time
         seed = int(time.time())
-        print 'GetNextSibling() random seed:', seed
+        print('GetNextSibling() random seed:', seed)
         random.seed(seed)
 
         for fmt in allFormats:

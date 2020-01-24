@@ -21,11 +21,11 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
-from qt import QtCore, QtGui, QtWidgets
+from .qt import QtCore, QtGui, QtWidgets
 from pxr import Sdf, Usd, UsdGeom
 from ._usdviewq import Utils
 
-from common import UIPrimTypeColors, UIFonts
+from .common import UIPrimTypeColors, UIFonts
 
 HALF_DARKER = 150
 
@@ -338,7 +338,7 @@ class PrimViewItem(QtWidgets.QTreeWidgetItem):
         if not item.supportsDrawMode:
             return
 
-        from primTreeWidget import DrawModeWidget
+        from .primTreeWidget import DrawModeWidget
         drawModeWidget = item.drawModeWidget
         if drawModeWidget:
             drawModeWidget.RefreshDrawMode()

@@ -26,6 +26,8 @@ from __future__ import print_function
 
 from distutils.spawn import find_executable
 
+import six
+
 import argparse
 import contextlib
 import ctypes
@@ -401,7 +403,7 @@ def DownloadURL(url, context, force, dontExtract = None):
             if os.path.exists(tmpFilename):
                 os.remove(tmpFilename)
 
-            for i in xrange(maxRetries):
+            for i in six.moves.range(maxRetries):
                 try:
                     context.downloader(url, tmpFilename)
                     break
@@ -538,7 +540,7 @@ ZLIB = Dependency("zlib", InstallZlib, "include/zlib.h")
 # boost
 
 if Linux():
-    BOOST_URL = "https://downloads.sourceforge.net/project/boost/boost/1.55.0/boost_1_55_0.tar.gz"
+    BOOST_URL = "https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz"
     BOOST_VERSION_FILE = "include/boost/version.hpp"
 elif MacOS():
     BOOST_URL = "https://downloads.sourceforge.net/project/boost/boost/1.61.0/boost_1_61_0.tar.gz"
@@ -911,10 +913,23 @@ def InstallOpenColorIO(context, force, buildArgs):
                      '-DOCIO_BUILD_JNIGLUE=OFF',
                      '-DOCIO_STATIC_JNIGLUE=OFF']
 
+        # Patch -Werror out of the build, as it can cause issues with newer
+        # compilers
+        PatchFile("./src/core/CMakeLists.txt", [("-Werror", "")])
+        PatchFile("./src/pyglue/CMakeLists.txt", [("-Werror", "")])
+
         # Add on any user-specified extra arguments.
         extraArgs += buildArgs
 
-        RunCMake(context, force, extraArgs)
+        oldGenerator = context.cmakeGenerator
+
+        # OpenColorIO seems to error when building on linux with Ninja
+        if oldGenerator == "Ninja" and Linux():
+            context.cmakeGenerator = None
+        try:
+            RunCMake(context, force, extraArgs)
+        finally:
+            context.cmakeGenerator = oldGenerator
 
 OPENCOLORIO = Dependency("OpenColorIO", InstallOpenColorIO,
                          "include/OpenColorIO/OpenColorABI.h")
@@ -1033,7 +1048,7 @@ HDF5 = Dependency("HDF5", InstallHDF5, "include/hdf5.h")
 ############################################################
 # Alembic
 
-ALEMBIC_URL = "https://github.com/alembic/alembic/archive/1.7.1.zip"
+ALEMBIC_URL = "https://github.com/alembic/alembic/archive/1.7.12.zip"
 
 def InstallAlembic(context, force, buildArgs):
     with CurrentWorkingDirectory(DownloadURL(ALEMBIC_URL, context, force)):
@@ -1863,7 +1878,7 @@ if context.buildArgs:
 
 def FormatBuildArguments(buildArgs):
     s = ""
-    for depName in sorted(buildArgs.iterkeys()):
+    for depName in sorted(six.iterkeys(buildArgs)):
         args = buildArgs[depName]
         s += """
                                 {name}: {args}""".format(

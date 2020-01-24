@@ -27,6 +27,7 @@ from __future__ import print_function
 from pxr import Usd, UsdSkel, Vt, Sdf, Gf, Tf
 import unittest, random
 
+import six
 
 def MakeTargets(*paths):
     return [Sdf.Path(p) if p else Sdf.Path() for p in paths]
@@ -47,7 +48,7 @@ def RandomTranslations(count):
         [Gf.Vec3f(random.random()-0.5,
                   random.random()-0.5,
                   random.random()-0.5)*200
-         for _ in xrange(count)])
+         for _ in six.moves.range(count)])
 
 
 def RandomRotations(count):
@@ -56,7 +57,7 @@ def RandomRotations(count):
             (random.random()-0.5)*720,
             (random.random()-0.5)*720,
             (random.random()-0.5)*720)
-         for _ in xrange(count)])
+         for _ in six.moves.range(count)])
         
 
 
@@ -66,7 +67,7 @@ def RandomScales(count):
         [Gf.Vec3h(1 if random.random() > 0.5 else -1,
                   1 if random.random() > 0.5 else -1,
                   1 if random.random() > 0.5 else -1)
-         for _ in xrange(count)])
+         for _ in six.moves.range(count)])
 
 
 class TestUsdSkelUtils(unittest.TestCase):
@@ -98,7 +99,7 @@ class TestUsdSkelUtils(unittest.TestCase):
 
         xformsBuiltIndividually = Vt.Matrix4dArray(
             [UsdSkel.MakeTransform(translations[i], rotations[i], scales[i])
-             for i in xrange(count)])
+             for i in six.moves.range(count)])
 
         self.assertArrayIsClose(xforms, xformsBuiltIndividually)
 

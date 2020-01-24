@@ -24,7 +24,6 @@
 #
 
 import sys, os
-from contextlib import nested
 import unittest
 
 from pxr import Plug, Tf, Gf

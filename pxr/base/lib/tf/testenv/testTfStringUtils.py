@@ -27,6 +27,8 @@ from pxr import Tf
 import logging
 import unittest
 
+import six
+
 class TestStringUtils(unittest.TestCase):
     """
     Test Tf String Utils (The python wrapped porting of the utility functions).
@@ -80,15 +82,15 @@ class TestStringUtils(unittest.TestCase):
             self.assertEqual(Tf.StringToULong(repr(val)), val)
 
         # A range of valid values.
-        for i in xrange(1000000):
+        for i in six.moves.range(1000000):
             checku(i)
-        for i in xrange(-500000, 500000):
+        for i in six.moves.range(-500000, 500000):
             checks(i)
 
         # A wider range of valid values.
-        for i in xrange(0, 1000000000, 9337):
+        for i in six.moves.range(0, 1000000000, 9337):
             checks(i)
-        for i in xrange(-500000000, 500000000, 9337):
+        for i in six.moves.range(-500000000, 500000000, 9337):
             checks(i)
 
         # Get the max/min values.
@@ -96,13 +98,16 @@ class TestStringUtils(unittest.TestCase):
             Tf._GetULongMax(), Tf._GetLongMax(), Tf._GetLongMin())
 
         # Check the extrema and one before to ensure they work.
-        map(checku, [ulmax-1, ulmax])
-        map(checks, [lmin, lmin+1, lmax-1, lmax])
+        for n in [ulmax-1, ulmax]:
+            checku(n)
+
+        for n in [lmin, lmin+1, lmax-1, lmax]:
+            checks(n)
 
         # Check that some beyond the extrema over/underflow.
         #
         # Unsigned overflow.
-        for i in xrange(1, 1000):
+        for i in six.moves.range(1, 1000):
             with self.assertRaises(ValueError):
                 checku(ulmax + i)
             with self.assertRaises(ValueError):

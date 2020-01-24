@@ -22,10 +22,11 @@
 # language governing permissions and limitations under the Apache License.
 #
 
+from __future__ import absolute_import
 from __future__ import print_function
 
 # Qt Components
-from qt import QtCore, QtGui, QtWidgets
+from .qt import QtCore, QtGui, QtWidgets
 
 # Stdlib components
 import re, sys, os, cProfile, pstats, traceback
@@ -40,45 +41,45 @@ from pxr.UsdAppUtils.complexityArgs import RefinementComplexities
 
 # UI Components
 from ._usdviewq import Utils
-from stageView import StageView
-from mainWindowUI import Ui_MainWindow
-from primContextMenu import PrimContextMenu
-from headerContextMenu import HeaderContextMenu
-from layerStackContextMenu import LayerStackContextMenu
-from attributeViewContextMenu import AttributeViewContextMenu
-from customAttributes import (_GetCustomAttributes, CustomAttribute,
-                              BoundingBoxAttribute, LocalToWorldXformAttribute,
-                              ResolvedBoundMaterial)
-from primTreeWidget import PrimTreeWidget, PrimViewColumnIndex
-from primViewItem import PrimViewItem
-from variantComboBox import VariantComboBox
-from legendUtil import ToggleLegendWithBrowser
-import prettyPrint, adjustClipping, adjustDefaultMaterial, settings
-from constantGroup import ConstantGroup
-from selectionDataModel import ALL_INSTANCES, SelectionDataModel
+from .stageView import StageView
+from .mainWindowUI import Ui_MainWindow
+from .primContextMenu import PrimContextMenu
+from .headerContextMenu import HeaderContextMenu
+from .layerStackContextMenu import LayerStackContextMenu
+from .attributeViewContextMenu import AttributeViewContextMenu
+from .customAttributes import (_GetCustomAttributes, CustomAttribute,
+                               BoundingBoxAttribute, LocalToWorldXformAttribute,
+                               ResolvedBoundMaterial)
+from .primTreeWidget import PrimTreeWidget, PrimViewColumnIndex
+from .primViewItem import PrimViewItem
+from .variantComboBox import VariantComboBox
+from .legendUtil import ToggleLegendWithBrowser
+from . import prettyPrint, adjustClipping, adjustDefaultMaterial, settings
+from .constantGroup import ConstantGroup
+from .selectionDataModel import ALL_INSTANCES, SelectionDataModel
 
 # Common Utilities
-from common import (UIBaseColors, UIPropertyValueSourceColors, UIFonts,
-                    GetPropertyColor, GetPropertyTextFont,
-                    Timer, Drange, BusyContext, DumpMallocTags, 
-                    GetValueAtFrame, GetShortStringForValue,
-                    GetInstanceIdForIndex,
-                    ResetSessionVisibility, InvisRootPrims, GetAssetCreationTime,
-                    PropertyViewIndex, PropertyViewIcons, PropertyViewDataRoles, 
-                    RenderModes, ColorCorrectionModes, ShadedRenderModes,
-                    PickModes, SelectionHighlightModes, CameraMaskModes,
-                    PropTreeWidgetTypeIsRel, PrimNotFoundException,
-                    GetRootLayerStackInfo, HasSessionVis, GetEnclosingModelPrim,
-                    GetPrimsLoadability, ClearColors,
-                    HighlightColors, KeyboardShortcuts)
+from .common import (UIBaseColors, UIPropertyValueSourceColors, UIFonts,
+                     GetPropertyColor, GetPropertyTextFont,
+                     Timer, Drange, BusyContext, DumpMallocTags,
+                     GetValueAtFrame, GetShortStringForValue,
+                     GetInstanceIdForIndex,
+                     ResetSessionVisibility, InvisRootPrims, GetAssetCreationTime,
+                     PropertyViewIndex, PropertyViewIcons, PropertyViewDataRoles,
+                     RenderModes, ColorCorrectionModes, ShadedRenderModes,
+                     PickModes, SelectionHighlightModes, CameraMaskModes,
+                     PropTreeWidgetTypeIsRel, PrimNotFoundException,
+                     GetRootLayerStackInfo, HasSessionVis, GetEnclosingModelPrim,
+                     GetPrimsLoadability, ClearColors,
+                     HighlightColors, KeyboardShortcuts)
 
-import settings2
-from settings2 import StateSource
-from usdviewApi import UsdviewApi
-from rootDataModel import RootDataModel
-from viewSettingsDataModel import ViewSettingsDataModel
-import plugin
-from pythonInterpreter import Myconsole
+from . import settings2
+from .settings2 import StateSource
+from .usdviewApi import UsdviewApi
+from .rootDataModel import RootDataModel
+from .viewSettingsDataModel import ViewSettingsDataModel
+from . import plugin
+from .pythonInterpreter import Myconsole
 
 SETTINGS_VERSION = "1"
 
@@ -366,7 +367,7 @@ class AppController(QtCore.QObject):
 
             # Install our custom event filter.  The member assignment of the
             # filter is just for lifetime management
-            from appEventFilter import AppEventFilter
+            from .appEventFilter import AppEventFilter
             self._filterObj = AppEventFilter(self)
             QtWidgets.QApplication.instance().installEventFilter(self._filterObj)
 
@@ -2351,7 +2352,7 @@ class AppController(QtCore.QObject):
 
     def _showDebugFlags(self):
         if self._debugFlagsWindow is None:
-            from debugFlagsWidget import DebugFlagsWidget
+            from .debugFlagsWidget import DebugFlagsWidget
             self._debugFlagsWindow = DebugFlagsWidget()
 
         self._debugFlagsWindow.show()
@@ -4851,6 +4852,6 @@ class AppController(QtCore.QObject):
 
     def _onPrimsChanged(self, primsChange, propertiesChange):
         """Called when prims in the USD stage have changed."""
-        from rootDataModel import ChangeNotice
+        from .rootDataModel import ChangeNotice
         self._updateForStageChanges(
             hasPrimResync=(primsChange==ChangeNotice.RESYNC))

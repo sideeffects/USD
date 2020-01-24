@@ -43,7 +43,6 @@ class TestGfMath(unittest.TestCase):
         self.assertEqual(1.0, _HalfRoundTrip(1.0))
         self.assertEqual(1.0, _HalfRoundTrip(1))
         self.assertEqual(2.0, _HalfRoundTrip(2))
-        self.assertEqual(3.0, _HalfRoundTrip(3L))
 
         with self.assertRaises(TypeError):
             _HalfRoundTrip([])

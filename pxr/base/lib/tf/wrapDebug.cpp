@@ -31,28 +31,40 @@ using namespace boost::python;
 
 PXR_NAMESPACE_USING_DIRECTIVE
 
+void PyErr_Check(void *X)
+{
+    if (X == nullptr) {
+	if (!PyErr_Occurred())
+	    TfPyThrowRuntimeError("Could not allocate memory for object");
+
+	PyObject *ptype, *pvalue, *ptraceback, *bytes;
+	PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+
+	if (pvalue == nullptr)
+	    return;
+
+	if (PyUnicode_Check(pvalue)) {
+	    bytes = PyUnicode_AsEncodedString(pvalue, "UTF-8", "strict");
+
+	    if (bytes == nullptr)
+	        return;
+
+	    char *pStrErrorMessage = PyBytes_AS_STRING(bytes);
+	    TfPyThrowRuntimeError(pStrErrorMessage);
+	}
+    }
+}
+
 namespace {
 
 static void
 _SetOutputFile(object const &file)
 {
-#if PY_MAJOR_VERSION >= 3
     FILE *fp = nullptr;
 
-    object sys(handle<>(PyImport_ImportModule("sys")));
-    if (object(sys.attr("__stdout__")).ptr() == file.ptr()) {
-	fp = stdout;
-    }
-    else if (object(sys.attr("__stderr__")).ptr() == file.ptr()) {
-	fp = stderr;
-    }
-    else
-    {
-	// TfDebug::SetOutputFile(fp) expects either stdout or stderr.
-	TfPyThrowTypeError("expected stdout or stderr object");
-    }
-#else
-    FILE *fp = PyFile_AsFile(file.ptr());
+#if PY_MAJOR_VERSION < 3
+    fp = PyFile_AsFile(file.ptr());
+
     if (!fp)
         TfPyThrowTypeError("expected file object");
 
@@ -67,6 +79,42 @@ _SetOutputFile(object const &file)
         }
         else if (PyFile_AsFile(object(sys.attr("__stderr__")).ptr()) == fp) {
             fp = stderr;
+        }
+    }
+#else
+    // Every file-like open in Python 3 inherits from io.IOBase, so we
+    // check if the object subclasses it.
+    PyObject *module = PyImport_ImportModule("io");
+    PyErr_Check((void*)&module);
+
+    PyObject *moduleDict = PyModule_GetDict(module);
+    PyErr_Check((void*)&moduleDict);
+
+    PyObject *baseclass = PyDict_GetItemString(moduleDict, "IOBase");
+    PyErr_Check((void*)&baseclass);
+
+    if (!PyObject_IsInstance(file.ptr(), baseclass))
+        TfPyThrowTypeError("expected file object");
+
+    Py_DECREF(baseclass);
+
+    object sys(handle<>(PyImport_ImportModule("sys")));
+    if (object(sys.attr("__stdout__")).ptr() == file.ptr()) {
+       fp = stdout;
+    }
+    else if (object(sys.attr("__stderr__")).ptr() == file.ptr()) {
+       fp = stderr;
+    }
+    else {
+        if (PyObject_HasAttrString(file.ptr(), "fileno")) {
+            long fd = PyLong_AsLong(PyObject_CallMethod(file.ptr(), "fileno", NULL));
+
+            if (fd == 1) {
+                fp = stdout;
+            }
+            else if (fd == 2) {
+                fp = stderr;
+            }
         }
     }
 #endif

@@ -25,6 +25,7 @@
 
 from pxr import Tf
 
+import sys
 import unittest
 
 class Base(object):
@@ -252,7 +253,11 @@ class TestTfType(unittest.TestCase):
             # We should have a valid TfType.
             self.assertFalse(t.isUnknown)
             # Get Python's mro and convert the results to TfTypes.
-            pythonOrder = map( Tf.Type.Find, classObj.mro() )
+            pythonOrder = map(Tf.Type.Find, classObj.mro())
+
+            if sys.version_info.major >= 3:
+                pythonOrder = list(pythonOrder)
+
             self.assertEqual(tuple(pythonOrder + [self.tRoot,]), t.GetAllAncestorTypes())
 
         # Unknown type

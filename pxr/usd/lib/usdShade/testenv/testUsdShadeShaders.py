@@ -27,6 +27,8 @@ from __future__ import print_function
 from pxr import Tf, Sdf, Usd, UsdGeom, UsdShade
 import unittest
 
+import six
+
 palePath = Sdf.Path("/Model/Materials/MaterialSharp/Pale")
 whiterPalePath = Sdf.Path("/Model/Materials/MaterialSharp/WhiterPale")
 classPalePath = Sdf.Path("/classPale")
@@ -232,7 +234,7 @@ class TestUsdShadeShaders(unittest.TestCase):
         self.assertEqual(pale.GetSdrMetadata(), baseSdrMetadata)
         paleSdrMetadata = {Sdr.NodeMetadata.Departments : "anim|layout",
                               Sdr.NodeMetadata.Category : "preview"}
-        for i,j in paleSdrMetadata.iteritems():
+        for i,j in six.iteritems(paleSdrMetadata):
             pale.SetSdrMetadataByKey(i, j)
 
         self.assertEqual(pale.GetSdrMetadata(), 

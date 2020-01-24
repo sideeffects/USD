@@ -68,7 +68,7 @@ class TestSdfPath(unittest.TestCase):
             self.assertTrue(Sdf.Path(badPath).isEmpty)
             self.assertEqual(Sdf.Path(badPath), Sdf.Path())
             self.assertEqual(Sdf.Path(badPath), Sdf.Path.emptyPath)
-            self.assertFalse(Sdf.Path.IsValidPathString(badPath))
+            self.assertFalse(Sdf.Path.IsValidPathString(badPath)[0])
         print('\tPassed')
         
         # Test lessthan
@@ -298,7 +298,7 @@ class TestSdfPath(unittest.TestCase):
         # ========================================================================
         # Test GetPrimOrPrimVariantSelectionPath
         # ========================================================================
-        print "Test GetPrimOrPrimVariantSelectionPath"
+        print("Test GetPrimOrPrimVariantSelectionPath")
         
         primPath = Sdf.Path("/A/B/C{set=sel}").GetPrimOrPrimVariantSelectionPath()
         self.assertEqual(primPath, Sdf.Path("/A/B/C{set=sel}"))
@@ -323,7 +323,7 @@ class TestSdfPath(unittest.TestCase):
         primPath = Sdf.Path("../C{set=sel}.foo:bar:baz").GetPrimOrPrimVariantSelectionPath()
         self.assertEqual(primPath, Sdf.Path("../C{set=sel}"))
         
-        print '\tPassed'
+        print('\tPassed')
 
         # ========================================================================
         # Test HasPrefix and ReplacePrefix
@@ -960,7 +960,7 @@ class TestSdfPath(unittest.TestCase):
                 testFindLongestStrictPrefix(testp, paths)
         
             # Do a few simple cases directly.
-            paths = map(Sdf.Path, ['/a', '/a/b/c/d', '/b/a', '/b/c/d/e'])
+            paths = [Sdf.Path(path) for path in ['/a', '/a/b/c/d', '/b/a', '/b/c/d/e']]
             flp = Sdf.Path.FindLongestPrefix
             self.assertEqual(flp(paths, '/x'), None)
             self.assertEqual(flp(paths, '/a'), Sdf.Path('/a'))

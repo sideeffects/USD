@@ -24,11 +24,11 @@
 
 from __future__ import print_function
 
-from qt import QtCore, QtGui, QtWidgets
+from .qt import QtCore, QtGui, QtWidgets
 import os, time, sys, platform, math
 from pxr import Ar, Tf, Sdf, Kind, Usd, UsdGeom, UsdShade
-from customAttributes import CustomAttribute
-from constantGroup import ConstantGroup
+from .customAttributes import CustomAttribute
+from .constantGroup import ConstantGroup
 
 DEBUG_CLIPPING = "USDVIEWQ_DEBUG_CLIPPING"
 
@@ -236,8 +236,6 @@ def GetValueAtFrame(prop, frame):
     elif isinstance(prop, Sdf.RelationshipSpec):
         return prop.targetPathList
 
-    return val
-
 def GetShortStringForValue(prop, val):
     if isinstance(prop, Usd.Relationship):
         val = ", ".join(str(p) for p in val)
@@ -251,7 +249,7 @@ def GetShortStringForValue(prop, val):
     if val is None:
         return ''
     
-    from scalarTypes import GetScalarTypeFromAttr
+    from .scalarTypes import GetScalarTypeFromAttr
     scalarType, isArray = GetScalarTypeFromAttr(prop)
     result = ''
     if isArray and not isinstance(val, Sdf.ValueBlock):

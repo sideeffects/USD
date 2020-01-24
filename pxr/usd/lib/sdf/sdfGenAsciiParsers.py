@@ -38,6 +38,8 @@ from subprocess import call, Popen, PIPE
 from shutil import rmtree, copyfile
 from difflib import unified_diff
 
+import six
+
 # -----------------------------------------------------------------------------
 # Validation functions.
 # This section contains code that will gather/report diffs between the generated
@@ -58,7 +60,7 @@ def _compareFiles(installedFiles, generatedFiles, configuration):
         exit('*** Missing files:\n' + '\n'.join(installedNames - generatedNames))
 
     diffs = {}
-    for i in xrange(0, len(installedFiles)):
+    for i in six.moves.range(0, len(installedFiles)):
         with open(installedFiles[i], 'r') as installedFile,\
              open(generatedFiles[i], 'r') as generatedFile:
             
@@ -281,8 +283,8 @@ def _getConfiguration():
     if not arguments.bases:
         allFiles = listdir(arguments.srcDir)
         validExts = ['.yy', '.ll']
-        relevantFiles = filter(lambda f: splitext(f)[1] in validExts, allFiles)
-        bases = set(map(lambda f: splitext(f)[0], relevantFiles))
+        relevantFiles = [f for f in allFiles if splitext(f)[1] in validExts]
+        bases = set([splitext(f)[0] for f in relevantFiles])
 
         if not bases:
             exit('*** Unable to find source files for parser. Ensure that they '

@@ -427,12 +427,14 @@ inline std::string PyString_AsStdString(PyObject* str)
 #define PyIteratorNextMethodName "__next__"
 #define PyClassMethodFuncName "__func__"
 #define PyBoolBuiltinFuncName "__bool__"
+#define PyBuiltinModuleName "builtins"
 
 #else
 
 #define PyIteratorNextMethodName "next"
 #define PyClassMethodFuncName "im_func"
 #define PyBoolBuiltinFuncName "__nonzero__"
+#define PyBuiltinModuleName "__builtin__"
 
 inline std::string PyString_AsStdString(PyObject* str)
 {

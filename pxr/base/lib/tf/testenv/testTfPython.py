@@ -130,8 +130,9 @@ class TestPython(unittest.TestCase):
 
         with self.assertRaises(Tf.ErrorException) as cm:
             Tf._mightRaise(True)
-        for x in cm.exception:
-            self.assertTrue(len(repr(x)))
+
+        for message in cm.exception.args:
+            self.assertTrue(len(repr(message)))
 
         with self.assertRaises(Tf.ErrorException):
             Tf.RaiseCodingError("some error")

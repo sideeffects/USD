@@ -23,8 +23,8 @@
 #
 from pxr import Tf
 
-from qt import QtCore, QtGui, QtWidgets
-from usdviewApi import UsdviewApi
+from .qt import QtCore, QtGui, QtWidgets
+from .usdviewApi import UsdviewApi
 
 from code import InteractiveInterpreter
 import os, sys, keyword

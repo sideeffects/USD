@@ -27,6 +27,8 @@ from __future__ import print_function
 import sys, os, unittest
 from pxr import Usd, Sdf, Gf, Tf
 
+import six
+
 allFormats = ['usd' + x for x in 'ac']
 
 def _AssertTrue(test, errorMessage):
@@ -614,7 +616,7 @@ class TestUsdCreateProperties(unittest.TestCase):
             # ensure that clip 'c' is in the result when the time code 
             # being used is exactly on 'c's endpoints
             clipTime = 102
-            for i in xrange(0, len(clips)):
+            for i in six.moves.range(0, len(clips)):
                 stack = attr.GetPropertyStack(clipTime)
                 self.assertEqual(stack, [clips[i].GetPropertyAtPath(fullPath),
                                     topologyLayer.GetPropertyAtPath(fullPath)])

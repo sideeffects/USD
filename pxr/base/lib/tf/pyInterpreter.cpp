@@ -75,19 +75,23 @@ TfPyInitialize()
                     "the 'main thread'.  Python doc says not to do this.");
         }
 
-        static std::string programName(ArchGetExecutablePath());
+        const std::string s = ArchGetExecutablePath();
 
+#if PY_MAJOR_VERSION == 2
         // Initialize Python threading.  This grabs the GIL.  We'll release it
-        // at the end of this function.
+        // at the end of this function. In Python 2, this can be before 
+        // Py_Initialize.
         PyEval_InitThreads();
+#endif
 
         // Setting the program name is necessary in order for python to 
         // find the correct built-in modules. 
-#if PY_MAJOR_VERSION >= 3
-	std::wstring wide_program_name(programName.begin(), programName.end());
-        Py_SetProgramName(wide_program_name.c_str());
-#else
+#if PY_MAJOR_VERSION == 2
+        static std::string programName(s.begin(), s.end());
         Py_SetProgramName(const_cast<char*>(programName.c_str()));
+#else
+        static std::wstring programName(s.begin(), s.end());
+        Py_SetProgramName(const_cast<wchar_t*>(programName.c_str()));
 #endif
 
         // We're here when this is a C++ program initializing python (i.e. this
@@ -107,15 +111,21 @@ TfPyInitialize()
         sigaction(SIGINT, &origSigintHandler, NULL);
 #endif
 
-#if PY_MAJOR_VERSION >= 3
-        wchar_t emptyArg[] = {'\0'};
-        wchar_t *empty[] = {emptyArg};
-        PySys_SetArgv(1, empty);
-#else
-        char emptyArg[] = {'\0'};
-        char *empty[] = {emptyArg};
-        PySys_SetArgv(1, empty);
+#if PY_MAJOR_VERSION == 3
+        // Initialize Python threading.  This grabs the GIL.  We'll release it
+        // at the end of this function. In Python 3, this must be called after
+        // Py_Initialize()
+        PyEval_InitThreads();
 #endif
+
+#if PY_MAJOR_VERSION == 2
+        char emptyArg[] = {'\0'};
+        char *empty[] = { emptyArg };
+#else
+        wchar_t emptyArg[] = { '\0' };
+        wchar_t *empty[] = { emptyArg };
+#endif
+        PySys_SetArgv(1, empty);
 
         // Kick the module loading mechanism for any loaded libs that have
         // corresponding python binding modules.  We do this after we've
@@ -225,6 +235,13 @@ TfPyGetModulePath(const std::string & moduleName)
     // we have to walk the hierarchy and import all of the containing modules
     // down the module we want to find.
     // vector< string > pkgHierarchy = TfStringTokenize(moduleName, ".");
+
+#if PY_MAJOR_VERSION >= 3
+    // __main__ is no longer a module in Python 3. However, since the unit tests
+    // expect it to be, we fudge it here.
+    if (moduleName == "__main__")
+        return "__main__";
+#endif
 
     // Do the find_module.
     std::string cmd =

@@ -25,10 +25,10 @@
 
 import unittest
 
+from pxr.UsdRi import *
+
 class TestUsdRiUtilities(unittest.TestCase):
   def test_RmanConversions(self):
-      from pxr.UsdRi import *
-
       # Note that we have the old names as the first elements in
       # the list, our conversion test relies on this fact. This is only
       # really relevant in the case of Rman's '1' value, in which we have

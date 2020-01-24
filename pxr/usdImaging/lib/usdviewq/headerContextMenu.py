@@ -21,8 +21,10 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
-from qt import QtCore, QtWidgets
-from usdviewContextMenuItem import UsdviewContextMenuItem
+from __future__ import absolute_import
+
+from .qt import QtCore, QtWidgets
+from .usdviewContextMenuItem import UsdviewContextMenuItem
 
 #
 # Specialized context menu for adding and removing columns

@@ -48,15 +48,25 @@ if(PXR_ENABLE_PYTHON_SUPPORT)
         find_package(PythonLibs 2.7 REQUIRED)
     endif()
 
-    set(BOOST_PYTHON_COMPONENT_NAME "python${PYTHON_VERSION_NODOT}")
+    # TODO: Fix this. It currently has issues with determining the library
+    #       names between python 3 and python 2 builds.
+
+    #set(PYTHON_VERSION_NODOT "${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR}")
+    set(PYTHON_VERSION_NODOT "${PYTHON_VERSION_MAJOR}")
+
+    # Determine how to do this in a better way
+    set(BOOST_PYTHON_COMPONENT_NAME "python")
 
     # --Boost
     find_package(Boost
         COMPONENTS
             program_options
-            python
-        REQUIRED
+            ${BOOST_PYTHON_COMPONENT_NAME}
+    	REQUIRED
     )
+
+    set(Boost_PYTHON_LIBRARY "boost_python${PYTHON_VERSION_NODOT}")
+    set(Boost_PROGRAM_OPTIONS_LIBRARY "boost_program_options")
 
     # --Jinja2
     find_package(Jinja2)

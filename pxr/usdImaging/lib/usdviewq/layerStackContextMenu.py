@@ -21,8 +21,8 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
-from qt import QtCore, QtGui, QtWidgets
-from usdviewContextMenuItem import UsdviewContextMenuItem
+from .qt import QtCore, QtGui, QtWidgets
+from .usdviewContextMenuItem import UsdviewContextMenuItem
 import os, subprocess
 from pxr import Ar
 
@@ -92,7 +92,7 @@ class OpenLayerMenuItem(LayerStackContextMenuItem):
         return usdedit
 
     def GetText(self):
-        from common import PrettyFormatSize
+        from .common import PrettyFormatSize
         fileSize = 0
         if (hasattr(self._item, "layerPath")
            and os.path.isfile(getattr(self._item, "layerPath"))):

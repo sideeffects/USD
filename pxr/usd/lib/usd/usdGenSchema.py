@@ -47,6 +47,8 @@ from jinja2.exceptions import TemplateNotFound, TemplateSyntaxError
 
 from pxr import Plug, Sdf, Usd, Vt, Tf
 
+import six
+
 # Object used for printing. This gives us a way to control output with regards 
 # to program arguments such as --quiet.
 class _Printer():
@@ -819,7 +821,7 @@ def GatherTokens(classes, libName, libTokens):
             
         # Add schema tokens to token set
         schemaTokens = cls.customData.get("schemaTokens", {})
-        for token, tokenInfo in schemaTokens.iteritems():
+        for token, tokenInfo in six.iteritems(schemaTokens):
             cls.tokens.add(token)
             _AddToken(tokenDict, token, tokenInfo.get("value", token),
                       _SanitizeDoc(tokenInfo.get("doc", 
@@ -834,7 +836,7 @@ def GatherTokens(classes, libName, libTokens):
                       "Property namespace prefix for the %s schema." % cls.cppClassName)
 
     # Add library-wide tokens to token set
-    for token, tokenInfo in libTokens.iteritems():
+    for token, tokenInfo in six.iteritems(libTokens):
         _AddToken(tokenDict, token, tokenInfo.get("value", token), 
                   _SanitizeDoc(tokenInfo.get("doc",
                       "Special token for the %s library." % libName), ' '))
