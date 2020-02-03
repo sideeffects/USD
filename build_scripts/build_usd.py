@@ -47,7 +47,7 @@ import tarfile
 try:
     # python 2
     from urllib2 import urlopen
-except:
+except ImportError:
     # python 3
     from urllib.request import urlopen
 import zipfile
