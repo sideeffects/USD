@@ -23,7 +23,6 @@
 #
 from __future__ import absolute_import
 
-import sys
 from .qt import QtGui, QtWidgets, QtCore
 from pxr import Sdf
 from .usdviewContextMenuItem import UsdviewContextMenuItem

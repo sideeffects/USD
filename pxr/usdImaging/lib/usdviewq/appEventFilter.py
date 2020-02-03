@@ -22,6 +22,8 @@
 # language governing permissions and limitations under the Apache License.
 #
 # Qt Components
+from __future__ import absolute_import
+
 from .qt import QtCore, QtGui, QtWidgets
 from .common import KeyboardShortcuts
 

@@ -110,7 +110,7 @@ class TestUsdView(Usdviewq.Launcher):
                     TEST_USD_VIEW_CALLBACK_IDENT + ' (appController)\n'
                     'Error: %s')
 
-        (args, varargs, keywords, defaults) = inspect.getargspec(callBack)
+        (args, varargs, keywords, defaults, _, _, _) = inspect.getfullargspec(callBack)
         assert not varargs, errorMsg % 'Varargs are disallowed'
         assert not keywords, errorMsg % 'Kwargs are disallowed'
         assert not defaults, errorMsg % 'Defaults are disallowed'

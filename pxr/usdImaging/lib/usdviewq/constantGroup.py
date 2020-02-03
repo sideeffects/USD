@@ -28,6 +28,8 @@ module, but enum is not available in Python 2's standard library.
 
 import types
 
+import six
+
 class _MetaConstantGroup(type):
     """A meta-class which handles the creation and behavior of ConstantGroups.
     """
@@ -84,6 +86,7 @@ class _MetaConstantGroup(type):
         """Iterate over each constant in the group."""
         return iter(self._all)
 
+@six.add_metaclass(_MetaConstantGroup)
 class ConstantGroup(object):
     """The base constant group class, intended to be inherited by actual groups
     of constants.

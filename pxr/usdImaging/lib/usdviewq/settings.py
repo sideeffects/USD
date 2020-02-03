@@ -80,7 +80,7 @@ class Settings(dict):
         if self._ephemeral:
             return
         try:
-            f = open(self._filename, "w")
+            f = open(self._filename, "wb")
             dump(self, f)
             f.close()
         except:
@@ -95,7 +95,7 @@ class Settings(dict):
         if self._ephemeral:
             return
         try:
-            f = open(self._filename, "r")
+            f = open(self._filename, "rb")
             self.update(load(f))
             f.close()
 

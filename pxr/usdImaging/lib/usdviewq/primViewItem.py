@@ -21,11 +21,15 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
+from __future__ import absolute_import
+
 from .qt import QtCore, QtGui, QtWidgets
 from pxr import Sdf, Usd, UsdGeom
 from ._usdviewq import Utils
 
 from .common import UIPrimTypeColors, UIFonts
+
+import six
 
 HALF_DARKER = 150
 
@@ -350,7 +354,7 @@ class PrimViewItem(QtWidgets.QTreeWidgetItem):
             item.emitDataChanged()
 
         # Traverse down to children to update their drawMode.
-        for child in [item.child(i) for i in xrange(item.childCount())]:            
+        for child in [item.child(i) for i in six.moves.range(item.childCount())]:
             PrimViewItem.propagateDrawMode(child, primView, 
                     parentDrawMode=item.computedDrawMode,
                     parentDrawModeIsInherited=item.isDrawModeInherited)
@@ -367,7 +371,7 @@ class PrimViewItem(QtWidgets.QTreeWidgetItem):
         if isinstance(item, PrimViewItem):
             item._pushVisRecursive(inheritedVis, authoredVisHasChanged)
         else:
-            for child in [item.child(i) for i in xrange(item.childCount())]:
+            for child in [item.child(i) for i in six.moves.range(item.childCount())]:
                 child._pushVisRecursive(inheritedVis, authoredVisHasChanged)
 
     def _resetAncestorsRecursive(self, authoredVisHasChanged):
@@ -381,7 +385,7 @@ class PrimViewItem(QtWidgets.QTreeWidgetItem):
     def _pushVisRecursive(self, inheritedVis, authoredVisHasChanged):
         myComputedVis = self.loadVis(inheritedVis, authoredVisHasChanged)
 
-        for child in [self.child(i) for i in xrange(self.childCount())]:
+        for child in [self.child(i) for i in six.moves.range(self.childCount())]:
             child._pushVisRecursive(myComputedVis, authoredVisHasChanged)
 
     def setLoaded(self, loaded):

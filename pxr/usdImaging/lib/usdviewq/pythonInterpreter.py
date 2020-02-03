@@ -29,6 +29,8 @@ from .usdviewApi import UsdviewApi
 from code import InteractiveInterpreter
 import os, sys, keyword
 
+import six
+
 # just a handy debugging method
 def _PrintToErr(line):
     old = sys.stdout
@@ -75,10 +77,20 @@ class _Completer(object):
         Return a list of all keywords, built-in functions and names
         currently defines in __main__ that match.
         """
-        import __builtin__, __main__
+        builtin_mod = None
+
+        if sys.version_info.major > 2:
+            import builtins
+            builtin_mod = builtins
+        else:
+            import __builtin__
+            builtin_mod = __builtin__
+
+        import __main__
+
         matches = set()
         n = len(text)
-        for l in [keyword.kwlist,__builtin__.__dict__.keys(),
+        for l in [keyword.kwlist,builtin_mod.__dict__.keys(),
                   __main__.__dict__.keys(), self.locals.keys()]:
             for word in l:
                 if word[:n] == text and word != "__builtins__":
@@ -486,8 +498,8 @@ class Controller(QtCore.QObject):
             index = 0
             completionsLength = len(completions)
 
-            for col in xrange(0,numCols):
-                for row in xrange(0,numRows):
+            for col in six.moves.range(0,numCols):
+                for row in six.moves.range(0,numRows):
                     cellNum = (row * numCols) + col
                     if (cellNum >= completionsLength):
                         continue

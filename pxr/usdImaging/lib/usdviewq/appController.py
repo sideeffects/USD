@@ -33,6 +33,9 @@ import re, sys, os, cProfile, pstats, traceback
 from itertools import groupby
 from time import time, sleep
 from collections import deque, OrderedDict
+from functools import cmp_to_key
+
+import six
 
 # Usd Library Components
 from pxr import Usd, UsdGeom, UsdShade, UsdUtils, UsdImagingGL, Glf, Sdf, Tf, Ar
@@ -640,9 +643,9 @@ class AppController(QtCore.QObject):
 
             # setup animation objects for the primView and propertyView
             self._propertyLegendAnim = QtCore.QPropertyAnimation(
-                self._ui.propertyLegendContainer, "maximumHeight")
+                self._ui.propertyLegendContainer, b"maximumHeight")
             self._primLegendAnim = QtCore.QPropertyAnimation(
-                self._ui.primLegendContainer, "maximumHeight")
+                self._ui.primLegendContainer, b"maximumHeight")
 
             # set the context menu policy for the prim browser and attribute
             # inspector headers. This is so we can have a context menu on the
@@ -2427,7 +2430,7 @@ class AppController(QtCore.QObject):
         extensions = Sdf.FileFormat.FindAllFileFormatExtensions()
         builtInFiles = lambda f: f.startswith(".usd")
         notBuiltInFiles = lambda f: not f.startswith(".usd")
-        extensions = filter(builtInFiles, extensions) + filter(notBuiltInFiles, extensions)
+        extensions = list(filter(builtInFiles, extensions)) + list(filter(notBuiltInFiles, extensions))
         fileFilter = "USD Compatible Files (" + " ".join("*." + e for e in extensions) + ")" 
         (filename, _) = QtWidgets.QFileDialog.getOpenFileName(
             self._mainWindow,
@@ -2902,7 +2905,7 @@ class AppController(QtCore.QObject):
                                                     for child in childrenToAdd])
             elif depth + 1 < maxDepth:
                 # The children already exist but we're recursing deeper.
-                for i in xrange(item.childCount()):
+                for i in six.moves.range(item.childCount()):
                     self._populateChildren(item.child(i), depth+1, maxDepth)
 
     def _populateItem(self, prim, depth=0, maxDepth=0):
@@ -3149,7 +3152,8 @@ class AppController(QtCore.QObject):
             prims = self._getPrimsFromPaths(pathList)
         except PrimNotFoundException as ex:
             # _getPrimsFromPaths couldn't find one of the prims
-            sys.stderr.write("ERROR: %s\n" % ex.message)
+            _, message = ex.args
+            sys.stderr.write("ERROR: %s\n" % message)
             self._updatePrimPathText()
             return
 
@@ -3386,12 +3390,20 @@ class AppController(QtCore.QObject):
         inheritedProps = [primvar.GetAttr() for primvar in inheritedPrimvars]
         props = prim.GetAttributes() + prim.GetRelationships()  + inheritedProps
 
+        def _cmp(v1, v2):
+            if v1 < v2:
+                return -1
+            elif v1 == v2:
+                return 0
+            elif v1 > v2:
+                return 1
+
         def cmpFunc(propA, propB):
             aName = propA.GetName()
             bName = propB.GetName()
-            return cmp(aName.lower(), bName.lower())
+            return _cmp(aName.lower(), bName.lower())
 
-        props.sort(cmp=cmpFunc)
+        props.sort(key=cmp_to_key(cmpFunc))
 
         # Add the special composed attributes usdview generates
         # at the top of our property list.
@@ -3456,7 +3468,7 @@ class AppController(QtCore.QObject):
         curPrimSelection = self._dataModel.selection.getFocusPrim()
 
         currRow = 0
-        for key, primProperty in self._propertiesDict.iteritems():
+        for key, primProperty in six.iteritems(self._propertiesDict):
             targets = None
             isInheritedProperty = isinstance(primProperty, Usd.Property) and \
                 (primProperty.GetPrim() != curPrimSelection)
@@ -3830,7 +3842,7 @@ class AppController(QtCore.QObject):
         populateMetadataTable("[path]", str(obj.GetPath()), rowIndex)
         rowIndex += 1
 
-        for variantSetName, combo in variantSets.iteritems():
+        for variantSetName, combo in six.iteritems(variantSets):
             attrName = QtWidgets.QTableWidgetItem(str(variantSetName+ ' variant'))
             tableWidget.setItem(rowIndex, 0, attrName)
             tableWidget.setCellWidget(rowIndex, 1, combo)
@@ -3841,7 +3853,7 @@ class AppController(QtCore.QObject):
 
         # Add all the setless variant selections directly after the variant 
         # combo boxes
-        for variantSetName, variantSelection in setlessVariantSelections.iteritems():
+        for variantSetName, variantSelection in six.iteritems(setlessVariantSelections):
             attrName = QtWidgets.QTableWidgetItem(str(variantSetName+ ' variant'))
             tableWidget.setItem(rowIndex, 0, attrName)
 
@@ -4146,7 +4158,7 @@ class AppController(QtCore.QObject):
                     self._upperHUDInfo[HUDEntries.PRIM] = 0
                 self._upperHUDInfo[HUDEntries.PRIM] += count
 
-                for type in types.iterkeys():
+                for type in six.iterkeys(types):
                     # no entry for this prim type? initilize it
                     if not self._upperHUDInfo.has_key(type):
                         self._upperHUDInfo[type] = 0
@@ -4532,7 +4544,7 @@ class AppController(QtCore.QObject):
                     specs = model.GetPrimStack()
                     name, time, owner = GetAssetCreationTime(specs,
                                                    mAPI.GetAssetIdentifier())
-                    for key, value in assetInfo.iteritems():
+                    for key, value in six.iteritems(assetInfo):
                         aiStr += "<br> -- <em>%s</em> : %s" % (key, _HTMLEscape(str(value)))
                     aiStr += "<br><em><small>%s created on %s by %s</small></em>" % \
                         (_HTMLEscape(name), _HTMLEscape(time), 
@@ -4616,7 +4628,7 @@ class AppController(QtCore.QObject):
                     materialPurpose=UsdShade.Tokens.full)
 
             gotValidMaterial = False
-            for purpose, materialAssign in materialAssigns.iteritems():
+            for purpose, materialAssign in six.iteritems(materialAssigns):
                 (material, bindingRel) = materialAssign
                 if not material:
                     continue

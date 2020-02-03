@@ -1455,7 +1455,6 @@
    </property>
   </action>
   <action name="actionPause">
-    <string>Pause Render</string>
    <property name="checkable">
     <bool>true</bool>
    </property>

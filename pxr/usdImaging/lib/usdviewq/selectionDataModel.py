@@ -22,6 +22,8 @@
 # language governing permissions and limitations under the Apache License.
 #
 
+from __future__ import absolute_import
+
 from collections import OrderedDict
 
 from pxr import Sdf, Gf
@@ -132,7 +134,7 @@ class _PrimSelection(object):
     def clear(self):
         """Clear the path selection."""
 
-        for path in self._selection.keys():
+        for path in list(self._selection.keys()):
             self._clearPrimPath(path)
 
     def addPrimPath(self, path, instance=ALL_INSTANCES):
