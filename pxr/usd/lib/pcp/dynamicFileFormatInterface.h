@@ -47,6 +47,7 @@ class VtValue;
 class PcpDynamicFileFormatInterface
 {
 public:
+    PCP_API
     virtual ~PcpDynamicFileFormatInterface() = 0;
     
     /// Derived classes must implement this function to compose prim fields 
