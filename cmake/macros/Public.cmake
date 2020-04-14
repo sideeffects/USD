@@ -926,6 +926,7 @@ function(pxr_toplevel_prologue)
                     FOLDER "${folder}"
                     PREFIX "${PXR_LIB_PREFIX}"
                     IMPORT_PREFIX "${PXR_LIB_PREFIX}"
+	    DEBUG_POSTFIX "_d"
             )
             _get_install_dir("lib" libInstallPrefix)
             install(
@@ -970,15 +971,15 @@ function(pxr_toplevel_epilogue)
                 PRIVATE
                     -WHOLEARCHIVE:$<TARGET_FILE:usd_m>
             )
-        elseif(CMAKE_COMPILER_IS_GNUCXX)
-            target_link_libraries(usd_ms
-                PRIVATE
-                    -Wl,--whole-archive $<TARGET_FILE:usd_m> -Wl,--no-whole-archive
-            )
-        elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+        elseif(APPLE)
             target_link_libraries(usd_ms
                 PRIVATE
                     -Wl,-force_load $<TARGET_FILE:usd_m>
+            )
+        elseif(UNIX)
+            target_link_libraries(usd_ms
+                PRIVATE
+                    -Wl,--whole-archive $<TARGET_FILE:usd_m> -Wl,--no-whole-archive
             )
         endif()
 
@@ -1066,6 +1067,7 @@ function(pxr_monolithic_epilogue)
             POSITION_INDEPENDENT_CODE ON
             PREFIX "${PXR_LIB_PREFIX}"
             IMPORT_PREFIX "${PXR_LIB_PREFIX}"
+       DEBUG_POSTFIX "_d"
     )
 
     # Adding $<TARGET_OBJECTS:foo> will not bring along compile

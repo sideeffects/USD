@@ -226,7 +226,7 @@ if (PXR_BUILD_ALEMBIC_PLUGIN)
     if (PXR_ENABLE_HDF5_SUPPORT)
         find_package(HDF5 REQUIRED
             COMPONENTS
-                HL
+                C HL
             REQUIRED
         )
     endif()

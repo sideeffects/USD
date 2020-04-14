@@ -39,12 +39,6 @@ PXR_NAMESPACE_OPEN_SCOPE
 namespace {
 
 const char* pathEnvVarName      = TF_PP_STRINGIZE(PXR_PLUGINPATH_NAME);
-const char* buildLocation       = TF_PP_STRINGIZE(PXR_BUILD_LOCATION);
-const char* pluginBuildLocation = TF_PP_STRINGIZE(PXR_PLUGIN_BUILD_LOCATION);
-
-#ifdef PXR_INSTALL_LOCATION
-const char* installLocation     = TF_PP_STRINGIZE(PXR_INSTALL_LOCATION); 
-#endif // PXR_INSTALL_LOCATION
 
 void
 _AppendPathList(
@@ -107,12 +101,11 @@ ARCH_CONSTRUCTOR(Plug_InitConfig, 2, void)
     _AppendPathList(&result, TfGetenv(pathEnvVarName), binaryPath);
 
     // Fallback locations.
-    _AppendPathList(&result, buildLocation, binaryPath);
-    _AppendPathList(&result, pluginBuildLocation, binaryPath);
-
-#ifdef PXR_INSTALL_LOCATION
-    _AppendPathList(&result, installLocation, binaryPath);
-#endif // PXR_INSTALL_LOCATION
+#ifdef _DEBUG
+    _AppendPathList(&result, "usd_plugins_d", binaryPath);
+#else
+    _AppendPathList(&result, "usd_plugins", binaryPath);
+#endif
 
     Plug_SetPaths(result, debugMessages);
 }
