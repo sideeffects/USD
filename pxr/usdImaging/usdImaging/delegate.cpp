@@ -356,7 +356,8 @@ public:
             _HdPrimInfo *primInfo = _delegate->_GetHdPrimInfo(cachePath);
             if (TF_VERIFY(primInfo, "%s\n", cachePath.GetText())) {
                 UsdImagingPrimAdapterSharedPtr const& adapter=primInfo->adapter;
-                if (TF_VERIFY(adapter, "%s\n", cachePath.GetText())) {
+                if (TF_VERIFY(adapter, "%s\n", cachePath.GetText()) &&
+                    primInfo->usdPrim) {
                     adapter->TrackVariability(primInfo->usdPrim,
                                               cachePath,
                                               &primInfo->timeVaryingBits);
@@ -381,7 +382,8 @@ public:
             _HdPrimInfo *primInfo = _delegate->_GetHdPrimInfo(cachePath);
             if (TF_VERIFY(primInfo, "%s\n", cachePath.GetText())) {
                 UsdImagingPrimAdapterSharedPtr const& adapter=primInfo->adapter;
-                if (TF_VERIFY(adapter, "%s\n", cachePath.GetText())) {
+                if (TF_VERIFY(adapter, "%s\n", cachePath.GetText()) &&
+                    primInfo->usdPrim) {
                     adapter->UpdateForTime(primInfo->usdPrim,
                                            cachePath,
                                            time,
