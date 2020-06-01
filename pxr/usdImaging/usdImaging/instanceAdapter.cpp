@@ -2022,7 +2022,14 @@ struct UsdImagingInstanceAdapter::_GetScenePrimPathFn
         // path, if one was provided.
         if (instanceIdx == instanceIndex) {
             SdfPathVector instanceChain;
-            if (!protoPath.IsEmpty()) {
+            // To get the correct prim-in-master, we need to add the prototype
+            // path to the instance chain.  However, there's a case in _Populate
+            // where we populate prototype prims that are just a master (used
+            // by e.g. cards).  In this case, the proto path is overridden to
+            // be the instance path, and we don't want to add it to the instance
+            // chain since instanceContext.front would duplicate it.
+            UsdPrim p = adapter->_GetPrim(protoPath);
+            if (p && !p.IsInstance()) {
                 instanceChain.push_back(protoPath);
             }
             for (UsdPrim const& prim : instanceContext) {
@@ -2052,8 +2059,8 @@ UsdImagingInstanceAdapter::GetScenePrimPath(
     // find the associated hydra instancer, and use the instance index to
     // look up the composed instance path.  They differ based on whether you
     // append a prototype path, and how you find the hydra instancer.
-    if (_IsChildPrim(
-            _GetPrim(cachePath.GetAbsoluteRootOrPrimPath()), cachePath)) {
+    UsdPrim usdPrim = _GetPrim(cachePath.GetAbsoluteRootOrPrimPath());
+    if (_IsChildPrim(usdPrim, cachePath)) {
 
         TF_DEBUG(USDIMAGING_SELECTION).Msg(
             "GetScenePrimPath: instance proto = %s\n", cachePath.GetText());
@@ -2062,6 +2069,18 @@ UsdImagingInstanceAdapter::GetScenePrimPath(
         _ProtoPrim const& proto = _GetProtoPrim(
             cachePath.GetAbsoluteRootOrPrimPath(),
             cachePath, &instancerContext);
+
+        _InstancerData const* instrData =
+            TfMapLookupPtr(_instancerData, usdPrim.GetPath());
+        if (!instrData) {
+            return SdfPath();
+        }
+
+        // TimeCode here certainly wrong
+        VtIntArray indices = _ComputeInstanceMap(usdPrim, *instrData, 
+                UsdTimeCode::Default());
+
+        instanceIndex = indices[instanceIndex];
 
         _GetScenePrimPathFn primPathFn(this, instanceIndex, proto.path);
         _RunForAllInstancesToDraw(
@@ -2098,6 +2117,7 @@ struct UsdImagingInstanceAdapter::_PopulateInstanceSelectionFn
             int const hydraInstanceIndex_,
             VtIntArray const& parentInstanceIndices_,
             _InstancerData const* instrData_,
+            VtIntArray const& drawnIndices_,
             UsdImagingInstanceAdapter const* adapter_,
             HdSelection::HighlightMode const& highlightMode_,
             HdSelectionSharedPtr const& result_)
@@ -2105,6 +2125,7 @@ struct UsdImagingInstanceAdapter::_PopulateInstanceSelectionFn
         , hydraInstanceIndex(hydraInstanceIndex_)
         , parentInstanceIndices(parentInstanceIndices_)
         , instrData(instrData_)
+        , drawnIndices(drawnIndices_)
         , adapter(adapter_)
         , highlightMode(highlightMode_)
         , result(result_)
@@ -2193,8 +2214,16 @@ struct UsdImagingInstanceAdapter::_PopulateInstanceSelectionFn
         // XXX: Ignore parentInstanceIndices since instanceAdapter can't
         // have a parent.
         VtIntArray instanceIndices;
+        int actualIndex = instanceIdx;
+        for (size_t i=0; i < drawnIndices.size(); i++) {
+            if (drawnIndices[i] == (int)instanceIdx) {
+                actualIndex = i;
+                break;
+            }
+        }
         if (hydraInstanceIndex == -1) {
-            instanceIndices.push_back((int)instanceIdx);
+            //instanceIndices.push_back((int)instanceIdx);
+            instanceIndices.push_back(actualIndex);
         }
 
         if (selectionCount == selectionPathVec.size()) {
@@ -2249,6 +2278,7 @@ struct UsdImagingInstanceAdapter::_PopulateInstanceSelectionFn
     int const hydraInstanceIndex;
     VtIntArray const& parentInstanceIndices;
     _InstancerData const* instrData;
+    VtIntArray const& drawnIndices;
     UsdImagingInstanceAdapter const* adapter;
     HdSelection::HighlightMode const& highlightMode;
     HdSelectionSharedPtr const& result;
@@ -2349,8 +2379,16 @@ UsdImagingInstanceAdapter::PopulateSelection(
             "PopulateSelection: instance = %s instancer = %s\n",
             cachePath.GetText(), instancerPath->GetText());
 
-        _PopulateInstanceSelectionFn populateFn(usdPrim, hydraInstanceIndex,
-            parentInstanceIndices, instrData, this, highlightMode, result);
+        UsdPrim cachePathUsdPrim = 
+            _GetPrim(cachePath.GetAbsoluteRootOrPrimPath());
+
+        VtIntArray indices = _ComputeInstanceMap(cachePathUsdPrim, *instrData, 
+                UsdTimeCode::Default());
+
+        _PopulateInstanceSelectionFn populateFn(usdPrim, 
+                hydraInstanceIndex,
+            parentInstanceIndices, instrData, indices, 
+            this, highlightMode, result);
         _RunForAllInstancesToDraw(_GetPrim(*instancerPath), &populateFn);
 
         return populateFn.added;
