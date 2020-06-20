@@ -205,8 +205,7 @@ UsdImagingInstanceAdapter::_Populate(UsdPrim const& prim,
     // Compute the instancer proxy path (which might be different than the
     // one computed above, if instancePath and instancerPath are different...)
     instancerChain = { instancerPath };
-    UsdPrim instancerPrim = _GetPrim(instancerPath);
-    if (instancerPrim && instancerPrim.IsInMaster()) {
+    if (_GetPrim(instancerPath).IsInMaster()) {
         instancerChain.push_back(parentProxyPath);
     }
     SdfPath instancerProxyPath = _GetPrimPathFromInstancerChain(instancerChain);
