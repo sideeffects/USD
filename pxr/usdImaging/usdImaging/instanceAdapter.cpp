@@ -334,22 +334,15 @@ UsdImagingInstanceAdapter::_Populate(UsdPrim const& prim,
                     TfType::GetCanonicalTypeName(typeid(*primAdapter)).c_str() :
                     "none");
         }
-        // Add this instancer into the render index if it has any prototypes.
-        if (primCount > 0) {
-            index->InsertInstancer(instancerPath,
-                                   /*parentPath=*/ctx.instancerCachePath,
-                                   _GetPrim(instancerPath),
-                                   ctx.instancerAdapter);
+        // Add this instancer into the render index
+        index->InsertInstancer(instancerPath,
+                               /*parentPath=*/ctx.instancerCachePath,
+                               _GetPrim(instancerPath),
+                               ctx.instancerAdapter);
 
-            // Mark this instancer as having a TrackVariability queued, since
-            // we automatically queue it in InsertInstancer.
-            instancerData.refreshVariability = true;
-        } else if (nestedInstances.empty()) {
-            // if this instance path ends up to have no prims in subtree
-            // and not an instance itself , we don't need to track this path
-            // any more.
-            instancePath = SdfPath();
-        }
+        // Mark this instancer as having a TrackVariability queued, since
+        // we automatically queue it in InsertInstancer.
+        instancerData.refreshVariability = true;
     }
 
     if (!instancePath.IsEmpty()) {
