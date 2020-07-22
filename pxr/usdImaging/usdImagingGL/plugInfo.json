@@ -3,10 +3,15 @@
         {
             "Info": {
                 "Types": {
-                    "UsdImagingGLDrawModeAdapter" : {
-                        "bases": ["UsdImagingPrimAdapter"],
+                    "UsdImagingGLDomeLightAdapter" : {
+                        "bases": ["UsdImagingDomeLightAdapter"],
                         "isInternal": true,
-                        "primTypeName": "__drawModeAdapter"
+                        "primTypeName": "PreviewDomeLight"
+                    },
+                    "UsdImagingGLMaterialTextureAdapter" : {
+                        "bases": ["UsdImagingMaterialAdapter"],
+                        "isInternal": true,
+                        "primTypeName": "MaterialTexture"
                     }
                 }
             },

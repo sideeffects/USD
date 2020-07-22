@@ -107,7 +107,7 @@ SdrOslParserPlugin::Parse(const NdrNodeDiscoveryResult& discoveryResult)
 {
     // Each call to `Parse` should have its own reference to an OSL query to
     // prevent multi-threading issues
-    OSL::OSLQuery oslQuery;
+    HOSL::OSLQuery oslQuery;
 
     bool parseSuccessful = true;
 
@@ -197,7 +197,7 @@ SdrOslParserPlugin::Parse(const NdrNodeDiscoveryResult& discoveryResult)
 
 NdrPropertyUniquePtrVec
 SdrOslParserPlugin::_getNodeProperties(
-    const OSL::OSLQuery &query, const NdrNodeDiscoveryResult& discoveryResult) const
+    const HOSL::OSLQuery &query, const NdrNodeDiscoveryResult& discoveryResult) const
 {
     NdrPropertyUniquePtrVec properties;
     const size_t nParams = query.nparams();
@@ -341,7 +341,7 @@ SdrOslParserPlugin::_injectParserMetadata(NdrTokenMap& metadata,
 
 NdrTokenMap
 SdrOslParserPlugin::_getNodeMetadata(
-    const OSL::OSLQuery &query,
+    const HOSL::OSLQuery &query,
     const NdrTokenMap &baseMetadata) const
 {
     NdrTokenMap nodeMetadata = baseMetadata;
