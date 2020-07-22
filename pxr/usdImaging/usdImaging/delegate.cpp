@@ -337,7 +337,8 @@ public:
             SdfPath const& cachePath = _tasks[i];
 
             _HdPrimInfo *primInfo = _delegate->_GetHdPrimInfo(cachePath);
-            if (TF_VERIFY(primInfo, "%s\n", cachePath.GetText())) {
+            if (TF_VERIFY(primInfo, "%s\n", cachePath.GetText()) &&
+                primInfo->usdPrim) {
                 UsdImagingPrimAdapterSharedPtr const& adapter=primInfo->adapter;
                 if (TF_VERIFY(adapter, "%s\n", cachePath.GetText())) {
                     adapter->TrackVariability(primInfo->usdPrim,
@@ -362,7 +363,8 @@ public:
             SdfPath const& cachePath = _tasks[i];
 
             _HdPrimInfo *primInfo = _delegate->_GetHdPrimInfo(cachePath);
-            if (TF_VERIFY(primInfo, "%s\n", cachePath.GetText())) {
+            if (TF_VERIFY(primInfo, "%s\n", cachePath.GetText()) &&
+                primInfo->usdPrim) {
                 UsdImagingPrimAdapterSharedPtr const& adapter=primInfo->adapter;
                 if (TF_VERIFY(adapter, "%s\n", cachePath.GetText())) {
                     adapter->UpdateForTime(primInfo->usdPrim,
