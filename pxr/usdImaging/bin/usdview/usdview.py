@@ -22,10 +22,29 @@
 # KIND, either express or implied. See the Apache License for the specific
 # language governing permissions and limitations under the Apache License.
 #
-
 from __future__ import print_function
+from pxr import Usdviewq
+from PySide2 import QtCore
 import sys
-import pxr.Usdviewq as Usdviewq
+import os
+
+libpaths = list(QtCore.QCoreApplication.libraryPaths())
+# Get the dso path on Linux and Mac, or HB on Windows.
+if os.name == 'nt':
+    libpath = os.environ.get('HB')
+else:
+    libpath = os.environ.get('HDSO')
+
+# Add the Houdini Qt_plugins directory so we find the plugin for the
+# current platform.
+if libpath is not None:
+    libpaths.append(libpath + '/Qt_plugins')
+    QtCore.QCoreApplication.setLibraryPaths(libpaths)
+
+# Register the Houdini fonts directory with Qt.
+HFS = os.environ.get("HFS")
+if HFS is not None:
+    os.environ["QT_QPA_FONTDIR"] = "{}/houdini/fonts".format(HFS)
 
 if __name__ == '__main__':
     try:
@@ -33,3 +52,4 @@ if __name__ == '__main__':
     except Usdviewq.InvalidUsdviewOption as e:
         print("ERROR: " + e.message, file=sys.stderr)
         sys.exit(1)
+

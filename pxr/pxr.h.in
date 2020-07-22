@@ -26,6 +26,38 @@
 
 /// \file pxr/pxr.h
 
+// A few defines specific to how Houdini uses USD
+#ifndef NDEBUG
+    #ifndef _DEBUG
+	#define _DEBUG
+    #endif
+    #ifndef TBB_USE_DEBUG
+	#define TBB_USE_DEBUG 1
+    #endif
+    #ifndef BUILD_OPTLEVEL_DEV
+	#define BUILD_OPTLEVEL_DEV
+    #endif
+#else
+    #ifndef TBB_USE_DEBUG
+	#define TBB_USE_DEBUG 0
+    #endif
+    #ifndef BUILD_OPTLEVEL_OPT
+	#define BUILD_OPTLEVEL_OPT
+    #endif
+#endif
+#ifndef TF_NO_GNU_EXT
+    #define TF_NO_GNU_EXT
+#endif
+#ifndef BUILD_COMPONENT_SRC_PREFIX
+    #define BUILD_COMPONENT_SRC_PREFIX ""
+#endif
+#ifndef PXR_PYTHON_SUPPORT_ENABLED
+   #define PXR_PYTHON_SUPPORT_ENABLED
+#endif
+
+#define PXR_PACKAGE_URL "@PXR_PACKAGE_URL@"
+#define PXR_PACKAGE_REVISION "@PXR_PACKAGE_REVISION@"
+
 #define PXR_MAJOR_VERSION @PXR_MAJOR_VERSION@
 #define PXR_MINOR_VERSION @PXR_MINOR_VERSION@
 #define PXR_PATCH_VERSION @PXR_PATCH_VERSION@
