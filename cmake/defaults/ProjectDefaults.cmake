@@ -24,14 +24,20 @@
 if(APPLE)
     set(OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architectures for OSX")
     set(CMAKE_MACOSX_RPATH ON)
-    set(CMAKE_SKIP_BUILD_RPATH FALSE)
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+    set(CMAKE_INSTALL_RPATH "@loader_path/.;@loader_path/../../../../../../../../Houdini.framework/Versions/Current/Libraries")
+    set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
     set(CMAKE_DYLIB_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "install_name path for dylib.")
     list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
     message(WARNING "Building USD on Mac OSX is currently experimental.")
 elseif(WIN32)
     # Windows specific set up
     message(WARNING "Building USD on Windows is currently experimental.")
+else()
+    # Linux needs to find libraries in $HDSO. But the USD plugins show up
+    # under the $HDSO/usd_plugins dir, and python libs show up in
+    # $HFS/python/lib/python2.7/site_packages/pxr/UsdLib, so we need to
+    # add entries to get from each of these paths to $HDSO.
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/.:$ORIGIN/..:$ORIGIN/../../../../../../dsolib")
 endif()
 
 # Allow local includes from source directory.

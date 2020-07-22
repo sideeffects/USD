@@ -263,7 +263,7 @@ function(_install_pyside_ui_files LIBRARY_NAME)
         set(outFilePath "${CMAKE_CURRENT_BINARY_DIR}/${outFileName}.py")
         add_custom_command(
             OUTPUT ${outFilePath}
-            COMMAND "${PYSIDEUICBINARY}"
+            COMMAND ${ENV_EXECUTABLE} DYLD_FALLBACK_LIBRARY_PATH=${LOCAL_LIBRARY_PATH} LD_LIBRARY_PATH=${LOCAL_LIBRARY_PATH} "${PYTHON_EXECUTABLE}" "${PYSIDEUICBINARY}"
             ARGS -o ${outFilePath} ${uiFilePath}
             MAIN_DEPENDENCY "${uiFilePath}"
             COMMENT "Generating Python for ${uiFilePath} ..."
@@ -597,6 +597,9 @@ function(_pxr_add_rpath rpathRef target)
 endfunction()
 
 function(_pxr_install_rpath rpathRef NAME)
+    # RPATH is set in ProjectDefaults and should not be modified.
+    return()
+
     # Get and remove the origin.
     list(GET ${rpathRef} 0 origin)
     set(rpath ${${rpathRef}})
@@ -844,10 +847,10 @@ function(_pxr_target_link_libraries NAME)
                     #
                     list(APPEND final -WHOLEARCHIVE:$<TARGET_FILE:${lib}>)
                     list(APPEND final ${lib})
-                elseif(CMAKE_COMPILER_IS_GNUCXX)
-                    list(APPEND final -Wl,--whole-archive ${lib} -Wl,--no-whole-archive)
-                elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+                elseif(APPLE)
                     list(APPEND final -Wl,-force_load ${lib})
+                elseif(UNIX)
+                    list(APPEND final -Wl,--whole-archive ${lib} -Wl,--no-whole-archive)
                 else()
                     # Unknown platform.
                     list(APPEND final ${lib})
@@ -954,6 +957,7 @@ function(_pxr_python_module NAME)
     set_target_properties(${LIBRARY_NAME}
         PROPERTIES
             PREFIX ""
+	    DEBUG_POSTFIX "_d"
             FOLDER "${folder}"
     )
     if(WIN32)
@@ -1243,6 +1247,8 @@ function(_pxr_library NAME)
             IMPORT_PREFIX "${args_PREFIX}"            
             PREFIX "${args_PREFIX}"
             SUFFIX "${args_SUFFIX}"
+	    IMPORT_PREFIX "${args_PREFIX}"
+	    DEBUG_POSTFIX "_d"
             PUBLIC_HEADER "${args_PUBLIC_HEADERS}"
     )
 
