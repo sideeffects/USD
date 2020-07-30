@@ -1344,6 +1344,7 @@ UsdImagingDelegate::_RefreshUsdObject(SdfPath const& usdPath,
             } else if (dirtyBits != HdChangeTracker::AllDirty) {
                 // Update Variability
                 _timeVaryingPrimCacheValid = false;
+                primInfo->timeVaryingBits = HdChangeTracker::Clean;
                 adapter->TrackVariability(primInfo->usdPrim, affectedCachePath,
                                           &primInfo->timeVaryingBits);
 
