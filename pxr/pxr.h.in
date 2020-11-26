@@ -79,8 +79,18 @@ namespace PXR_NS {
     using namespace PXR_INTERNAL_NS;
 }
 
+#if defined(MBSD)
+#define PXR_NAMESPACE_OPEN_SCOPE   \
+    _Pragma("GCC visibility push(default)") \
+    namespace PXR_INTERNAL_NS {
+#define PXR_NAMESPACE_CLOSE_SCOPE  \
+    } \
+    _Pragma("GCC visibility pop")
+#else
 #define PXR_NAMESPACE_OPEN_SCOPE   namespace PXR_INTERNAL_NS {
 #define PXR_NAMESPACE_CLOSE_SCOPE  }  
+#endif
+
 #define PXR_NAMESPACE_USING_DIRECTIVE using namespace PXR_NS;
 
 #else
