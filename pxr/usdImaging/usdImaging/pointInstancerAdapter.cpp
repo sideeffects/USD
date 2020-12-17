@@ -794,13 +794,23 @@ UsdImagingPointInstancerAdapter::ProcessPropertyChange(UsdPrim const& prim,
             return HdChangeTracker::Clean;
         }
 
+        UsdPrim protoUsdPrim = _GetProtoUsdPrim(proto);
+        if (!protoUsdPrim) {
+            // It's possible that we will get a property change that was
+            // actually directed at a parent primitive for an inherited
+            // primvar. We need to verify that the prototype UsdPrim still
+            // exists, as it may have been deactivated or otherwise removed,
+            // in which case we can return clean (no-work).
+            return HdChangeTracker::Clean;
+        }
+
         // XXX: Specifically disallow visibility and transform updates: in
         // these cases, it's hard to tell which prims we should dirty but
         // probably we need to dirty both prototype & instancer. This is a
         // project for later. In the meantime, returning AllDirty causes
         // a re-sync.
         HdDirtyBits dirtyBits = proto.adapter->ProcessPropertyChange(
-            _GetProtoUsdPrim(proto), cachePath, propertyName);
+            protoUsdPrim, cachePath, propertyName);
 
         if (dirtyBits & (HdChangeTracker::DirtyTransform |
                          HdChangeTracker::DirtyVisibility)) {
@@ -1122,7 +1132,7 @@ UsdImagingPointInstancerAdapter::_GetProtoUsdPrim(
     //   /Instance
     // ... in which case, we want to return /Instance since masters drop all
     // attributes.
-    if (prim.IsMaster() && TF_VERIFY(proto.paths.size() > 1)) {
+    if (prim && prim.IsMaster() && TF_VERIFY(proto.paths.size() > 1)) {
         prim = _GetPrim(proto.paths.at(1));
     }
     return prim;
