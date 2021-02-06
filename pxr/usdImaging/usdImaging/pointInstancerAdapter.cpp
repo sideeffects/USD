@@ -1873,8 +1873,11 @@ UsdImagingPointInstancerAdapter::Get(UsdPrim const& usdPrim,
             VtValue value;
             if (pv) {
                 pv.ComputeFlattened(&value, time);
+                return value;
             }
-            return value;
+            // Fall through to the base adapter which will return values
+            // authored as standard USD attributes on the point instancer
+            // (such as velocity, acceleration, or custom attributes).
         }
     }
 
