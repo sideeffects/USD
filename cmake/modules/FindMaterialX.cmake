@@ -30,7 +30,6 @@
 # MATERIALX_BASE_DIR         Path to the root of the MaterialX installation 
 # MATERIALX_INCLUDE_DIRS     Path to the MaterialX include directories
 # MATERIALX_LIB_DIRS         Path to the MaterialX libraray directories
-# MATERIALX_STDLIB_DIR       Path to the MaterialX standard library directory
 # MATERIALX_LIBRARIES        List of MaterialX libraries
 
 #
@@ -91,19 +90,6 @@ find_path(MATERIALX_LIB_DIRS
         "MaterialX Library Path"
 )
 
-find_path(MATERIALX_STDLIB_DIR
-    stdlib/stdlib_defs.mtlx
-    HINTS
-        "${MATERIALX_ROOT}"
-        "$ENV{MATERIALX_ROOT}"
-        "${MATERIALX_BASE_DIR}"
-        "${MATERIALX_DATA_ROOT}"
-    PATH_SUFFIXES
-        libraries
-    DOC
-        "MaterialX Standard Libraries Path"
-)
-
 foreach(MATERIALX_LIB
     Core
     Format
@@ -135,5 +121,4 @@ find_package_handle_standard_args(MaterialX
         MATERIALX_BASE_DIR
         MATERIALX_INCLUDE_DIRS
         MATERIALX_LIB_DIRS
-        MATERIALX_STDLIB_DIR
 )
