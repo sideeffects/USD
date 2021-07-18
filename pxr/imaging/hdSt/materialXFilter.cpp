@@ -34,6 +34,7 @@
 
 #include "pxr/base/tf/diagnostic.h"
 
+#include <MaterialXFormat/Environ.h>
 #include <MaterialXGenShader/Util.h>
 #include <MaterialXGenShader/Shader.h>
 #include <MaterialXRender/Util.h>
@@ -460,6 +461,10 @@ HdSt_ApplyMaterialXFilter(
         // Load Standard Libraries/setup SearchPaths (for mxDoc and mxShaderGen)
         mx::FilePathVec libraryFolders = { "libraries", };
         mx::FileSearchPath searchPath;
+        searchPath.append(mx::FilePath(
+            mx::getEnviron("PXR_USDMTLX_STDLIB_SEARCH_PATHS")));
+        searchPath.append(mx::FilePath(
+            mx::getEnviron("PXR_USDMTLX_PLUGIN_SEARCH_PATHS")));
         mx::DocumentPtr stdLibraries = mx::createDocument();
         mx::loadLibraries(libraryFolders, searchPath, stdLibraries);
 
