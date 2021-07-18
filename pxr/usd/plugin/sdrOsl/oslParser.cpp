@@ -91,7 +91,7 @@ SdrOslParserPlugin::~SdrOslParserPlugin()
 
 template <class String>
 static bool
-_ParseFromSourceCode(OSL::OSLQuery* query, const String& sourceCode)
+_ParseFromSourceCode(HOSL::OSLQuery* query, const String& sourceCode)
 {
 #if OSL_LIBRARY_VERSION_CODE < 10701
     TF_WARN("Support for parsing OSL from an in-memory string is only "
@@ -152,7 +152,7 @@ SdrOslParserPlugin::Parse(const NdrNodeDiscoveryResult& discoveryResult)
             }
 
             parseSuccessful = _ParseFromSourceCode(
-                &oslQuery, OSL::string_view(buffer.get(), asset->GetSize()));
+                &oslQuery, HOSL::string_view(buffer.get(), asset->GetSize()));
         }
 
     } else if (!discoveryResult.sourceCode.empty()) {
