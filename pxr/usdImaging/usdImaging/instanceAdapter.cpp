@@ -1757,8 +1757,14 @@ UsdImagingInstanceAdapter::GetPurpose(
     UsdImagingInstancerContext instancerContext;
     _ProtoPrim const *proto;
     if (_GetProtoPrimForChild(usdPrim, cachePath, &proto, &instancerContext)) {
-        return proto->adapter->GetPurpose(_GetPrim(proto->path), cachePath, 
-                                instancerContext.instanceInheritablePurpose);
+        // This method is called when trying to decide which prims are dirty.
+        // If the proto prim for an rprim has been deleted, we may not know
+        // this yet, so verify that the proto prim actually exists.
+        UsdPrim protoUsdPrim = _GetPrim(proto->path);
+        if (protoUsdPrim) {
+            return proto->adapter->GetPurpose(protoUsdPrim, cachePath, 
+                    instancerContext.instanceInheritablePurpose);
+        }
     }
     return UsdImagingPrimAdapter::GetPurpose(usdPrim, cachePath, TfToken());
 }
