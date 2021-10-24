@@ -127,18 +127,12 @@ Tf_CreateSiblingTempFile(std::string fileName,
     // in the code below.
     std::string dirPath = TfStringGetBeforeSuffix(realFilePath, '\\');
 
-    // On Windows, check if the file exists before checking if we can write
-    // to the file. If the file doesn't exist, assume we can write to it. We
-    // have to handle the failure case on this elsewhere anyway.
-    if (ArchFileAccess(realFilePath.c_str(), F_OK) == 0) {
-        if (ArchFileAccess(realFilePath.c_str(), W_OK) != 0 &&
-            errno != ENOENT) {
-            *error = TfStringPrintf(
-                "Insufficient permissions to write to destination "
-                "file '%s'", realFilePath.c_str());
-            return result;
-        }
-    }
+    // On Windows, skip all permission checks. They very often fail on network
+    // file systems even though actual file operations would be permitted. We
+    // have to handle failure cases elsewhere anyway. The downside is that we
+    // may create a temp file than be unable to rename it, leaving it sitting
+    // on disk. This is bad, but not as bad as refusing to even try saving the
+    // requested file to disk.
 #else
     // Check destination directory permissions. The destination directory must
     // exist and be writable so we can write the temporary file and rename the
