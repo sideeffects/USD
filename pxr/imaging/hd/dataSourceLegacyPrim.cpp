@@ -1098,12 +1098,12 @@ private:
 // ----------------------------------------------------------------------------
 
 template <typename T>
-class Hd_DataSourceLegacyCameraParamValue : public HdTypedSampledDataSource<T>
+class Hd_TypedDataSourceLegacyCameraParamValue : public HdTypedSampledDataSource<T>
 {
 public:
-    HD_DECLARE_DATASOURCE(Hd_DataSourceLegacyCameraParamValue<T>);
+    HD_DECLARE_DATASOURCE(Hd_TypedDataSourceLegacyCameraParamValue<T>);
 
-    Hd_DataSourceLegacyCameraParamValue(
+    Hd_TypedDataSourceLegacyCameraParamValue(
         const SdfPath &id,
         const TfToken &key,
         HdSceneDelegate *sceneDelegate)
@@ -1155,6 +1155,50 @@ private:
     TfToken _key;
     HdSceneDelegate *_sceneDelegate;
 };
+
+
+class Hd_DataSourceLegacyCameraParamValue : public HdSampledDataSource
+{
+public:
+    HD_DECLARE_DATASOURCE(Hd_DataSourceLegacyCameraParamValue);
+
+    Hd_DataSourceLegacyCameraParamValue(
+        const SdfPath &id,
+        const TfToken &key,
+        HdSceneDelegate *sceneDelegate)
+    : _id(id)
+    , _key(key)
+    , _sceneDelegate(sceneDelegate)
+    {
+        TF_VERIFY(_sceneDelegate);
+    }
+
+    bool GetContributingSampleTimesForInterval( 
+        HdSampledDataSource::Time startTime, 
+        HdSampledDataSource::Time endTime,
+        std::vector<HdSampledDataSource::Time> * outSampleTimes)  override
+    {
+        return Hd_DataSourceLegacyPrimvarValue::New(
+            _key, _id, _sceneDelegate)->GetContributingSampleTimesForInterval(
+                startTime, endTime, outSampleTimes);
+    }
+
+    VtValue GetValue(HdSampledDataSource::Time shutterOffset) override
+    {
+        if (shutterOffset == 0.0f) {
+            return _sceneDelegate->GetCameraParamValue(_id, _key);
+        }
+
+        return Hd_DataSourceLegacyPrimvarValue::New(
+                _key, _id, _sceneDelegate)->GetValue(shutterOffset);
+    }
+
+private:
+    SdfPath _id;
+    TfToken _key;
+    HdSceneDelegate *_sceneDelegate;
+};
+
 
 class Hd_DataSourceCamera : public HdContainerDataSource
 {
@@ -1231,8 +1275,15 @@ public:
             }
             return HdRetainedTypedSampledDataSource<std::vector<GfVec4d>>::New(
                         cp);
+        } else if (std::find(HdCameraTokens->allTokens.begin(),
+                HdCameraTokens->allTokens.end(), name)
+                    != HdCameraTokens->allTokens.end()) {
+            // all remaining HdCameraSchema members are floats and should
+            // be returned as a typed data source for schema conformance.
+            return Hd_TypedDataSourceLegacyCameraParamValue<float>::New(
+                _id, name, _sceneDelegate);
         } else {
-            return Hd_DataSourceLegacyCameraParamValue<float>::New(
+            return Hd_DataSourceLegacyCameraParamValue::New(
                 _id, name, _sceneDelegate);
         }
     }
