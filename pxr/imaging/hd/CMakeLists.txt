@@ -42,6 +42,7 @@ pxr_library(hd
         computation
         coordSys
         coordSysBindingSchema
+        dataSharingSchema
         dataSource
         dataSourceLegacyPrim
         dataSourceLocator
