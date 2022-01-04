@@ -103,6 +103,7 @@ private:
     HdDataSourceBaseHandle _GetDisplayFilterDataSource();
     HdDataSourceBaseHandle _GetDisplayStyleDataSource();
     HdDataSourceBaseHandle _GetInstancedByDataSource();
+    HdDataSourceBaseHandle _GetDataSharingDataSource();
     HdDataSourceBaseHandle _GetInstancerTopologyDataSource();
     HdDataSourceBaseHandle _GetVolumeFieldBindingDataSource();
     HdDataSourceBaseHandle _GetCoordSysBindingDataSource();
