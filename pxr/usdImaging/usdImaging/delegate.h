@@ -416,6 +416,9 @@ public:
                      int instanceIndex,
                      HdInstancerContext *instancerContext = nullptr) override;
 
+    USDIMAGING_API
+    virtual SdfPath GetDataSharingId(SdfPath const& primId) override;
+
     // ExtComputation support
     USDIMAGING_API
     TfTokenVector
