@@ -320,6 +320,12 @@ HdSceneDelegate::GetScenePrimPaths(SdfPath const& rprimId,
             rprimId.ReplacePrefix(_delegateID, SdfPath::AbsoluteRootPath()));
 }
 
+/*virtual*/
+SdfPath
+HdSceneDelegate::GetDataSharingId(SdfPath const& primId)
+{
+    return SdfPath();
+}
 
 // -----------------------------------------------------------------------//
 /// \name Material Aspects

@@ -429,6 +429,9 @@ public:
         std::vector<int> const& instanceIndices,
         std::vector<HdInstancerContext> *instancerCtxs) const;
 
+    USDIMAGING_API
+    virtual SdfPath GetDataSharingId(SdfPath const& cachePath) const;
+
     // Add the given usdPrim to the HdSelection object, to mark it for
     // selection highlighting. cachePath is the path of the object referencing
     // this adapter.

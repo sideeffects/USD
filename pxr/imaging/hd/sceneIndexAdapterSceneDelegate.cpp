@@ -54,6 +54,7 @@
 #include "pxr/imaging/hd/coordSysBindingSchema.h"
 #include "pxr/imaging/hd/cubeSchema.h"
 #include "pxr/imaging/hd/cylinderSchema.h"
+#include "pxr/imaging/hd/dataSharingSchema.h"
 #include "pxr/imaging/hd/dependenciesSchema.h"
 #include "pxr/imaging/hd/dependencySchema.h"
 #include "pxr/imaging/hd/extComputationInputComputationSchema.h"
@@ -2286,6 +2287,27 @@ HdSceneIndexAdapterSceneDelegate::GetInstancerId(SdfPath const &id)
     }
 
     return instancerId;
+}
+
+SdfPath
+HdSceneIndexAdapterSceneDelegate::GetDataSharingId(SdfPath const& primId)
+{
+    TRACE_FUNCTION();
+    HF_MALLOC_TAG_FUNCTION();
+
+    SdfPath sharingId;
+
+    HdSceneIndexPrim prim = _inputSceneIndex->GetPrim(primId);
+
+    if (HdDataSharingSchema dataSharing =
+            HdDataSharingSchema::GetFromParent(prim.dataSource)) {
+        if (HdPathDataSourceHandle sharingIdDs =
+                dataSharing.GetSharingId()) {
+            sharingId = sharingIdDs->GetTypedValue(0);
+        }
+    }
+
+    return sharingId;
 }
 
 TfTokenVector
