@@ -396,6 +396,8 @@ public:
                       std::vector<int> instanceIndices,
                       std::vector<HdInstancerContext> *instancerContexts = nullptr) override;
 
+    virtual SdfPath GetDataSharingId(SdfPath const& primId) override;
+
     // ExtComputation support
     USDIMAGING_API
     TfTokenVector

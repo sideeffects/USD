@@ -357,6 +357,10 @@ public:
         std::vector<HdInstancerContext> *instancerCtxs) const override;
 
     USDIMAGING_API
+    SdfPath GetDataSharingId(
+        SdfPath const& cachePath) const override;
+
+    USDIMAGING_API
     bool PopulateSelection( 
         HdSelection::HighlightMode const& highlightMode,
         SdfPath const &cachePath,
