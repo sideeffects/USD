@@ -2558,6 +2558,40 @@ UsdImagingInstanceAdapter::GetScenePrimPaths(
     return SdfPathVector(instanceIndices.size());
 }
 
+/* virtual */
+SdfPath
+UsdImagingInstanceAdapter::GetDataSharingId(SdfPath const& cachePath) const
+{
+    UsdPrim usdPrim = _GetPrim(cachePath.GetAbsoluteRootOrPrimPath());
+
+    if (_IsChildPrim(usdPrim, cachePath)) {
+
+        TF_DEBUG(USDIMAGING_SELECTION).Msg(
+            "GetScenePrimPath: instance proto = %s\n", cachePath.GetText());
+
+        UsdImagingInstancerContext instancerContext;
+        _ProtoPrim const& proto = _GetProtoPrim(
+            cachePath.GetAbsoluteRootOrPrimPath(),
+            cachePath, &instancerContext);
+
+        return proto.path;
+    }
+    else
+    {
+        SdfPath const* instancerPath =
+            TfMapLookupPtr(_instanceToInstancerMap, cachePath);
+        if (instancerPath) {
+            _InstancerData const* instrData =
+                TfMapLookupPtr(_instancerData, *instancerPath);
+            if (instrData) {
+                return instrData->prototypePath;
+            }
+        }
+    }
+
+    return SdfPath();
+}
+
 struct UsdImagingInstanceAdapter::_PopulateInstanceSelectionFn
 {
     _PopulateInstanceSelectionFn(

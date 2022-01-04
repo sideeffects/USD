@@ -512,6 +512,12 @@ UsdImagingPrimAdapter::GetScenePrimPaths(SdfPath const& cachePath,
     return SdfPathVector(instanceIndices.size(), cachePath);
 }
 
+SdfPath
+UsdImagingPrimAdapter::GetDataSharingId(SdfPath const& cachePath) const
+{
+    return SdfPath();
+}
+
 /*virtual*/
 bool
 UsdImagingPrimAdapter::PopulateSelection(
