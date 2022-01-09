@@ -479,6 +479,17 @@ UsdImagingPrimAdapter::GetScenePrimPath(
 }
 
 /*virtual*/
+SdfPathVector
+UsdImagingPrimAdapter::GetScenePrimPaths(SdfPath const& cachePath,
+    std::vector<int> const& instanceIndices,
+    std::vector<HdInstancerContext> *instancerCtxs) const
+{
+    // Note: if we end up here, we're not instanced, since primInfo
+    // holds the instance adapter for instanced gprims.
+    return SdfPathVector(instanceIndices.size(), cachePath);
+}
+
+/*virtual*/
 SdfPath
 UsdImagingPrimAdapter::GetDataSharingId(SdfPath const& cachePath) const
 {

@@ -619,6 +619,16 @@ public:
                                      int instanceIndex,
                                      HdInstancerContext *instancerContext = nullptr);
 
+    /// A vectorized version of GetScenePrimPath that allows the prim adapter
+    /// to amortize expensive calculations across a number of path evaluations
+    /// in a single call. Note that only a single rprimId is supported. This
+    /// allows this call to be forwarded directly to a single prim adapter
+    /// rather than requiring a lot of data shuffling.
+    HD_API
+    virtual SdfPathVector GetScenePrimPaths(SdfPath const& rprimId,
+                                     std::vector<int> instanceIndices,
+                                     std::vector<HdInstancerContext> *instancerContexts = nullptr);
+
     /// Returns an identifier that can be used to share data between HdPrims
     /// during a Sync operation. Any number of HdPrims of the same type may
     /// return the same identifier. In this situation, the render delegate
