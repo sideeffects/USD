@@ -3,11 +3,6 @@
         {
             "Info": {
                 "Types": {
-                    "UsdImagingGLDrawModeAdapter" : {
-                        "bases": ["UsdImagingPrimAdapter"],
-                        "isInternal": true,
-                        "primTypeName": "__drawModeAdapter"
-                    }
                 }
             },
             "LibraryPath": "@PLUG_INFO_LIBRARY_PATH@",
