@@ -77,7 +77,7 @@ Tf_AtomicRenameFileOver(std::string const &srcFileName,
     } else {
         const mode_t mask = umask(0);
         umask(mask);
-        fileMode = DEFFILEMODE - mask;
+        fileMode = DEFFILEMODE & ~mask;
     }
 
     if (chmod(srcFileName.c_str(), fileMode) != 0) {
@@ -128,13 +128,21 @@ Tf_CreateSiblingTempFile(std::string fileName,
     // XXX: This is not fully ported, also notice the non-platform agnostic "/"
     // in the code below.
     std::string dirPath = TfStringGetBeforeSuffix(realFilePath, '\\');
+
+    // On Windows, skip all permission checks. They very often fail on network
+    // file systems even though actual file operations would be permitted. We
+    // have to handle failure cases elsewhere anyway. The downside is that we
+    // may create a temp file than be unable to rename it, leaving it sitting
+    // on disk. This is bad, but not as bad as refusing to even try saving the
+    // requested file to disk.
 #else
     // Check destination directory permissions. The destination directory must
     // exist and be writable so we can write the temporary file and rename the
     // temporary to the destination name.
     std::string dirPath = TfStringGetBeforeSuffix(realFilePath, '/');
-#endif
 
+    // File permissions checks on Windows over network drives are very flakey.
+    // So skip this preliminary check for directory write access.
     if (ArchFileAccess(dirPath.c_str(), W_OK) != 0) {
         *error = TfStringPrintf(
             "Insufficient permissions to write to destination "
@@ -153,6 +161,7 @@ Tf_CreateSiblingTempFile(std::string fileName,
             "file '%s'", realFilePath.c_str());
         return result;
     }
+#endif
 
     std::string tmpFilePrefix =
         TfStringGetBeforeSuffix(TfGetBaseName(realFilePath));
