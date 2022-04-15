@@ -14,6 +14,10 @@ set(optionalIncludeDirs "")
 set(optionalPublicClasses "")
 set(optionalPrivateClasses "")
 if (${PXR_ENABLE_MATERIALX_SUPPORT})
+    if (${PXR_ENABLE_MATERIALX_SHARED_LIBS})
+	add_definitions(-DMATERIALX_BUILD_SHARED_LIBS)
+    endif()
+
     list(APPEND optionalLibs ${MATERIALX_LIBRARIES} hdMtlx)
     list(APPEND optionalIncludeDirs ${MATERIALX_INCLUDE_DIRS})
     list(APPEND optionalPrivateClasses
