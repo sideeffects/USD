@@ -22,6 +22,9 @@ pxr_library(usdBakeMtlx
         ${MATERIALX_INCLUDE_DIRS}
         ${PYTHON_INCLUDE_DIRS}
 
+    PUBLIC_HEADERS
+        api.h
+
     PUBLIC_CLASSES
         bakeMaterialX
 
