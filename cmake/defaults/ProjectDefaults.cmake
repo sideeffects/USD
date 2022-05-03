@@ -37,7 +37,9 @@ else()
     # under the $HDSO/usd_plugins dir, and python libs show up in
     # $HFS/python/lib/python2.7/site_packages/pxr/UsdLib, so we need to
     # add entries to get from each of these paths to $HDSO.
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/.:$ORIGIN/..:$ORIGIN/../../../../../../dsolib")
+    # For executables that are put in $HB, we also need to add pointers
+    # to the dsolib and python lib directories.
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/.:$ORIGIN/..:$ORIGIN/../dsolib:$ORIGIN/../python/lib:$ORIGIN/../../../../../../dsolib")
 endif()
 
 # Allow local includes from source directory.
