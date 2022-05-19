@@ -88,7 +88,9 @@ Tf_HasAttribute(
     DWORD attribs = GetFileAttributes(path.c_str());
 
     if (attribs == INVALID_FILE_ATTRIBUTES) {
-        if (attribute == 0 && GetLastError() == ERROR_FILE_NOT_FOUND) {
+        if (attribute == 0 &&
+            (GetLastError() == ERROR_FILE_NOT_FOUND ||
+             GetLastError() == ERROR_PATH_NOT_FOUND)) {
             // Don't report an error if we're just testing existence.
             SetLastError(ERROR_SUCCESS);
         }
