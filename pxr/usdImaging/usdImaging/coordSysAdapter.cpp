@@ -30,6 +30,8 @@
 
 #include "pxr/imaging/hd/coordSys.h"
 
+#include "pxr/usd/usdGeom/camera.h"
+
 PXR_NAMESPACE_OPEN_SCOPE
 
 
@@ -42,6 +44,22 @@ TF_REGISTRY_FUNCTION(TfType)
 
 UsdImagingCoordSysAdapter::~UsdImagingCoordSysAdapter() 
 {
+}
+
+const TfTokenVector &
+UsdImagingCoordSysAdapter::_GetCameraProjectionProperties()
+{
+    static TfTokenVector CameraProjectionProperties({
+        UsdGeomTokens->projection,
+        UsdGeomTokens->horizontalAperture,
+        UsdGeomTokens->verticalAperture,
+        UsdGeomTokens->horizontalApertureOffset,
+        UsdGeomTokens->verticalApertureOffset,
+        UsdGeomTokens->focalLength,
+        UsdGeomTokens->clippingRange
+    });
+
+    return CameraProjectionProperties;
 }
 
 bool
@@ -92,10 +110,27 @@ UsdImagingCoordSysAdapter::TrackVariability(UsdPrim const& prim,
                                             instancerContext) const
 {
     // Discover time-varying transform on the target prim.
-    _IsTransformVarying(prim,
-        HdChangeTracker::DirtyTransform,
-        UsdImagingTokens->usdVaryingXform,
-        timeVaryingBits);
+    if (_IsTransformVarying(prim,
+            HdChangeTracker::DirtyTransform,
+            UsdImagingTokens->usdVaryingXform,
+            timeVaryingBits)) {
+        return;
+    }
+
+    // Discover time-varying attributes on camera prims that affect the
+    // projection matrix.
+    if (prim.IsA<UsdGeomCamera>()) {
+        for (auto &&propertyName : _GetCameraProjectionProperties()) {
+            if (_IsVarying(prim,
+                           propertyName,
+                           HdChangeTracker::DirtyTransform,
+                           propertyName,
+                           timeVaryingBits,
+                           false)) {
+                return;
+            }
+        }
+    }
 }
 
 void 
@@ -125,6 +160,15 @@ UsdImagingCoordSysAdapter::ProcessPropertyChange(UsdPrim const& prim,
     if (UsdGeomXformable::IsTransformationAffectedByAttrNamed(propertyName)) {
         return HdChangeTracker::DirtyTransform;
     }
+
+    if (prim.IsA<UsdGeomCamera>()) {
+        if (std::find(_GetCameraProjectionProperties().begin(),
+                      _GetCameraProjectionProperties().end(),
+                      propertyName) != _GetCameraProjectionProperties().end()) {
+            return HdChangeTracker::DirtyTransform;
+        }
+    }
+
     return HdChangeTracker::Clean;
 }
 
@@ -134,6 +178,13 @@ UsdImagingCoordSysAdapter::MarkDirty(UsdPrim const& prim,
                                   HdDirtyBits dirty,
                                   UsdImagingIndexProxy* index)
 {
+    // We receive dirty bits for our target usd prim -- which uses a different
+    // bit than a coordSys sprim does for transformation. Let's support both
+    // here.
+    if (dirty & HdChangeTracker::DirtyTransform) {
+        dirty |= HdCoordSys::DirtyTransform;
+    }
+
     index->MarkSprimDirty(cachePath, dirty);
 }
 
