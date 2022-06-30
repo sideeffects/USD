@@ -97,6 +97,10 @@ HdDirtyBitsTranslator::RprimDirtyBitsToLocatorSet(TfToken const& primType,
         }
     }
 
+    if (bits & HdChangeTracker::DirtyCategories) {
+        set->append(HdCategoriesSchema::GetDefaultLocator());
+    }
+
     if (bits & HdChangeTracker::DirtyDisplayStyle) {
         set->append(HdLegacyDisplayStyleSchema::GetDefaultLocator());
     } else {
@@ -404,6 +408,10 @@ HdDirtyBitsTranslator::RprimLocatorSetToDirtyBits(
                          end, &it)) {
             bits |= HdChangeTracker::DirtyTopology;
         }
+    }
+
+    if (_FindLocator(HdCategoriesSchema::GetDefaultLocator(), end, &it)) {
+        bits |= HdChangeTracker::DirtyCategories;
     }
 
     // _FindLocator here is called with advanceToNext = false. It will advance
