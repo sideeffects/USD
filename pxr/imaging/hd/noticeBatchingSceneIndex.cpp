@@ -82,8 +82,6 @@ HdNoticeBatchingSceneIndex::_PrimsRemoved(
             if (_PrimsRemovedBatchEntry *batchEntry =
                     dynamic_cast<_PrimsRemovedBatchEntry*>(
                         _batches.back().get())) {
-                batchEntry->entries.reserve(
-                    batchEntry->entries.size() + entries.size());
                 batchEntry->entries.insert(
                     batchEntry->entries.end(), entries.begin(), entries.end());
                 return;
@@ -109,8 +107,6 @@ HdNoticeBatchingSceneIndex::_PrimsDirtied(
             if (_PrimsDirtiedBatchEntry *batchEntry =
                     dynamic_cast<_PrimsDirtiedBatchEntry*>(
                         _batches.back().get())) {
-                batchEntry->entries.reserve(
-                    batchEntry->entries.size() + entries.size());
                 batchEntry->entries.insert(
                     batchEntry->entries.end(), entries.begin(), entries.end());
                 return;
