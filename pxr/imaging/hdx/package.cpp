@@ -23,6 +23,7 @@
 //
 #include "pxr/imaging/hdx/package.h"
 
+#include "pxr/base/arch/env.h"
 #include "pxr/base/plug/plugin.h"
 #include "pxr/base/plug/thisPlugin.h"
 #include "pxr/base/tf/diagnostic.h"
@@ -32,7 +33,6 @@
 #include "pxr/imaging/hio/imageRegistry.h"
 
 PXR_NAMESPACE_OPEN_SCOPE
-
 
 static TfToken
 _GetShaderPath(char const * shader)
@@ -173,14 +173,10 @@ HdxPackageSkydomeShader()
 TfToken
 HdxPackageDefaultDomeLightTexture()
 {
-    // Use the tex version of the Domelight's environment map if supported
-    HioImageRegistry &hioImageReg = HioImageRegistry::GetInstance();
-    static bool useTex = hioImageReg.IsSupportedImageFile("StinsonBeach.tex");
-
-    static TfToken domeLightTexture = (useTex)
-        ? _GetTexturePath("StinsonBeach.tex")
-        : _GetTexturePath("StinsonBeach.hdr");
-    return domeLightTexture;
+    // Get the default dome light texture file set in the environment.
+    const std::string domeLightTextureEnv =
+        ArchGetEnv("HOUDINI_DEFAULT_DOMELIGHT_TEXTURE");
+    return TfToken(domeLightTextureEnv);
 }
 
 PXR_NAMESPACE_CLOSE_SCOPE
