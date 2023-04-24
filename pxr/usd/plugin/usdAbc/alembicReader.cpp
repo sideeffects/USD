@@ -85,7 +85,7 @@ TF_DEFINE_ENV_SETTING(
 
 
 TF_DEFINE_ENV_SETTING(
-    USD_ABC_XFORM_PRIM_COLLAPSE, true,
+    USD_ABC_XFORM_PRIM_COLLAPSE, false,
     "Collapse Xforms containing a single geometry into a single geom Prim in USD");
 
 #if ALEMBIC_LIBRARY_VERSION >= 10709
