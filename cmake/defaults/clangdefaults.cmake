@@ -30,3 +30,8 @@ set(_PXR_CXX_FLAGS "${_PXR_GCC_CLANG_SHARED_CXX_FLAGS}")
 if(CMAKE_USE_PTHREADS_INIT)
     _disable_warning("unused-command-line-argument")
 endif()
+
+if(UNIX AND NOT APPLE)
+    # When building with clang on Linux, TBB cannot detect the libstdc++ version correctly for enabling C++11 features.
+    _add_define( TBB_USE_GLIBCXX_VERSION=50400 )
+endif()

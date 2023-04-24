@@ -22,6 +22,10 @@ if (${PXR_ENABLE_MATERIALX_SUPPORT})
         MaterialXGenGlsl
         hdMtlx
     )
+    if (${PXR_ENABLE_MATERIALX_SHARED_LIBS})
+	add_definitions(-DMATERIALX_BUILD_SHARED_LIBS)
+    endif()
+
     list(APPEND optionalPrivateClasses
          materialXFilter
          materialXShaderGen

@@ -42,7 +42,9 @@ include(Public)
 pxr_toplevel_prologue()
 
 add_subdirectory(pxr)
-add_subdirectory(extras)
+# Skip building extras because we don't use it, and trying to build it breaks
+# the Windows build because the paths get too long.
+# add_subdirectory(extras)
 
 if (PXR_BUILD_PRMAN_PLUGIN)
     set(prmanPluginPath "third_party/renderman-${RENDERMAN_VERSION_MAJOR}")
