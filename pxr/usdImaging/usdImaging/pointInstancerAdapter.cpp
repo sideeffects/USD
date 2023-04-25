@@ -545,6 +545,14 @@ UsdImagingPointInstancerAdapter::TrackVariability(UsdPrim const& prim,
     } else  if (_InstancerData const* instrData =
                 TfMapLookupPtr(_instancerData, cachePath)) {
 
+        // See if any of the inherited primvars are time-dependent.
+        UsdImaging_InheritedPrimvarStrategy::value_type inheritedPrimvarRecord =
+            _GetInheritedPrimvars(prim.GetParent());
+        if (inheritedPrimvarRecord && inheritedPrimvarRecord->variable) {
+            *timeVaryingBits |= HdChangeTracker::DirtyPrimvar;
+            HD_PERF_COUNTER_INCR(UsdImagingTokens->usdVaryingPrimvar);
+        }
+
         // Mark instance indices as time varying if any of the following is 
         // time varying : protoIndices, invisibleIds
         _IsVarying(prim,
@@ -622,8 +630,7 @@ UsdImagingPointInstancerAdapter::TrackVariability(UsdPrim const& prim,
             UsdGeomPrimvarsAPI primvars(prim);
             for (auto const &pv: primvars.GetPrimvarsWithValues()) {
                 TfToken const& interp = pv.GetInterpolation();
-                if (interp != UsdGeomTokens->constant &&
-                    interp != UsdGeomTokens->uniform &&
+                if (interp != UsdGeomTokens->uniform &&
                     pv.ValueMightBeTimeVarying()) {
                     *timeVaryingBits |= HdChangeTracker::DirtyPrimvar;
                     HD_PERF_COUNTER_INCR(_tokens->instancer);
@@ -719,15 +726,30 @@ UsdImagingPointInstancerAdapter::UpdateForTime(UsdPrim const& prim,
 
             // Convert non-uniform primvars on UsdGeomPointInstancer into
             // instance-rate primvars. Note: this only gets local primvars.
-            // Inherited primvars don't vary per-instance, so we let the
-            // prototypes pick them up.
-            UsdGeomPrimvarsAPI primvars(instancer);
-            for (auto const &pv: primvars.GetPrimvarsWithValues()) {
+            // Include constant-rate local primvars and inherited primvars
+            // to let the renderer query settings on the point instancer
+            // itself, as not all settings can be applied at the prototype
+            // level. But constant primvars are left constant, not converted
+            // to instance-rate.
+            UsdGeomPrimvarsAPI primvarsAPI(instancer);
+            std::vector<UsdGeomPrimvar> primvars;
+            UsdImaging_InheritedPrimvarStrategy::value_type
+                inheritedPrimvars = _GetInheritedPrimvars(prim.GetParent());
+            if (inheritedPrimvars) {
+                primvars = inheritedPrimvars->primvars;
+            }
+
+            std::vector<UsdGeomPrimvar>
+                local = primvarsAPI.GetPrimvarsWithValues();
+            primvars.insert(primvars.end(), local.begin(), local.end());
+            HdInterpolation interpOverride = HdInterpolationInstance;
+
+            for (auto const &pv: primvars) {
                 TfToken const& interp = pv.GetInterpolation();
-                if (interp != UsdGeomTokens->constant &&
-                    interp != UsdGeomTokens->uniform) {
-                    HdInterpolation interp = HdInterpolationInstance;
-                    _ComputeAndMergePrimvar(prim, pv, time, &vPrimvars, &interp);
+                if (interp != UsdGeomTokens->uniform) {
+                    _ComputeAndMergePrimvar(prim, pv, time, &vPrimvars,
+                        interp == UsdGeomTokens->constant
+                            ? nullptr : &interpOverride);
                 }
             }
         }
@@ -810,8 +832,7 @@ UsdImagingPointInstancerAdapter::ProcessPropertyChange(UsdPrim const& prim,
     if (UsdGeomPrimvarsAPI::CanContainPropertyName(propertyName)) {
         // Ignore local constant/uniform primvars.
         UsdGeomPrimvar pv = UsdGeomPrimvarsAPI(prim).GetPrimvar(propertyName);
-        if (pv && (pv.GetInterpolation() == UsdGeomTokens->constant ||
-                   pv.GetInterpolation() == UsdGeomTokens->uniform)) {
+        if (pv && pv.GetInterpolation() == UsdGeomTokens->uniform) {
             return HdChangeTracker::Clean;
         }
 
@@ -2087,8 +2108,18 @@ UsdImagingPointInstancerAdapter::Get(UsdPrim const& usdPrim,
 
         } else {
             UsdGeomPrimvarsAPI primvars(usdPrim);
+            VtValue value;
             if (UsdGeomPrimvar pv = primvars.GetPrimvar(key)) {
-                VtValue value;
+                if (outIndices) {
+                    if (pv && pv.Get(&value, time)) {
+                        pv.GetIndices(outIndices, time);
+                        return value;
+                    }
+                } else if (pv && pv.ComputeFlattened(&value, time)) {
+                    return value;
+                }
+            }
+            else if (UsdGeomPrimvar pv = _GetInheritedPrimvar(usdPrim, key)) {
                 if (outIndices) {
                     if (pv && pv.Get(&value, time)) {
                         pv.GetIndices(outIndices, time);
