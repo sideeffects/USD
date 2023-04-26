@@ -262,7 +262,7 @@ _FileAnalyzer::_UpdateAssetValue(const VtValue &val)
                 }
             }
         }
-        return updatedArray.empty() ? VtValue() : VtValue::Take(updatedArray);
+        return VtValue::Take(updatedArray);
     }
     else if (val.IsHolding<VtDictionary>()) {
         VtDictionary updatedDict;
