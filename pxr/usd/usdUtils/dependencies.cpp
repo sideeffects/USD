@@ -328,7 +328,7 @@ _FileAnalyzer::_UpdateAssetValue(const std::string &key,
                 }
             }
         }
-        return updatedArray.empty() ? VtValue() : VtValue::Take(updatedArray);
+        return VtValue::Take(updatedArray);
     }
     else if (val.IsHolding<VtDictionary>()) {
         VtDictionary updatedDict;
