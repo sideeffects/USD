@@ -34,8 +34,10 @@
 #include "pxr/usd/sdf/schema.h"
 #include "pxr/usd/usd/collectionAPI.h"
 #include "pxr/usd/usdGeom/primvarsAPI.h"
+#include "pxr/usd/usdLux/tokens.h"
 #include "pxr/usd/usdRender/settingsBase.h"
 
+#include "pxr/imaging/hd/light.h"
 #include "pxr/imaging/hd/perfLog.h"
 #include "pxr/imaging/hd/renderDelegate.h"
 
@@ -621,6 +623,61 @@ UsdImagingPrimAdapter::GetVolumeFieldDescriptors(UsdPrim const& usdPrim,
                                                  UsdTimeCode time) const
 {
     return HdVolumeFieldDescriptorVector();
+}
+
+/*static*/
+UsdAttribute
+UsdImagingPrimAdapter::LookupLightParamAttribute(
+    UsdPrim const& prim,
+    TfToken const& paramName)
+{
+    // Fallback to USD attributes.
+    static const std::unordered_map<TfToken, TfToken, TfHash> paramToAttrName({
+        { HdLightTokens->angle, UsdLuxTokens->inputsAngle },
+        { HdLightTokens->color, UsdLuxTokens->inputsColor },
+        { HdLightTokens->colorTemperature, 
+            UsdLuxTokens->inputsColorTemperature },
+        { HdLightTokens->diffuse, UsdLuxTokens->inputsDiffuse },
+        { HdLightTokens->enableColorTemperature, 
+            UsdLuxTokens->inputsEnableColorTemperature },
+        { HdLightTokens->exposure, UsdLuxTokens->inputsExposure },
+        { HdLightTokens->height, UsdLuxTokens->inputsHeight },
+        { HdLightTokens->intensity, UsdLuxTokens->inputsIntensity },
+        { HdLightTokens->length, UsdLuxTokens->inputsLength },
+        { HdLightTokens->normalize, UsdLuxTokens->inputsNormalize },
+        { HdLightTokens->radius, UsdLuxTokens->inputsRadius },
+        { HdLightTokens->specular, UsdLuxTokens->inputsSpecular },
+        { HdLightTokens->textureFile, UsdLuxTokens->inputsTextureFile },
+        { HdLightTokens->textureFormat, UsdLuxTokens->inputsTextureFormat },
+        { HdLightTokens->width, UsdLuxTokens->inputsWidth },
+
+        { HdLightTokens->shapingFocus, UsdLuxTokens->inputsShapingFocus },
+        { HdLightTokens->shapingFocusTint, 
+            UsdLuxTokens->inputsShapingFocusTint },
+        { HdLightTokens->shapingConeAngle, 
+            UsdLuxTokens->inputsShapingConeAngle },
+        { HdLightTokens->shapingConeSoftness, 
+            UsdLuxTokens->inputsShapingConeSoftness },
+        { HdLightTokens->shapingIesFile, UsdLuxTokens->inputsShapingIesFile },
+        { HdLightTokens->shapingIesAngleScale, 
+            UsdLuxTokens->inputsShapingIesAngleScale },
+        { HdLightTokens->shapingIesNormalize, 
+            UsdLuxTokens->inputsShapingIesNormalize },
+        { HdLightTokens->shadowEnable, UsdLuxTokens->inputsShadowEnable },
+        { HdLightTokens->shadowColor, UsdLuxTokens->inputsShadowColor },
+        { HdLightTokens->shadowDistance, UsdLuxTokens->inputsShadowDistance },
+        { HdLightTokens->shadowFalloff, UsdLuxTokens->inputsShadowFalloff },
+        { HdLightTokens->shadowFalloffGamma, 
+            UsdLuxTokens->inputsShadowFalloffGamma }
+    });
+
+    const TfToken *attrName = TfMapLookupPtr(paramToAttrName, paramName);
+
+    if (prim.HasAttribute(attrName ? *attrName : paramName)) {
+        return prim.GetAttribute(attrName ? *attrName : paramName);
+    }
+
+    return UsdAttribute();
 }
 
 void
