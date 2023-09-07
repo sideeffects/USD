@@ -182,6 +182,37 @@ public:
 
     /// @}
                        
+    /// \name Extending this class for Houdini's viewport
+    ///
+    /// Provide some additional Houdini viewport-specific controls. These
+    /// do nothing unless they are enabled (in other words these additional
+    /// parameters have no effect on apps like usdview that know nothing
+    /// about them).
+    ///
+    /// @{
+
+    GLF_API
+    bool HasExtendedAttributes() const;
+    GLF_API
+    void SetHasExtendedAttributes(bool hasExtendedAttributes);
+
+    GLF_API
+    float GetExtendedIntensity() const;
+    GLF_API
+    void SetExtendedIntensity(float intensity);
+
+    GLF_API
+    float GetExtendedAngle() const;
+    GLF_API
+    void SetExtendedAngle(float angle);
+
+    GLF_API
+    GfVec3f const & GetExtendedColor() const;
+    GLF_API
+    void SetExtendedColor(GfVec3f const & color);
+
+    /// @}
+
     GLF_API
     bool operator ==(GlfSimpleLight const &other) const;
     GLF_API
@@ -222,6 +253,12 @@ private:
     VtUCharArray _postSurfaceShaderParams;
 
     SdfPath _id;
+
+    // Houdini viewport-specific attributes
+    bool _hasExtendedAttributes;
+    float _extendedIntensity;
+    float _extendedAngle;
+    GfVec3f _extendedColor;
 };
 
 // VtValue requirements
