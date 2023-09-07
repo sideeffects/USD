@@ -33,7 +33,11 @@ GlfSimpleLight::GlfSimpleLight(GfVec4f const & position) :
     _transform(GfMatrix4d().SetIdentity()),
     _shadowMatrices(std::vector<GfMatrix4d>(1, GfMatrix4d().SetIdentity())),
     _isDomeLight(false),
-    _id()
+    _id(),
+    _hasExtendedAttributes(false),
+    _extendedIntensity(1.0),
+    _extendedAngle(0.53),
+    _extendedColor(1.0, 1.0, 1.0)
 {
 }
 
@@ -321,6 +325,54 @@ GlfSimpleLight::SetPostSurfaceParams(TfToken const & identifier,
     _postSurfaceShaderParams = shaderParams;
 }
 
+bool
+GlfSimpleLight::HasExtendedAttributes() const
+{
+    return _hasExtendedAttributes;
+}
+
+void
+GlfSimpleLight::SetHasExtendedAttributes(bool hasExtendedAttributes)
+{
+    _hasExtendedAttributes = hasExtendedAttributes;
+}
+
+float
+GlfSimpleLight::GetExtendedIntensity() const
+{
+    return _extendedIntensity;
+}
+
+void
+GlfSimpleLight::SetExtendedIntensity(float intensity)
+{
+    _extendedIntensity = intensity;
+}
+
+float
+GlfSimpleLight::GetExtendedAngle() const
+{
+    return _extendedAngle;
+}
+
+void
+GlfSimpleLight::SetExtendedAngle(float angle)
+{
+    _extendedAngle = angle;
+}
+
+GfVec3f const &
+GlfSimpleLight::GetExtendedColor() const
+{
+    return _extendedColor;
+}
+
+void
+GlfSimpleLight::SetExtendedColor(GfVec3f const & color)
+{
+    _extendedColor = color;
+}
+
 // -------------------------------------------------------------------------- //
 // VtValue requirements
 // -------------------------------------------------------------------------- //
@@ -351,7 +403,11 @@ GlfSimpleLight::operator==(const GlfSimpleLight& other) const
         &&  _postSurfaceIdentifier == other._postSurfaceIdentifier
         &&  _postSurfaceShaderSource == other._postSurfaceShaderSource
         &&  _postSurfaceShaderParams == other._postSurfaceShaderParams
-        &&  _id == other._id;
+        &&  _id == other._id
+        &&  _hasExtendedAttributes == other._hasExtendedAttributes
+        &&  _extendedIntensity == other._extendedIntensity
+        &&  _extendedAngle == other._extendedAngle
+        &&  _extendedColor == other._extendedColor;
 }
 
 bool
@@ -384,7 +440,11 @@ std::ostream& operator<<(std::ostream& out, const GlfSimpleLight& v)
         << v._postSurfaceIdentifier
         << v._postSurfaceShaderSource
         << v._postSurfaceShaderParams
-        << v._id;
+        << v._id
+        << v._hasExtendedAttributes
+        << v._extendedIntensity
+        << v._extendedAngle
+        << v._extendedColor;
     for (auto const& m : v._shadowMatrices) {
         out << m;
     }
