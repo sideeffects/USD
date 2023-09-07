@@ -840,11 +840,20 @@ void
 HdxTaskController::_SetParameters(SdfPath const& pathName, 
                                   GlfSimpleLight const& light)
 {
-    _delegate.SetParameter(pathName, HdLightTokens->intensity, VtValue(1.0f));
+    if (light.HasExtendedAttributes()) {
+        _delegate.SetParameter(pathName, HdLightTokens->intensity,
+            VtValue(light.GetExtendedIntensity()));
+        _delegate.SetParameter(pathName, HdLightTokens->color, 
+            VtValue(light.GetExtendedColor()));
+    }
+    else {
+        _delegate.SetParameter(pathName, HdLightTokens->intensity,
+            VtValue(1.0f));
+        _delegate.SetParameter(pathName, HdLightTokens->color, 
+            VtValue(GfVec3f(1, 1, 1)));
+    }
     _delegate.SetParameter(pathName, HdLightTokens->exposure, VtValue(0.0f));
     _delegate.SetParameter(pathName, HdLightTokens->normalize, false);
-    _delegate.SetParameter(pathName, HdLightTokens->color, 
-        VtValue(GfVec3f(1, 1, 1)));
     _delegate.SetParameter(pathName, HdTokens->transform,
         VtValue(light.GetTransform()));
     _delegate.SetParameter(pathName, HdLightTokens->shadowParams,
@@ -856,7 +865,7 @@ HdxTaskController::_SetParameters(SdfPath const& pathName,
     // If this is a dome light add the domelight texture resource.
     if (light.IsDomeLight()) {
         _delegate.SetParameter(pathName, HdLightTokens->textureFile,
-                               _GetDomeLightTexture(light));
+            _GetDomeLightTexture(light));
         _delegate.SetParameter(pathName, HdLightTokens->shadowEnable, 
             VtValue(true));
     }
@@ -869,10 +878,18 @@ HdxTaskController::_SetParameters(SdfPath const& pathName,
         _delegate.SetParameter(pathName, HdTokens->transform, VtValue(trans));
 
         // Initialize distant light specific parameters
-        _delegate.SetParameter(pathName, HdLightTokens->angle, 
-            VtValue(DISTANT_LIGHT_ANGLE));
-        _delegate.SetParameter(pathName, HdLightTokens->intensity, 
-            VtValue(DISTANT_LIGHT_INTENSITY));
+        if (light.HasExtendedAttributes()) {
+            _delegate.SetParameter(pathName, HdLightTokens->angle, 
+                VtValue(light.GetExtendedAngle()));
+            _delegate.SetParameter(pathName, HdLightTokens->intensity, 
+                VtValue(light.GetExtendedIntensity()));
+        }
+        else {
+            _delegate.SetParameter(pathName, HdLightTokens->angle, 
+                VtValue(DISTANT_LIGHT_ANGLE));
+            _delegate.SetParameter(pathName, HdLightTokens->intensity, 
+                VtValue(DISTANT_LIGHT_INTENSITY));
+        }
         _delegate.SetParameter(pathName, HdLightTokens->shadowEnable, 
             VtValue(false));
     }
@@ -895,10 +912,18 @@ HdxTaskController::_SetMaterialNetwork(SdfPath const& pathName,
 
     // Initialize parameters - same as above, but without Storm specific 
     // parameters (ShadowParams, ShadowCollection, params)
-    node.parameters[HdLightTokens->intensity] = 1.0f;
+    if (light.HasExtendedAttributes()) {
+        node.parameters[HdLightTokens->intensity] =
+            light.GetExtendedIntensity();
+        node.parameters[HdLightTokens->color] =
+            light.GetExtendedColor();
+    }
+    else {
+        node.parameters[HdLightTokens->intensity] = 1.0f;
+        node.parameters[HdLightTokens->color] = GfVec3f(1, 1, 1);
+    }
     node.parameters[HdLightTokens->exposure] = 0.0f;
     node.parameters[HdLightTokens->normalize] = false;
-    node.parameters[HdLightTokens->color] = GfVec3f(1, 1, 1);
     node.parameters[HdTokens->transform] = light.GetTransform();
 
     if (light.IsDomeLight()) {
@@ -916,8 +941,16 @@ HdxTaskController::_SetMaterialNetwork(SdfPath const& pathName,
         node.parameters[HdTokens->transform] = trans;
 
         // Initialize distant light specific parameters
-        node.parameters[HdLightTokens->angle] = DISTANT_LIGHT_ANGLE;
-        node.parameters[HdLightTokens->intensity] = DISTANT_LIGHT_INTENSITY;
+        if (light.HasExtendedAttributes()) {
+            node.parameters[HdLightTokens->angle] =
+                light.GetExtendedAngle();
+            node.parameters[HdLightTokens->intensity] =
+                light.GetExtendedIntensity();
+        }
+        else {
+            node.parameters[HdLightTokens->angle] = DISTANT_LIGHT_ANGLE;
+            node.parameters[HdLightTokens->intensity] = DISTANT_LIGHT_INTENSITY;
+        }
         node.parameters[HdLightTokens->shadowEnable] = false;
     }
     lightNetwork.nodes.push_back(node);
