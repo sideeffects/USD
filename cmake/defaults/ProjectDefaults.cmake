@@ -32,7 +32,7 @@ else()
     # add entries to get from each of these paths to $HDSO.
     # For executables that are put in $HB, we also need to add pointers
     # to the dsolib and python lib directories.
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/.:$ORIGIN/..:$ORIGIN/../dsolib:$ORIGIN/../python/lib:$ORIGIN/../../../../../../dsolib")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/.:$ORIGIN/..:$ORIGIN/../dsolib:$ORIGIN/../python/lib:$ORIGIN/../../../../../../dsolib:$ORIGIN/../../../../../../dsolib/usd_plugins")
 endif()
 
 if(EMSCRIPTEN)
