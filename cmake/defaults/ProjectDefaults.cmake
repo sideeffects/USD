@@ -24,7 +24,7 @@
 if(APPLE)
     set(OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architectures for OSX")
     set(CMAKE_MACOSX_RPATH ON)
-    set(CMAKE_INSTALL_RPATH "@loader_path/.;@loader_path/../../../../../../../../Houdini.framework/Versions/Current/Libraries")
+    set(CMAKE_INSTALL_RPATH "@loader_path/.;@loader_path/../../../../../../../../Houdini.framework/Versions/Current/Libraries;@loader_path/../../../../../../../../Houdini.framework/Versions/Current/Libraries/usd_plugins")
     set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
     set(CMAKE_DYLIB_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "install_name path for dylib.")
     list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
@@ -49,7 +49,7 @@ else()
     # add entries to get from each of these paths to $HDSO.
     # For executables that are put in $HB, we also need to add pointers
     # to the dsolib and python lib directories.
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/.:$ORIGIN/..:$ORIGIN/../dsolib:$ORIGIN/../python/lib:$ORIGIN/../../../../../../dsolib")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/.:$ORIGIN/..:$ORIGIN/../dsolib:$ORIGIN/../python/lib:$ORIGIN/../../../../../../dsolib:$ORIGIN/../../../../../../dsolib/usd_plugins")
 endif()
 
 # Allow local includes from source directory.
