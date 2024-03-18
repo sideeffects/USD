@@ -361,7 +361,7 @@ _CompileOslSource(
 
     // Compile oslSource
     std::string oslCompiledSource;
-    OSL::OSLCompiler oslCompiler;
+    HOSL::OSLCompiler oslCompiler;
     oslCompiler.compile_buffer(oslSource, oslCompiledSource, oslArgs);
     if (oslCompiledSource.empty()) {
         TF_WARN("Unable to compile MaterialX Osl shader for the '%s' "
