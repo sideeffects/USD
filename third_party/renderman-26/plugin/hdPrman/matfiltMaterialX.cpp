@@ -424,6 +424,16 @@ _CompileOslSource(
     oslArgs.push_back(std::string("-I") + TfGetenv("RMANTREE") + "lib/osl");
 #endif
 
+    // Compile oslSource
+    std::string oslCompiledSource;
+    HOSL::OSLCompiler oslCompiler;
+    oslCompiler.compile_buffer(oslSource, oslCompiledSource, oslArgs);
+    if (oslCompiledSource.empty()) {
+        TF_WARN("Unable to compile MaterialX Osl shader for the '%s' "
+                "MaterialX node\n", name.substr(0, name.size()-6).c_str());
+        return mx::EMPTY_STRING;
+    }
+
     // Save compiled shader
     std::string sourceFilePath = ArchMakeTmpFileName("MX." + name, ".osl");
     FILE *sourceFile;
