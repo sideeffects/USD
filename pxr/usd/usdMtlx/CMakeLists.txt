@@ -39,6 +39,10 @@ if (MATERIALX_STDLIB_DIR)
 
 endif()
 
+if (${PXR_ENABLE_MATERIALX_SHARED_LIBS})
+    add_definitions(-DMATERIALX_BUILD_SHARED_LIBS)
+endif()
+
 pxr_library(usdMtlx
     INCLUDE_SCHEMA_FILES
 
