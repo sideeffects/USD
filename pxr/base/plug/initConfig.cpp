@@ -22,12 +22,6 @@ PXR_NAMESPACE_OPEN_SCOPE
 namespace {
 
 const char* pathEnvVarName      = TF_PP_STRINGIZE(PXR_PLUGINPATH_NAME);
-const char* buildLocation       = TF_PP_STRINGIZE(PXR_BUILD_LOCATION);
-const char* pluginBuildLocation = TF_PP_STRINGIZE(PXR_PLUGIN_BUILD_LOCATION);
-
-#ifdef PXR_INSTALL_LOCATION
-const char* installLocation     = TF_PP_STRINGIZE(PXR_INSTALL_LOCATION); 
-#endif // PXR_INSTALL_LOCATION
 
 void
 _AppendPathList(
@@ -100,18 +94,18 @@ ARCH_CONSTRUCTOR(Plug_InitConfig, 2)
     // Environment locations.
     _AppendPathList(&result, TfGetenv(pathEnvVarName), binaryPath);
 
-    // Fallback locations.
-    _AppendPathList(&result, buildLocation, binaryPath);
-    _AppendPathList(&result, pluginBuildLocation, binaryPath);
-
-#ifdef PXR_APPLE_FRAMEWORK_RELATIVE_RESOURCES
-    std::string relativeResourcePath = std::string(PXR_APPLE_FRAMEWORK_RELATIVE_RESOURCES) + "/usd";
-    _AppendPathList(&result, relativeResourcePath, binaryPath);
+    // Fallback locations. Houdini-specific: fully replaces upstream's
+    // buildLocation/pluginBuildLocation/installLocation scheme (and its
+    // PXR_APPLE_FRAMEWORK_RELATIVE_RESOURCES fallback, added upstream after
+    // this commit originally landed -- Houdini never defines
+    // PXR_BUILD_APPLE_FRAMEWORK / PXR_APPLE_FRAMEWORK_RELATIVE_RESOURCES, so
+    // that fallback would be dead code here either way) with a simple
+    // debug/release usd_plugins directory scheme.
+#ifdef _DEBUG
+    _AppendPathList(&result, "usd_plugins_d", binaryPath);
+#else
+    _AppendPathList(&result, "usd_plugins", binaryPath);
 #endif
-
-#ifdef PXR_INSTALL_LOCATION
-    _AppendPathList(&result, installLocation, binaryPath);
-#endif // PXR_INSTALL_LOCATION
 
     // Plugin registration must process these paths in order
     // to ensure deterministic behavior when the same plugin
