@@ -618,6 +618,9 @@ function(_pxr_add_rpath rpathRef target)
 endfunction()
 
 function(_pxr_install_rpath rpathRef NAME)
+    # RPATH is set in ProjectDefaults and should not be modified.
+    return()
+
     # Get and remove the origin.
     list(GET ${rpathRef} 0 origin)
     set(rpath ${${rpathRef}})
