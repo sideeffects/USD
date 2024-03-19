@@ -274,7 +274,7 @@ function(_install_pyside_ui_files LIBRARY_NAME)
         endif()
         add_custom_command(
             OUTPUT ${outFilePath}
-            COMMAND "${PYSIDEUICBINARY}"
+            COMMAND ${ENV_EXECUTABLE} DYLD_FALLBACK_LIBRARY_PATH=${LOCAL_LIBRARY_PATH} LD_LIBRARY_PATH=${LOCAL_LIBRARY_PATH} "${PYTHON_EXECUTABLE}" "${PYSIDEUICBINARY}"
             ARGS ${PYSIDEUIC_EXTRA_ARGS} -o ${outFilePath} ${uiFilePath}
             MAIN_DEPENDENCY "${uiFilePath}"
             COMMENT "Generating Python for ${uiFilePath} ..."

@@ -28,7 +28,7 @@ endif()
 
 # Prefer PySide6 over PySide2
 execute_process(
-    COMMAND "${PYTHON_EXECUTABLE}" "-c" "import PySide6"
+    COMMAND ${ENV_EXECUTABLE} DYLD_FALLBACK_PATH=${LOCAL_LIBRARY_PATH} LD_LIBRARY_PATH=${LOCAL_LIBRARY_PATH} "${PYTHON_EXECUTABLE}" "-c" "import PySide6"
     RESULT_VARIABLE pySideImportResult 
 )
 if (pySideImportResult EQUAL 0)
@@ -39,7 +39,7 @@ endif()
 # PySide6 not found OR PYSIDE2 explicitly requested
 if (pySideImportResult EQUAL 1 OR PYSIDE_USE_PYSIDE2)
     execute_process(
-        COMMAND "${PYTHON_EXECUTABLE}" "-c" "import PySide2"
+        COMMAND ${ENV_EXECUTABLE} DYLD_FALLBACK_PATH=${LOCAL_LIBRARY_PATH} LD_LIBRARY_PATH=${LOCAL_LIBRARY_PATH} "${PYTHON_EXECUTABLE}" "-c" "import PySide2"
         RESULT_VARIABLE pySideImportResult 
     )
     if (pySideImportResult EQUAL 0)
