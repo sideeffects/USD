@@ -719,11 +719,11 @@ function(_pxr_add_rpath rpathRef target)
 endfunction()
 
 function(_pxr_install_rpath rpathRef NAME)
-    if (PXR_BUILD_APPLE_FRAMEWORK)
-        # Apple Frameworks already fix the install path at the end
-        # so this makes things faster and reduces duplication errors
-        return()
-    endif()
+    # RPATH is set in ProjectDefaults and should not be modified. This also
+    # covers upstream's PXR_BUILD_APPLE_FRAMEWORK early-return case below,
+    # since Houdini never sets that option and this return is unconditional.
+    return()
+
     # Get and remove the origin.
     list(GET ${rpathRef} 0 origin)
     set(rpath ${${rpathRef}})
