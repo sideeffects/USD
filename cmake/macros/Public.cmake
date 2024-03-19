@@ -1194,6 +1194,7 @@ function(pxr_toplevel_prologue)
                     FOLDER "${folder}"
                     PREFIX "${libPrefix}"
                     IMPORT_PREFIX "${libPrefix}"
+                    DEBUG_POSTFIX "_d"
                     OUTPUT_NAME ${libName}
             )
             _get_install_dir("lib" libInstallPrefix)
@@ -1294,6 +1295,7 @@ function(pxr_toplevel_epilogue)
             set_target_properties(usd_m
                 PROPERTIES
                     POSITION_INDEPENDENT_CODE ON
+                    DEBUG_POSTFIX "_d"
             )
         endif()
     endif()
