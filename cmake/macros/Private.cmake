@@ -996,6 +996,7 @@ function(_pxr_python_module NAME)
     set_target_properties(${LIBRARY_NAME}
         PROPERTIES
             PREFIX ""
+            DEBUG_POSTFIX "_d"
             FOLDER "${folder}"
     )
     if(WIN32)
@@ -1309,6 +1310,7 @@ function(_pxr_library NAME)
             IMPORT_PREFIX "${args_PREFIX}"            
             PREFIX "${args_PREFIX}"
             SUFFIX "${args_SUFFIX}"
+            DEBUG_POSTFIX "_d"
     )
 
     target_compile_definitions(${NAME}
