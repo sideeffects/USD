@@ -1115,6 +1115,7 @@ function(pxr_toplevel_prologue)
                     FOLDER "${folder}"
                     PREFIX "${libPrefix}"
                     IMPORT_PREFIX "${libPrefix}"
+                    DEBUG_POSTFIX "_d"
             )
             _get_install_dir("lib" libInstallPrefix)
             install(
@@ -1258,6 +1259,7 @@ function(pxr_monolithic_epilogue)
             POSITION_INDEPENDENT_CODE ON
             PREFIX "${libPrefix}"
             IMPORT_PREFIX "${libPrefix}"
+            DEBUG_POSTFIX "_d"
     )
 
     # Adding $<TARGET_OBJECTS:foo> will not bring along compile
