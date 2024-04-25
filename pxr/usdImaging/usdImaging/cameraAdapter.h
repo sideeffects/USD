@@ -131,6 +131,7 @@ public:
                 VtIntArray *outIndices) const override;
 
 protected:
+    USDIMAGING_API
     void _RemovePrim(SdfPath const& cachePath,
                      UsdImagingIndexProxy* index) override;
 
