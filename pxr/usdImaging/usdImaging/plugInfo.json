@@ -36,13 +36,6 @@
                         "isInternal": true,
                         "primTypeName": "BasisCurves"
                     },
-                    "UsdImagingCameraAdapter": {
-                        "bases": [
-                            "UsdImagingPrimAdapter"
-                        ],
-                        "isInternal": true,
-                        "primTypeName": "Camera"
-                    },
                     "UsdImagingCapsuleAdapter": {
                         "bases": [
                             "UsdImagingGprimAdapter"
