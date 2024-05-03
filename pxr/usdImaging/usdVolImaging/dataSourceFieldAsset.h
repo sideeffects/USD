@@ -38,6 +38,7 @@ public:
 private:
 
     // Private constructor, use static New() instead.
+    USDVOLIMAGING_API
     UsdImagingDataSourceFieldAsset(
             const SdfPath &sceneIndexPath,
             UsdPrim usdPrim,
@@ -74,6 +75,7 @@ public:
 private:
 
     // Private constructor, use static New() instead.
+    USDVOLIMAGING_API
     UsdImagingDataSourceFieldAssetPrim(
         const SdfPath &sceneIndexPath,
         UsdPrim usdPrim,
