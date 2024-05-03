@@ -101,7 +101,8 @@ bool
 HdLegacyPrimTypeIsVolumeField(TfToken const &primType)
 {
     return (primType == HdLegacyPrimTypeTokens->openvdbAsset ||
-            primType == HdLegacyPrimTypeTokens->field3dAsset);
+            primType == HdLegacyPrimTypeTokens->field3dAsset ||
+            primType == HdLegacyPrimTypeTokens->houdiniFieldAsset);
 }
 
 // ----------------------------------------------------------------------------
