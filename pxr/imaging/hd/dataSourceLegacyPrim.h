@@ -27,7 +27,8 @@ class HdSceneDelegate;
 #define HD_LEGACY_PRIMTYPE_TOKENS  \
     /* Bprims */                   \
     (openvdbAsset)                 \
-    (field3dAsset)
+    (field3dAsset)                 \
+    (houdiniFieldAsset)
 
 TF_DECLARE_PUBLIC_TOKENS(HdLegacyPrimTypeTokens, HD_API, 
                          HD_LEGACY_PRIMTYPE_TOKENS);
