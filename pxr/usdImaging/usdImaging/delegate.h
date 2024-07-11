@@ -413,6 +413,7 @@ public:
                       std::vector<int> instanceIndices,
                       std::vector<HdInstancerContext> *instancerContexts = nullptr) override;
 
+    USDIMAGING_API
     virtual SdfPath GetDataSharingId(SdfPath const& primId) override;
 
     // ExtComputation support
