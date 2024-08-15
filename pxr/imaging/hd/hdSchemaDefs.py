@@ -1095,6 +1095,24 @@
         ],
 
     ),
+    
+    #--------------------------------------------------------------------------
+    # plane
+    dict(
+        SCHEMA_NAME = 'Plane',
+        SCHEMA_TOKEN = 'plane',
+        ADD_DEFAULT_LOCATOR = True,
+        MEMBERS = [
+            ('doubleSided', T_BOOL, {}),
+            ('axis', T_TOKEN, {}),
+            ('length', T_DOUBLE, {}),
+            ('width', T_DOUBLE, {}),
+        ],
+
+        STATIC_TOKEN_DATASOURCE_BUILDERS = [
+            ('axis', ['X', 'Y', 'Z']),
+        ],
+    ),
 
     #--------------------------------------------------------------------------
     # primOrigin
