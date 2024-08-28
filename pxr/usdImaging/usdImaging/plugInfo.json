@@ -90,11 +90,6 @@
                         "includeSchemaFamily": true,
                         "primTypeName": "Cylinder"
                     },
-                    "UsdImagingDrawModeAdapter" : {
-                        "bases": ["UsdImagingInstanceablePrimAdapter"],
-                        "isInternal": true,
-                        "primTypeName": "__drawModeAdapter"
-                    },
                     "UsdImagingGeomSubsetAdapter" : {
                         "bases": ["UsdImagingPrimAdapter"],
                         "isInternal": true,
