@@ -7,7 +7,7 @@
 if(APPLE)
     set(OSX_ARCHITECTURES "x86_64" CACHE STRING "Build architectures for OSX")
     set(CMAKE_MACOSX_RPATH ON)
-    set(CMAKE_INSTALL_RPATH "@loader_path/.;@loader_path/../../../../../../../../Houdini.framework/Versions/Current/Libraries;@loader_path/../../../../../../../../Houdini.framework/Versions/Current/Libraries/usd_plugins")
+    set(CMAKE_INSTALL_RPATH "@loader_path/.;@loader_path/../../Libraries;@loader_path/../../../../../../../../Houdini.framework/Versions/Current/Libraries;@loader_path/../../../../../../../../Houdini.framework/Versions/Current/Libraries/usd_plugins")
     set(CMAKE_BUILD_WITH_INSTALL_RPATH ON)
     set(CMAKE_DYLIB_INSTALL_NAME_DIR "${CMAKE_INSTALL_PREFIX}/lib" CACHE STRING "install_name path for dylib.")
     list(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib" isSystemDir)
