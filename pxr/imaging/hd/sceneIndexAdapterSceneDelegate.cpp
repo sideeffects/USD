@@ -2197,7 +2197,8 @@ HdSceneIndexAdapterSceneDelegate::_SamplePrimvar(
     //       in absence of a matching primvar.
     //       In order to support legacy uses of this, we will also check
     //       camera parameter datasources
-    if (!valueSource && prim.primType == HdPrimTypeTokens->camera) {
+    if (!valueSource && (prim.primType == HdPrimTypeTokens->camera ||
+                         prim.primType == HdPrimTypeTokens->coordSys)) {
         if (HdCameraSchema cameraSchema =
                 HdCameraSchema::GetFromParent(prim.dataSource)) {
             // Ask for the key directly from the schema's container data source

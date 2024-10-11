@@ -1094,6 +1094,10 @@ public:
         } else if (name == HdCameraSchemaTokens->clippingRange) {
             VtValue v = _sceneDelegate->GetCameraParamValue(_id, name);
         
+            if (ARCH_UNLIKELY(v.IsHolding<GfVec2f>())) {
+                return HdRetainedTypedSampledDataSource<GfVec2f>::New(
+                    v.UncheckedGet<GfVec2f>());
+            }
             GfRange1f range;
             if (v.IsHolding<GfRange1f>()) {
                 range = v.UncheckedGet<GfRange1f>();
