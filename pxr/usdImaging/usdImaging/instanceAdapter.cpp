@@ -2218,7 +2218,8 @@ UsdImagingInstanceAdapter::_ResyncInstancer(SdfPath const& instancerPath,
 
     for (SdfPath const& path : instancePaths) {
         auto it = _instanceToInstancerMap.find(path);
-        _instanceToInstancerMap.erase(it);
+        if (it != _instanceToInstancerMap.end())
+            _instanceToInstancerMap.erase(it);
     }
 
     // Repopulate the instancer's previous instances. Those that don't exist
