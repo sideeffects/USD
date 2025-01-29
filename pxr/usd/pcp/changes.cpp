@@ -2197,17 +2197,27 @@ PcpChanges::_DidAddOrRemoveSublayer(
     std::string* debugSummary,
     std::vector<bool>* significant)
 {
+    PcpCacheChanges& cacheChanges = _GetCacheChanges(cache);
+
+    // Before processing any sublayer paths first check if we have encountered
+    // this layer / sublayer path before.  If we have, it indicates that there
+    // is a cycle in this layer stack.
+    const auto key = std::make_pair(layer, sublayerPath);
+    if (!cacheChanges._processedLayerSublayerPathPairs.insert(key).second) {
+        significant->resize(layerStacks.size(), false);
+        return;
+    }
+
     PCP_APPEND_DEBUG(
         "  Layer @%s@ changed sublayers\n",
         layer ? layer->GetIdentifier().c_str() : "invalid");
 
     const auto& processChanges = 
-        [this, &cache, &sublayerPath, &debugSummary, &layer](
+        [this, &cache, &sublayerPath, &debugSummary, &layer, &cacheChanges](
             const SdfLayerRefPtr sublayer,
             const PcpLayerStackPtrVector& layerStacks,
             _SublayerChangeType sublayerChange)
         {
-            PcpCacheChanges& cacheChanges = _GetCacheChanges(cache);
             if (sublayer) {
                 _lifeboat.Retain(sublayer);
                 cacheChanges.didAddOrRemoveNonEmptySublayer |= !sublayer->IsEmpty();
