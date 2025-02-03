@@ -18,6 +18,7 @@
 #include "pxr/usd/pcp/pathTranslation.h"
 #include "pxr/usd/pcp/utils.h"
 #include "pxr/usd/sdf/changeList.h"
+#include "pxr/usd/sdf/fileFormat.h"
 #include "pxr/usd/sdf/layer.h"
 #include "pxr/usd/ar/resolverContextBinder.h"
 #include "pxr/base/tf/envSetting.h"
@@ -1555,6 +1556,7 @@ PcpChanges::_DidMuteLayer(
     if (!TfGetEnvSetting(PCP_ENABLE_MINIMAL_CHANGES_FOR_LAYER_OPERATIONS) ||
         !mutedLayer ||
         mutedLayer->IsEmpty() ||
+        mutedLayer->GetFileFormat()->IsPackage() ||
         Pcp_LayerMightHaveRelocates(cache, mutedLayer))
     {
         _DidChangeSublayerAndLayerStacks(
@@ -1614,6 +1616,7 @@ PcpChanges::_DidUnmuteLayer(
     if (!TfGetEnvSetting(PCP_ENABLE_MINIMAL_CHANGES_FOR_LAYER_OPERATIONS) ||
         !unmutedLayer ||
         unmutedLayer->IsEmpty() ||
+        unmutedLayer->GetFileFormat()->IsPackage() ||
         Pcp_LayerMightHaveRelocates(cache, unmutedLayer)) 
     {
         _DidChangeSublayerAndLayerStacks(
@@ -2238,6 +2241,7 @@ PcpChanges::_DidAddOrRemoveSublayer(
                     PCP_ENABLE_MINIMAL_CHANGES_FOR_LAYER_OPERATIONS) ||
                 !sublayer ||
                 sublayer->IsEmpty() ||
+                sublayer->GetFileFormat()->IsPackage() ||
                 Pcp_LayerMightHaveRelocates(cache, sublayer)) 
             {
                 bool isSignificant = false;
