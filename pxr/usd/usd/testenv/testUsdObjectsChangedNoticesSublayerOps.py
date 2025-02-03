@@ -48,15 +48,24 @@ class TestUsdObjectsChangedNoticesSublayerOps(unittest.TestCase):
                 str(path): notice.GetChangedFields(path)
                 for path in resolvedAssetPathsResynced
             }
+<<<<<<< HEAD
         self._objectsChangedNotices.append(asDict)
+=======
+        self._notices.append(asDict)
+>>>>>>> 886e410dd (This change fixes a coding error that is triggered when performing a sublayer operation on a layer whose file format is a package.  The current implementation which generates fine grained change lists makes use of an anonymous layer to compute a diff against.  It is an error to create such a layer with a package file format.  To workaround this limitation with the current implementation, we send packages down the "big bang" invalidation path.)
 
     def test_InsertPackageSublayer(self):
         stage = Usd.Stage.CreateInMemory()
         self._listenForNotices(stage)
         stage.GetRootLayer().subLayerPaths = ["./package.usdz"]
+<<<<<<< HEAD
         self.assertEqual(self._stageContentsChangedCount, 1)
         self.assertEqual(len(self._objectsChangedNotices), 1)
         self.assertDictEqual(self._objectsChangedNotices[0], {
+=======
+        self.assertEqual(len(self._notices), 1)
+        self.assertDictEqual(self._notices[0], {
+>>>>>>> 886e410dd (This change fixes a coding error that is triggered when performing a sublayer operation on a layer whose file format is a package.  The current implementation which generates fine grained change lists makes use of an anonymous layer to compute a diff against.  It is an error to create such a layer with a package file format.  To workaround this limitation with the current implementation, we send packages down the "big bang" invalidation path.)
             'Resynced': {
                 '/': [] 
             }
@@ -72,9 +81,14 @@ class TestUsdObjectsChangedNoticesSublayerOps(unittest.TestCase):
         stage = Usd.Stage.Open(root)
         self._listenForNotices(stage)
         stage.GetRootLayer().subLayerPaths = []
+<<<<<<< HEAD
         self.assertEqual(self._stageContentsChangedCount, 1)
         self.assertEqual(len(self._objectsChangedNotices), 1)
         self.assertDictEqual(self._objectsChangedNotices[0], {
+=======
+        self.assertEqual(len(self._notices), 1)
+        self.assertDictEqual(self._notices[0], {
+>>>>>>> 886e410dd (This change fixes a coding error that is triggered when performing a sublayer operation on a layer whose file format is a package.  The current implementation which generates fine grained change lists makes use of an anonymous layer to compute a diff against.  It is an error to create such a layer with a package file format.  To workaround this limitation with the current implementation, we send packages down the "big bang" invalidation path.)
             'Resynced': {
                 '/': [] 
             }
@@ -90,9 +104,14 @@ class TestUsdObjectsChangedNoticesSublayerOps(unittest.TestCase):
         stage = Usd.Stage.Open(root)
         self._listenForNotices(stage)
         stage.MuteLayer('./package.usdz')
+<<<<<<< HEAD
         self.assertEqual(self._stageContentsChangedCount, 1)
         self.assertEqual(len(self._objectsChangedNotices), 1)
         self.assertDictEqual(self._objectsChangedNotices[0], {
+=======
+        self.assertEqual(len(self._notices), 1)
+        self.assertDictEqual(self._notices[0], {
+>>>>>>> 886e410dd (This change fixes a coding error that is triggered when performing a sublayer operation on a layer whose file format is a package.  The current implementation which generates fine grained change lists makes use of an anonymous layer to compute a diff against.  It is an error to create such a layer with a package file format.  To workaround this limitation with the current implementation, we send packages down the "big bang" invalidation path.)
             'Resynced': {
                 '/': [] 
             }
@@ -104,14 +123,20 @@ class TestUsdObjectsChangedNoticesSublayerOps(unittest.TestCase):
         stage.GetRootLayer().subLayerPaths = ["./package.usdz"]
         self._listenForNotices(stage)
         stage.UnmuteLayer('./package.usdz')
+<<<<<<< HEAD
         self.assertEqual(self._stageContentsChangedCount, 1)
         self.assertEqual(len(self._objectsChangedNotices), 1)
         self.assertDictEqual(self._objectsChangedNotices[0], {
+=======
+        self.assertEqual(len(self._notices), 1)
+        self.assertDictEqual(self._notices[0], {
+>>>>>>> 886e410dd (This change fixes a coding error that is triggered when performing a sublayer operation on a layer whose file format is a package.  The current implementation which generates fine grained change lists makes use of an anonymous layer to compute a diff against.  It is an error to create such a layer with a package file format.  To workaround this limitation with the current implementation, we send packages down the "big bang" invalidation path.)
             'Resynced': {
                 '/': [] 
             }
         })
 
+<<<<<<< HEAD
     def test_muteEmptyLayer(self):
         """Tests that a StageContentsChanged and an empty ObjectsChanged notice
         are triggered when an empty layer is muted"""
@@ -141,5 +166,7 @@ class TestUsdObjectsChangedNoticesSublayerOps(unittest.TestCase):
         self.assertEqual(len(self._objectsChangedNotices), 1)
         self.assertDictEqual(self._objectsChangedNotices[0], {})
 
+=======
+>>>>>>> 886e410dd (This change fixes a coding error that is triggered when performing a sublayer operation on a layer whose file format is a package.  The current implementation which generates fine grained change lists makes use of an anonymous layer to compute a diff against.  It is an error to create such a layer with a package file format.  To workaround this limitation with the current implementation, we send packages down the "big bang" invalidation path.)
 if __name__ == "__main__":
     unittest.main()
