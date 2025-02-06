@@ -85,5 +85,12 @@ namespace PXR_NS {
 #endif
 
 #define PXR_USE_INTERNAL_BOOST_PYTHON
+// These defines ensure that when we include Python.h on Windows, we
+// don't run the pragma comment that forces us to link against the python
+// lib. Cmake will ensure we link against the correct python lib if/when
+// necessary.
+#define MS_NO_COREDLL
+#define Py_ENABLE_SHARED 1
+#endif
 
 #endif //PXR_H
