@@ -25,6 +25,11 @@
 // 04 Mar 01  Rolled in some changes from the Dragon fork (Dave Abrahams)
 // 01 Mar 01  define PyObject_INIT() for Python 1.x (Dave Abrahams)
 
+/*
+* Any Houdini tool built with _DEBUG set wants to link against a debug
+* version of python. So we can skip all this requirement for also defining
+* BOOST_DEBUG_PYTHON.
+*
 #ifdef _DEBUG
 # ifndef BOOST_DEBUG_PYTHON
 #  ifdef _MSC_VER  
@@ -51,6 +56,7 @@
 #  define DEBUG_UNDEFINED_FROM_WRAP_PYTHON_H
 # endif
 #endif
+*/
 
 // pyconfig.h defines a macro with hypot name, what breaks libstdc++ math headers
 // that Python.h tries to include afterwards.
