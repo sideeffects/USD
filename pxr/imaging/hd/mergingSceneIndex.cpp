@@ -375,33 +375,43 @@ HdMergingSceneIndex::_PrimsRemoved(
         return;
     }
 
+    HdSceneIndexObserver::RemovedPrimEntries filteredEntries;
+    filteredEntries.reserve(entries.size());
+
     // Note: if a prim is removed from an input scene, but exists in another
     // input scene, we trigger that as a resync (signaled by PrimsAdded).
     HdSceneIndexObserver::AddedPrimEntries addedEntries;
 
     for (const HdSceneIndexObserver::RemovedPrimEntry &entry : entries) {
-        const SdfPathVector childPaths = GetChildPrimPaths(entry.primPath);
-        const HdSceneIndexPrim prim = GetPrim(entry.primPath);
+        bool primFullyRemoved = true;
 
-        if (!childPaths.empty() || prim.dataSource || !prim.primType.IsEmpty()) {
-            addedEntries.emplace_back(entry.primPath, prim.primType);
+        for (const _InputEntry &inputEntry : _inputs) {
+            if (get_pointer(inputEntry.sceneIndex) == &sender) {
+                continue;
+            }
+
+            // another input having either a data source or children of the
+            // specified prim considers this not a full removal
+            if (inputEntry.sceneIndex->GetPrim(entry.primPath).dataSource
+                    || !inputEntry.sceneIndex->GetChildPrimPaths(
+                            entry.primPath).empty()) {
+                primFullyRemoved = false;
+                break;
+            }
         }
 
-        if (childPaths.empty()) {
-            continue;
-        }
-
-        HdMergingSceneIndexRefPtr const self(this);
-        for (const SdfPath &childPath : childPaths) {
-            for (const SdfPath& descendantPath
-                     : HdSceneIndexPrimView(self, childPath)) {
+        if (primFullyRemoved) {
+            filteredEntries.push_back(entry);
+        } else {
+            for (const SdfPath& descendantPath : HdSceneIndexPrimView(
+                     HdMergingSceneIndexRefPtr(this), entry.primPath)) {
                 addedEntries.emplace_back(
                     descendantPath, GetPrim(descendantPath).primType);
             }
         }
     }
 
-    _SendPrimsRemoved(entries);
+    _SendPrimsRemoved(filteredEntries);
     _SendPrimsAdded(addedEntries);
 }
 
