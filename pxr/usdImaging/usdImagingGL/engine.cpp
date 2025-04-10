@@ -291,12 +291,44 @@ UsdImagingGLEngine::PrepareBatch(
     if (!_CanPrepare(root)) {
         return;
     }
+
+    // Scene time.
+    {
+        _PreSetTime(params);
+        // SetTime will only react if time actually changes.
+        if (_GetUseSceneIndices()) {
+            _stageSceneIndex->SetTime(params.frame);
+        } else {
+            _sceneDelegate->SetTime(params.frame);
+        }
+        _SetSceneGlobalsCurrentFrame(params.frame);
+        _PostSetTime(params);
+    }
+
+    // Miscellaneous scene render configuration parameters.
+    if (_GetUseSceneIndices()) {
+        if (_materialPruningSceneIndex) {
+            _materialPruningSceneIndex->SetEnabled(
+                !params.enableSceneMaterials);
+        }
+        if (_lightPruningSceneIndex) {
+            _lightPruningSceneIndex->SetEnabled(
+                !params.enableSceneLights);
+        }
+        if (_displayStyleSceneIndex) {
+            _displayStyleSceneIndex->SetCullStyleFallback(
+                _CullStyleEnumToToken(params.cullStyle));
+        }
+    } else {
+        _sceneDelegate->SetSceneMaterialsEnabled(params.enableSceneMaterials);
+        _sceneDelegate->SetSceneLightsEnabled(params.enableSceneLights);
+    }
+
+    // Populate after setting time & configuration parameters above,
+    // to avoid extra unforced rounds of invalidation after population.
     if (!_isPopulated) {
         auto stage = root.GetStage();
         if (_GetUseSceneIndices()) {
-            TF_VERIFY(_stageSceneIndex);
-            _stageSceneIndex->SetStage(stage);
-
             // Set timeCodesPerSecond in HdsiSceneGlobalsSceneIndex.
             if (_appSceneIndices) {
                 if (auto &sgsi = _appSceneIndices->sceneGlobalsSceneIndex) {
@@ -311,6 +343,10 @@ UsdImagingGLEngine::PrepareBatch(
             // params.enableUsdDrawModes.
 
             // XXX(USD-7115): Add invis overrides from _invisedPrimPaths.
+
+            TF_VERIFY(_stageSceneIndex);
+            _stageSceneIndex->SetStage(stage);
+
         } else {
             TF_VERIFY(_sceneDelegate);
             _sceneDelegate->SetUsdDrawModesEnabled(
@@ -327,18 +363,6 @@ UsdImagingGLEngine::PrepareBatch(
 
         _isPopulated = true;
     }
-
-    _PreSetTime(params);
-
-    // SetTime will only react if time actually changes.
-    if (_GetUseSceneIndices()) {
-        _stageSceneIndex->SetTime(params.frame);
-    } else {
-        _sceneDelegate->SetTime(params.frame);
-    }
-
-    _SetSceneGlobalsCurrentFrame(params.frame);
-    _PostSetTime(params);
 }
 
 void
@@ -359,24 +383,6 @@ UsdImagingGLEngine::_PrepareRender(const UsdImagingGLRenderParams &params)
             _MakeHydraUsdImagingGLRenderParams(params));
     } else {
         TF_CODING_ERROR("No task controller or task controller scene index.");
-    }
-
-    if (_GetUseSceneIndices()) {
-        if (_materialPruningSceneIndex) {
-            _materialPruningSceneIndex->SetEnabled(
-                !params.enableSceneMaterials);
-        }
-        if (_lightPruningSceneIndex) {
-            _lightPruningSceneIndex->SetEnabled(
-                !params.enableSceneLights);
-        }
-        if (_displayStyleSceneIndex) {
-            _displayStyleSceneIndex->SetCullStyleFallback(
-                _CullStyleEnumToToken(params.cullStyle));
-        }
-    } else {
-        _sceneDelegate->SetSceneMaterialsEnabled(params.enableSceneMaterials);
-        _sceneDelegate->SetSceneLightsEnabled(params.enableSceneLights);
     }
 }
 
