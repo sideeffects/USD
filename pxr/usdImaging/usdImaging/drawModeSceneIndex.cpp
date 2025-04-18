@@ -151,25 +151,26 @@ UsdImagingDrawModeSceneIndex::GetPrim(
             // We query the DrawmodeStandin for its self, untyped prim.
             return standin->GetPrim();
         }
-        if (relPathLen == 1 || relPathLen == 2) {
-            // Example:
-            // DrawModeStandin is at /Foo, and queried prim is at
-            //   /Foo/cardsMesh, or
-            //   /Foo/subsetMaterialXPos, or
-            //   /Foo/cardsMesh/subsetXPos
-            //
-            // We query the DrawmodeStandin for the descendant prim.
-            return standin->GetDescendantPrim(primPath);
-        }
         // Example:
-        // Queried prim is /Foo/A/B and the DrawModeStandin is at /Foo.
+        // DrawModeStandin is at /Foo, and queried prim is at
+        //   /Foo/cardsMesh, or
+        //   /Foo/subsetMaterialXPos, or
+        //   /Foo/cardsMesh/subsetXPos
         //
-        // We block everything at this level since draw mode standin's
-        // only have children (depth 1) or grandchildren (depth 2).
-        return { TfToken(), nullptr };
+        // We query the DrawmodeStandin for the descendant prim.
+        return standin->GetDescendantPrim(primPath);
     }
 
     return _GetInputSceneIndex()->GetPrim(primPath);
+}
+
+static
+bool
+_IsImmediateChildOf(const SdfPath &path, const SdfPath &parentPath)
+{
+    return
+        path.GetPathElementCount() - parentPath.GetPathElementCount() == 1 &&
+        path.HasPrefix(parentPath);
 }
 
 SdfPathVector
@@ -191,9 +192,8 @@ UsdImagingDrawModeSceneIndex::GetChildPrimPaths(
         // materials), the standin prim (children: subsets), a subset (children:
         // none), or a material (children: none).
         SdfPathVector paths;
-        for (const SdfPath& path : standin->GetDescendantPrimPaths()) {
-            if (path.HasPrefix(primPath) && path.GetPathElementCount()
-                - primPath.GetPathElementCount() == 1) {
+        for (const SdfPath &path : standin->GetDescendantPrimPaths()) {
+            if (_IsImmediateChildOf(path, primPath)) {
                 paths.push_back(path);
             }
         }

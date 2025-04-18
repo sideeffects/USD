@@ -633,23 +633,6 @@ public:
     {
     }
 
-    const SdfPathVector
-    _GetDescendantPaths() const override {
-        static const SdfPathVector paths {
-            SdfPath(_primNameTokens->boundsCurves) };
-        return paths;
-    }
-
-    TfToken
-    _GetDescendantPrimType(const SdfPath& /*path*/) const override {
-        return HdPrimTypeTokens->basisCurves;
-    }
-
-    HdContainerDataSourceHandle
-    _GetDescendantPrimSource(const SdfPath& /*path*/) const override {
-        return _BoundsPrimDataSource::New(_primSource);
-    }
-
     void
     ProcessDirtyLocators(
         const HdDataSourceLocatorSet &dirtyLocators,
@@ -701,6 +684,35 @@ public:
 
     TfToken GetDrawMode() const override {
         return UsdGeomTokens->bounds;
+    }
+protected:
+    const SdfPathVector
+    _GetDescendantPaths() const override {
+        static const SdfPathVector paths {
+            _GetDescendantPath()};
+        return paths;
+    }
+
+    TfToken
+    _GetDescendantPrimType(const SdfPath &relPath) const override {
+        if (relPath == _GetDescendantPath()) {
+            return HdPrimTypeTokens->basisCurves;
+        }
+        return TfToken();
+    }
+
+    HdContainerDataSourceHandle
+    _GetDescendantPrimSource(const SdfPath &relPath) const override {
+        if (relPath == _GetDescendantPath()) {
+            return _BoundsPrimDataSource::New(_primSource);
+        }
+        return nullptr;
+    }
+
+private:
+    const SdfPath &_GetDescendantPath() const {
+        static const SdfPath path(_primNameTokens->boundsCurves);
+        return path;
     }
 };
 
@@ -852,23 +864,6 @@ public:
     {
     }
 
-    const SdfPathVector
-    _GetDescendantPaths() const override {
-        static const SdfPathVector paths {
-            SdfPath(_primNameTokens->originCurves) };
-        return paths;
-    }
-
-    TfToken
-    _GetDescendantPrimType(const SdfPath& /*path*/) const override {
-        return HdPrimTypeTokens->basisCurves;
-    }
-
-    HdContainerDataSourceHandle
-    _GetDescendantPrimSource(const SdfPath& /*path*/) const override {
-        return _OriginPrimDataSource::New(_primSource);
-    }
-
     void ProcessDirtyLocators(
         const HdDataSourceLocatorSet &dirtyLocators,
         HdSceneIndexObserver::DirtiedPrimEntries * entries,
@@ -904,6 +899,36 @@ public:
 
     TfToken GetDrawMode() const override {
         return UsdGeomTokens->origin;
+    }
+
+protected:
+    const SdfPathVector
+    _GetDescendantPaths() const override {
+        static const SdfPathVector paths {
+            SdfPath(_primNameTokens->originCurves) };
+        return paths;
+    }
+
+    TfToken
+    _GetDescendantPrimType(const SdfPath &relPath) const override {
+        if (relPath == _GetDescendantPath()) {
+            return HdPrimTypeTokens->basisCurves;
+        }
+        return TfToken();
+    }
+
+    HdContainerDataSourceHandle
+    _GetDescendantPrimSource(const SdfPath &relPath) const override {
+        if (relPath == _GetDescendantPath()) {
+            return _OriginPrimDataSource::New(_primSource);
+        }
+        return nullptr;
+    }
+
+private:
+    const SdfPath &_GetDescendantPath() const {
+        static const SdfPath path(_primNameTokens->originCurves);
+        return path;
     }
 };
 
@@ -951,8 +976,9 @@ _AddAxesToNames(const std::string &prefix, const std::string &postfix) {
 }
 
 using _CardsDataCacheSharedPtr = std::shared_ptr<class _CardsDataCache>;
-using _MaterialsDict = std::unordered_map<
-    TfToken, HdContainerDataSourceHandle, TfToken::HashFunctor>;
+using _NameToContainer =
+    std::unordered_map<
+        TfToken, HdContainerDataSourceHandle, TfToken::HashFunctor>;
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -1000,26 +1026,17 @@ public:
     GetUVs() { return _GetCardsData()->uvs; }
 
     /// An individual face geometry subset.
-    HdContainerDataSourceHandle
-    GetGeomSubset(const TfToken& name) {
-        return _GetCardsData()->GetSubset(name);
-    }
-
-    TfTokenVector
-    GetGeomSubsetNames() {
-        TfTokenVector names;
-        for (const auto& kv :_GetCardsData()->geomSubsets) {
-            names.push_back(kv.first);
-        }
-        return names;
-    }
-
     /// The topology.
     HdContainerDataSourceHandle
     GetMeshTopology() { return _GetCardsData()->meshTopology; }
 
+    const _NameToContainer&
+    GetGeomSubsets() {
+        return _GetCardsData()->geomSubsets;
+    }
+
     /// The materials.
-    const _MaterialsDict&
+    const _NameToContainer&
     GetMaterials() { return _GetCardsData()->materials; }
 
     /// Reset the cache.
@@ -1066,8 +1083,6 @@ private:
     /// The cached data.
     struct _CardsData
     {
-        using SubsetMap = std::unordered_map<TfToken,
-            HdContainerDataSourceHandle, TfToken::HashFunctor>;
 
         _CardsData(const _SchemaValues &values, const SdfPath &primPath);
 
@@ -1075,38 +1090,29 @@ private:
         VtVec3fArray points;
         HdContainerDataSourceHandle extent;
         HdDataSourceBaseHandle uvs;
-        SubsetMap geomSubsets;
         HdContainerDataSourceHandle meshTopology;
-        _MaterialsDict materials;
-
-        HdContainerDataSourceHandle
-        GetSubset(const TfToken& name) {
-            const auto it = geomSubsets.find(name);
-            if (it != geomSubsets.end()) {
-                return it->second;
-            }
-            return nullptr;
-        }
+        _NameToContainer geomSubsets;
+        _NameToContainer materials;
 
     private:
         static
         VtVec3fArray
         _ComputePoints(const _SchemaValues &values);
         static
-        VtVec2fArray
-        _ComputeUVs(const _SchemaValues &values);
-        static
-        SubsetMap
-        _ComputeGeomSubsets(const _SchemaValues &values,
-            const SdfPath &primPath);
-        static const
-        _MaterialsDict
-        _ComputeMaterials(const _SchemaValues &values);
-        static
         HdContainerDataSourceHandle
         _ComputeExtent(
             const TfToken &cardGeometry,
             const VtVec3fArray &points);
+        static
+        VtVec2fArray
+        _ComputeUVs(const _SchemaValues &values);
+        static
+        _NameToContainer
+        _ComputeGeomSubsets(const _SchemaValues &values,
+            const SdfPath &primPath);
+        static const
+        _NameToContainer
+        _ComputeMaterials(const _SchemaValues &values);
     };
 
     /// Thread-safe way to get the cached cards data.
@@ -1325,8 +1331,8 @@ _CardsDataCache::_CardsData::_CardsData(const _SchemaValues &values,
   , points(_ComputePoints(values))
   , extent(_ComputeExtent(cardGeometry, points))
   , uvs(HdRetainedTypedSampledDataSource<VtVec2fArray>::New(_ComputeUVs(values)))
-  , geomSubsets(_ComputeGeomSubsets(values, primPath))
   , meshTopology(_DisjointQuadTopology(values.hasFace.count()))
+  , geomSubsets(_ComputeGeomSubsets(values, primPath))
   , materials(_ComputeMaterials(values))
 {
 }
@@ -1439,7 +1445,7 @@ _CardsDataCache::_CardsData::_ComputePoints(const _SchemaValues &values)
     return points;
 }
 
-_CardsDataCache::_CardsData::SubsetMap
+_NameToContainer
 _CardsDataCache::_CardsData::_ComputeGeomSubsets(
     const _SchemaValues &values, const SdfPath &primPath)
 {
@@ -1448,7 +1454,7 @@ _CardsDataCache::_CardsData::_ComputeGeomSubsets(
     static const std::array<TfToken, 6> materialNameTokens =
         _AddAxesToNames("subsetMaterial", "");
 
-    SubsetMap subsets;
+    _NameToContainer subsets;
 
     // Do not generate subsets if there are no textures for any face.
     // The entire standin prim will use the renderer's fallback material, which
@@ -1772,7 +1778,7 @@ _CardsUVNode()
         .Build();
 }
 
-const _MaterialsDict
+const _NameToContainer
 _CardsDataCache::_CardsData::_ComputeMaterials(const _SchemaValues &values)
 {
     static const std::array<TfToken, 6> materialNameTokens =
@@ -1781,7 +1787,7 @@ _CardsDataCache::_CardsData::_ComputeMaterials(const _SchemaValues &values)
     const HdDataSourceBaseHandle vec4Fallback =
         _Vec4fFromVec3fDataSource::New(values.drawModeColor, 1.0f);
 
-    _MaterialsDict materials;
+    _NameToContainer materials;
 
     // do not generate any materials if there are no textures for any face
     if (values.hasTexture.count()) {
@@ -2050,7 +2056,6 @@ _ComputeMaterialColorInputLocators()
     };
 };
 
-
 class _CardsStandin : public UsdImaging_DrawModeStandin
 {
 public:
@@ -2059,52 +2064,6 @@ public:
       : UsdImaging_DrawModeStandin(path, primSource)
       , _dataCache(std::make_shared<_CardsDataCache>(path, primSource))
     {
-    }
-
-    const SdfPathVector
-    _GetDescendantPaths() const override {
-        SdfPathVector paths = { SdfPath(_primNameTokens->cardsMesh) };
-        // materials are siblings of 'cardsMesh'
-        for (const auto &kv : _dataCache->GetMaterials()) {
-            paths.emplace_back(kv.first);
-        }
-        // geom subsets are children of 'cardsMesh'
-        for (const TfToken& name : _dataCache->GetGeomSubsetNames()) {
-            paths.push_back(paths.front().AppendChild(name));
-        }
-        return paths;
-    }
-
-    TfToken
-    _GetDescendantPrimType(const SdfPath& path) const override {
-        static const SdfPath cardsMeshPath = SdfPath(_primNameTokens->cardsMesh);
-        if (path == cardsMeshPath) {
-            return HdPrimTypeTokens->mesh;
-        }
-        if (path.HasPrefix(cardsMeshPath)) {
-            return HdPrimTypeTokens->geomSubset;
-        }
-        return HdPrimTypeTokens->material;
-    }
-
-    HdContainerDataSourceHandle
-    _GetDescendantPrimSource(const SdfPath& path) const override {
-        static const SdfPath cardsMeshPath = SdfPath(_primNameTokens->cardsMesh);
-        if (path == cardsMeshPath) {
-            return _CardsPrimDataSource::New(_path, _primSource, _dataCache);
-        }
-        if (path.HasPrefix(cardsMeshPath)) {
-            return _dataCache->GetGeomSubset(path.GetNameToken());
-        }
-        // We rely on the consumer calling HdSceneIndex::GetPrim()
-        // again when we send a prim dirtied for the material prims
-        // with an empty data source locators.
-        const _MaterialsDict &materials = _dataCache->GetMaterials();
-        const TfToken& name = path.GetNameToken();
-        if (materials.count(name)) {
-            return materials.at(name);
-        }
-        return nullptr;
     }
 
     void ProcessDirtyLocators(
@@ -2170,6 +2129,72 @@ public:
 
     TfToken GetDrawMode() const override {
         return UsdGeomTokens->cards;
+    }
+
+protected:
+    const SdfPathVector
+    _GetDescendantPaths() const override {
+        static const SdfPath cardsMeshPath(_primNameTokens->cardsMesh);
+        
+        SdfPathVector paths = { cardsMeshPath };
+        // materials are siblings of 'cardsMesh'
+        for (const auto &nameAndMaterial : _dataCache->GetMaterials()) {
+            paths.push_back(SdfPath(nameAndMaterial.first));
+        }
+        // geom subsets are children of 'cardsMesh'
+        for (const auto &nameAndSubset : _dataCache->GetGeomSubsets()) {
+            paths.push_back(cardsMeshPath.AppendChild(nameAndSubset.first));
+        }
+        return paths;
+    }
+
+    TfToken
+    _GetDescendantPrimType(const SdfPath &relPath) const override {
+        if (relPath.GetPathElementCount() == 1) {
+            const TfToken &name = relPath.GetNameToken();
+            if (name == _primNameTokens->cardsMesh) {
+                return HdPrimTypeTokens->mesh;
+            }
+            if (_dataCache->GetMaterials().count(name)) {
+                return HdPrimTypeTokens->material;
+            }
+            return TfToken();
+        }
+        if (relPath.GetPathElementCount() == 2 &&
+                relPath.GetParentPath().GetNameToken() ==
+                    _primNameTokens->cardsMesh) {
+            const TfToken &name = relPath.GetNameToken();
+            if (_dataCache->GetGeomSubsets().count(name)) {
+                return HdPrimTypeTokens->geomSubset;
+            }
+            return TfToken();
+        }
+        return TfToken();
+    }
+
+    HdContainerDataSourceHandle
+    _GetDescendantPrimSource(const SdfPath &relPath) const override {
+        if (relPath.GetPathElementCount() == 1) {
+            const TfToken &name = relPath.GetNameToken();
+            if (name == _primNameTokens->cardsMesh) {
+                return _CardsPrimDataSource::New(_path, _primSource, _dataCache);
+            }
+            // We rely on the consumer calling HdSceneIndex::GetPrim()
+            // again when we send a prim dirtied for the material prims
+            // with an empty data source locators.
+            return TfMapLookupByValue(
+                _dataCache->GetMaterials(), name,
+                HdContainerDataSourceHandle());
+        }
+        if (relPath.GetPathElementCount() == 2 &&
+                relPath.GetParentPath().GetNameToken() ==
+                    _primNameTokens->cardsMesh) {
+            const TfToken &name = relPath.GetNameToken();
+            return TfMapLookupByValue(
+                _dataCache->GetGeomSubsets(), name,
+                HdContainerDataSourceHandle());
+        }
+        return nullptr;
     }
 
 private:

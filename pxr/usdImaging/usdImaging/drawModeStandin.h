@@ -60,10 +60,10 @@ protected:
     /// returns paths relative to the typeless container.
     virtual const SdfPathVector _GetDescendantPaths() const = 0;
     /// accepts paths relative to the typeless container.
-    virtual TfToken _GetDescendantPrimType(const SdfPath& path) const = 0;
+    virtual TfToken _GetDescendantPrimType(const SdfPath &relPath) const = 0;
     /// accepts paths relative to the typeless container.
     virtual HdContainerDataSourceHandle _GetDescendantPrimSource(
-        const SdfPath& path) const = 0;
+        const SdfPath &relPath) const = 0;
 
     UsdImaging_DrawModeStandin(
         const SdfPath &path,
