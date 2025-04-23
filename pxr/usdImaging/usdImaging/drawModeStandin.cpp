@@ -57,34 +57,18 @@ PXR_NAMESPACE_OPEN_SCOPE
 
 UsdImaging_DrawModeStandin::~UsdImaging_DrawModeStandin() = default;
 
-const HdSceneIndexPrim &
-UsdImaging_DrawModeStandin::GetPrim() const
-{
-    static HdSceneIndexPrim empty{ TfToken(), nullptr };
-    return empty;
-}
-
 HdSceneIndexPrim
-UsdImaging_DrawModeStandin::GetDescendantPrim(const SdfPath& path) const
+UsdImaging_DrawModeStandin::GetPrim(const SdfPath& path) const
 {
-    if (path.IsAbsolutePath() && path.HasPrefix(_path)) {
-        const SdfPath relPath = path.MakeRelativePath(_path);
-        return {
-            _GetDescendantPrimType(relPath),
-            _GetDescendantPrimSource(relPath) };
-    }
-    if (!path.IsAbsolutePath()) {
-        return {
-            _GetDescendantPrimType(path),
-            _GetDescendantPrimSource(path) };
-    }
-    return { TfToken(), nullptr };
+    const SdfPath relPath = path.MakeRelativePath(_path);
+    return { _GetPrimType(relPath), _GetPrimSource(relPath)
+    };
 }
 
 SdfPathVector
-UsdImaging_DrawModeStandin::GetDescendantPrimPaths() const
+UsdImaging_DrawModeStandin::GetPrimPaths() const
 {
-    const SdfPathVector& relPaths = _GetDescendantPaths();
+    const SdfPathVector relPaths = _GetRelativePrimPaths();
     SdfPathVector result;
     result.reserve(relPaths.size());
     for (const SdfPath& relPath : relPaths) {
@@ -97,12 +81,10 @@ void
 UsdImaging_DrawModeStandin::ComputePrimAddedEntries(
     HdSceneIndexObserver::AddedPrimEntries * entries) const
 {
-    entries->push_back({ _path, TfToken() });
-    const SdfPathVector& relPaths = _GetDescendantPaths();
-    for (const SdfPath& relPath : relPaths) {
+    for (const SdfPath& relPath : _GetRelativePrimPaths()) {
         entries->push_back({
             _path.AppendPath(relPath),
-            _GetDescendantPrimType(relPath) });
+            _GetPrimType(relPath) });
     }
 }
 
@@ -110,10 +92,6 @@ void
 UsdImaging_DrawModeStandin::ComputePrimRemovedEntries(
     HdSceneIndexObserver::RemovedPrimEntries* entries) const
 {
-    const SdfPathVector& relPaths = _GetDescendantPaths();
-    for (const SdfPath& relPath : relPaths) {
-        entries->push_back({ _path.AppendPath(relPath) });
-    }
     entries->push_back({ _path });
 }
 
@@ -671,12 +649,12 @@ public:
                         .Append(HdTokens->displayColor);
                 primDirtyLocators.insert(displayColor);
             }
-            for (const SdfPath &path : GetDescendantPrimPaths()) {
+            for (const SdfPath &path : GetPrimPaths()) {
                 entries->push_back({path, primDirtyLocators});
             }
         } else {
             // Can just forward the dirty locators to the basis curves prim.
-            for (const SdfPath &path : GetDescendantPrimPaths()) {
+            for (const SdfPath &path : GetPrimPaths()) {
                 entries->push_back({path, dirtyLocators});
             }
         }
@@ -687,30 +665,31 @@ public:
     }
 protected:
     const SdfPathVector
-    _GetDescendantPaths() const override {
+    _GetRelativePrimPaths() const override {
         static const SdfPathVector paths {
-            _GetDescendantPath()};
+            SdfPath::ReflexiveRelativePath(),
+            _GetRelativeDescendantPath()};
         return paths;
     }
 
     TfToken
-    _GetDescendantPrimType(const SdfPath &relPath) const override {
-        if (relPath == _GetDescendantPath()) {
+    _GetPrimType(const SdfPath &relPath) const override {
+        if (relPath == _GetRelativeDescendantPath()) {
             return HdPrimTypeTokens->basisCurves;
         }
         return TfToken();
     }
 
     HdContainerDataSourceHandle
-    _GetDescendantPrimSource(const SdfPath &relPath) const override {
-        if (relPath == _GetDescendantPath()) {
+    _GetPrimSource(const SdfPath &relPath) const override {
+        if (relPath == _GetRelativeDescendantPath()) {
             return _BoundsPrimDataSource::New(_primSource);
         }
         return nullptr;
     }
 
 private:
-    const SdfPath &_GetDescendantPath() const {
+    const SdfPath &_GetRelativeDescendantPath() const {
         static const SdfPath path(_primNameTokens->boundsCurves);
         return path;
     }
@@ -887,11 +866,11 @@ public:
                 HdPrimvarsSchema::GetDefaultLocator()
                     .Append(HdTokens->displayColor);
             primDirtyLocators.insert(displayColorValue);
-            for (const SdfPath &path : GetDescendantPrimPaths()) {
+            for (const SdfPath &path : GetPrimPaths()) {
                 entries->push_back({path, primDirtyLocators});
             }
         } else {
-            for (const SdfPath &path : GetDescendantPrimPaths()) {
+            for (const SdfPath &path : GetPrimPaths()) {
                 entries->push_back({path, dirtyLocators});
             }
         }
@@ -903,30 +882,31 @@ public:
 
 protected:
     const SdfPathVector
-    _GetDescendantPaths() const override {
+    _GetRelativePrimPaths() const override {
         static const SdfPathVector paths {
-            SdfPath(_primNameTokens->originCurves) };
+            SdfPath::ReflexiveRelativePath(),
+            _GetRelativeDescendantPath()};
         return paths;
     }
 
     TfToken
-    _GetDescendantPrimType(const SdfPath &relPath) const override {
-        if (relPath == _GetDescendantPath()) {
+    _GetPrimType(const SdfPath &relPath) const override {
+        if (relPath == _GetRelativeDescendantPath()) {
             return HdPrimTypeTokens->basisCurves;
         }
         return TfToken();
     }
 
     HdContainerDataSourceHandle
-    _GetDescendantPrimSource(const SdfPath &relPath) const override {
-        if (relPath == _GetDescendantPath()) {
+    _GetPrimSource(const SdfPath &relPath) const override {
+        if (relPath == _GetRelativeDescendantPath()) {
             return _OriginPrimDataSource::New(_primSource);
         }
         return nullptr;
     }
 
 private:
-    const SdfPath &_GetDescendantPath() const {
+    const SdfPath &_GetRelativeDescendantPath() const {
         static const SdfPath path(_primNameTokens->originCurves);
         return path;
     }
@@ -2093,7 +2073,7 @@ public:
         // Blast the entire thing.
         if (dirtyLocators.Intersects(cardLocators)) {
             (*needsRefresh) = true;
-            for (const SdfPath &path : GetDescendantPrimPaths()) {
+            for (const SdfPath &path : GetPrimPaths()) {
                 static const HdDataSourceLocator empty;
                 entries->push_back({path, empty});
             }
@@ -2133,10 +2113,12 @@ public:
 
 protected:
     const SdfPathVector
-    _GetDescendantPaths() const override {
+    _GetRelativePrimPaths() const override {
         static const SdfPath cardsMeshPath(_primNameTokens->cardsMesh);
         
-        SdfPathVector paths = { cardsMeshPath };
+        SdfPathVector paths = {
+            SdfPath::ReflexiveRelativePath(),
+            cardsMeshPath };
         // materials are siblings of 'cardsMesh'
         for (const auto &nameAndMaterial : _dataCache->GetMaterials()) {
             paths.push_back(SdfPath(nameAndMaterial.first));
@@ -2149,7 +2131,7 @@ protected:
     }
 
     TfToken
-    _GetDescendantPrimType(const SdfPath &relPath) const override {
+    _GetPrimType(const SdfPath &relPath) const override {
         if (relPath.GetPathElementCount() == 1) {
             const TfToken &name = relPath.GetNameToken();
             if (name == _primNameTokens->cardsMesh) {
@@ -2173,7 +2155,7 @@ protected:
     }
 
     HdContainerDataSourceHandle
-    _GetDescendantPrimSource(const SdfPath &relPath) const override {
+    _GetPrimSource(const SdfPath &relPath) const override {
         if (relPath.GetPathElementCount() == 1) {
             const TfToken &name = relPath.GetNameToken();
             if (name == _primNameTokens->cardsMesh) {
