@@ -182,7 +182,11 @@ _MakeUnrenderable(HdSceneIndexPrim * const prim)
             UsdImagingUsdPrimInfoSchema::GetSchemaToken(),
             HdRetainedContainerDataSource::New(
                 UsdImagingUsdPrimInfoSchemaTokens->niPrototypePath,
-                HdBlockDataSource::New()));
+                HdBlockDataSource::New()),
+            UsdImagingGeomModelSchema::GetSchemaToken(),
+            HdRetainedContainerDataSource::New(
+                UsdImagingGeomModelSchemaTokens->applyDrawMode,
+                HdRetainedTypedSampledDataSource<bool>::New(false)));
     prim->dataSource = HdOverlayContainerDataSource::New(
         overlaySource,
         prim->dataSource);
