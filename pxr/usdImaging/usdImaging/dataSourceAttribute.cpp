@@ -54,6 +54,7 @@ public:
             _FindLayerHandle(_usdAttrQuery.GetAttribute(), time));
         if (!resolvedPath.empty()) {
             result = SdfAssetPath(result.GetAssetPath(), resolvedPath);
+        }
         _usdAttrQuery.Get<SdfAssetPath>(&result, time);
         if (UsdShadeUdimUtils::IsUdimIdentifier(result.GetAssetPath())) {
             const std::string resolvedPath =
