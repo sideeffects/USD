@@ -45,7 +45,7 @@ HdMaterialSchema::GetMaterialNetwork(TfToken const &context)
 {
     if (auto b = _GetTypedDataSource<HdContainerDataSource>(context)) {
         return HdMaterialNetworkSchema(b);
-
+    }
     // If we can't find the context-specific binding, return the fallback.
     return
         HdMaterialNetworkSchema(
