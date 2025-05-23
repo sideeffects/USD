@@ -102,15 +102,7 @@ endif()
 
 
 # --TBB
-find_package(TBB CONFIG)
-if(TBB_DIR)
-    # Found in CONFIG mode.
-    set(TBB_tbb_LIBRARY TBB::tbb)
-    set(PXR_FIND_TBB_IN_CONFIG ON)
-else()
-    find_package(TBB REQUIRED COMPONENTS tbb)
-    set(PXR_FIND_TBB_IN_CONFIG OFF)
-endif()
+find_package(TBB REQUIRED COMPONENTS tbb)
 add_definitions(${TBB_DEFINITIONS})
 
 # --math
@@ -222,29 +214,7 @@ if (PXR_BUILD_IMAGING)
     endif()
     # --Opensubdiv
     set(OPENSUBDIV_USE_GPU ${PXR_BUILD_GPU_SUPPORT})
-    find_package(OpenSubdiv 3 CONFIG)
-    if(OpenSubdiv_DIR)
-        # Found in CONFIG mode.
-        # First check the shared, then the static library, just like find_library() in FindOpenSubdiv.cmake.
-        foreach(postfix "" "_static")
-            if(NOT TARGET OpenSubdiv::osdCPU${postfix})
-                continue()
-            endif()
-            set(OPENSUBDIV_LIBRARIES OpenSubdiv::osdCPU${postfix})
-            if(OPENSUBDIV_USE_GPU)
-                list(APPEND OPENSUBDIV_LIBRARIES OpenSubdiv::osdGPU${postfix})
-            endif()
-            break()
-        endforeach()
-    endif()
-    if(OPENSUBDIV_LIBRARIES)
-        list(GET OPENSUBDIV_LIBRARIES 0 OPENSUBDIV_OSDCPU_LIBRARY)
-        set(PXR_FIND_OPENSUBDIV_IN_CONFIG ON)
-    else()
-        # Try again with the find-module.
-        find_package(OpenSubdiv 3 REQUIRED)
-        set(PXR_FIND_OPENSUBDIV_IN_CONFIG OFF)
-    endif()
+    find_package(OpenSubdiv 3 REQUIRED)
     # --Ptex
     if (PXR_ENABLE_PTEX_SUPPORT)
         find_package(PTex REQUIRED)
