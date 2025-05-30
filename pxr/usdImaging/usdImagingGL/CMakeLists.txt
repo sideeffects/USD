@@ -670,6 +670,11 @@ pxr_install_test_dir(
     DEST testUsdImagingGLMaterialPrimvars
 )
 
+pxr_install_test_dir(
+    SRC testenv/testUsdImagingGLMaterialsAndInstancers
+    DEST testUsdImagingGLMaterialsAndInstancers
+)
+
 #
 # Register tests that don't depend on build configuration or external libraries
 # (such as MaterialX, OpenVDB, PTEX).
@@ -4965,7 +4970,40 @@ pxr_register_test(testUsdImagingGLMaterialPrimvars
     TESTENV testUsdImagingGLMaterialPrimvars
     ENV
         USDIMAGINGGL_ENGINE_ENABLE_SCENE_INDEX=true)
-      
+
+pxr_register_test(testUsdImagingGLMaterialsAndInstancers_materialAsPiDescendant
+    COMMAND "${CMAKE_INSTALL_PREFIX}/test/testUsdImagingGLBasicDrawing -offscreen -lighting -sceneLights -shading smooth -frameAll -renderSetting domeLightCameraVisibility bool false -stage materialAsPiDescendant.usda -write materialAsPiDescendant.png"
+    IMAGE_DIFF_COMPARE
+        materialAsPiDescendant.png
+        FAIL 0.008
+        FAIL_PERCENT 0.001
+    TESTENV testUsdImagingGLMaterialsAndInstancers
+    ENV
+        USDIMAGINGGL_ENGINE_ENABLE_SCENE_INDEX=true)
+
+#
+# # Disabled pending Hydra 2 support
+#
+# pxr_register_test(testUsdImagingGLMaterialsAndInstancers_materialInNiPrototype
+#     COMMAND "${CMAKE_INSTALL_PREFIX}/test/testUsdImagingGLBasicDrawing -offscreen -lighting -sceneLights -shading smooth -frameAll -renderSetting domeLightCameraVisibility bool false -stage materialInNiPrototype.usda -write materialInNiPrototype.png"
+#     IMAGE_DIFF_COMPARE
+#         materialInNiPrototype.png
+#         FAIL 0.008
+#         FAIL_PERCENT 0.001
+#     TESTENV testUsdImagingGLMaterialsAndInstancers
+#     ENV
+#         USDIMAGINGGL_ENGINE_ENABLE_SCENE_INDEX=true)
+
+pxr_register_test(testUsdImagingGLMaterialsAndInstancers_materialAsNiInstance
+    COMMAND "${CMAKE_INSTALL_PREFIX}/test/testUsdImagingGLBasicDrawing -offscreen -lighting -sceneLights -shading smooth -frameAll -renderSetting domeLightCameraVisibility bool false -stage materialAsNiInstance.usda -write materialAsNiInstance.png"
+    IMAGE_DIFF_COMPARE
+        materialAsNiInstance.png
+        FAIL 0.008
+        FAIL_PERCENT 0.001
+    TESTENV testUsdImagingGLMaterialsAndInstancers
+    ENV
+        USDIMAGINGGL_ENGINE_ENABLE_SCENE_INDEX=true)
+
 #
 # Conditionally install and register MaterialX tests
 #
