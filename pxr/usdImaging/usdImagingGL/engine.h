@@ -10,6 +10,7 @@
 #ifndef PXR_USD_IMAGING_USD_IMAGING_GL_ENGINE_H
 #define PXR_USD_IMAGING_USD_IMAGING_GL_ENGINE_H
 
+#include "pxr/imaging/hd/noticeBatchingSceneIndex.h"
 #include "pxr/pxr.h"
 #include "pxr/usdImaging/usdImagingGL/api.h"
 #include "pxr/usdImaging/usdImagingGL/version.h"
@@ -56,6 +57,7 @@ class HdxTaskController;
 class UsdImagingDelegate;
 
 TF_DECLARE_WEAK_AND_REF_PTRS(GlfSimpleLightingContext);
+TF_DECLARE_REF_PTRS(HdNoticeBatchingSceneIndex);
 TF_DECLARE_REF_PTRS(UsdImagingStageSceneIndex);
 TF_DECLARE_REF_PTRS(UsdImagingRootOverridesSceneIndex);
 TF_DECLARE_REF_PTRS(UsdImagingSelectionSceneIndex);
@@ -817,6 +819,7 @@ private:
     // Note that we'll only ever use one of _sceneIndex/_sceneDelegate
     // at a time.
     UsdImagingStageSceneIndexRefPtr _stageSceneIndex;
+    HdNoticeBatchingSceneIndexRefPtr _postInstancingNoticeBatchingSceneIndex;
     UsdImagingSelectionSceneIndexRefPtr _selectionSceneIndex;
     UsdImagingRootOverridesSceneIndexRefPtr _rootOverridesSceneIndex;
     HdsiLegacyDisplayStyleOverrideSceneIndexRefPtr _displayStyleSceneIndex;
