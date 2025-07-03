@@ -72,20 +72,27 @@ HdMergingSceneIndex::AddInputScene(
 const HdMergingSceneIndex::_InputEntries&
 HdMergingSceneIndex::_GetInputEntriesByPath(SdfPath const& primPath) const
 {
-    // It is common for merging scene indexes to have few inputs, ex: 2 or 3.
-    // In that case, skip looking through the path table and use the full list.
-    if (_inputs.size() > 4) {
-        // Find the closest enclosing path table entry.
-        for (SdfPath p = primPath; !p.IsEmpty(); p = p.GetParentPath()) {
-            _InputEntriesByPathTable::const_iterator i =
-                _inputsPathTable.find(p);
-            if (i != _inputsPathTable.end()) {
-                return i->second;
-            }
+    TRACE_FUNCTION();
+
+    if (_inputs.size() < 5) {
+        // It is common for merging scene indexes to have few inputs,
+        // ex: 2 or 3.
+        // In that case, skip looking through the path table and use the full
+        // list.
+        return _inputs;
+    }
+
+    // Find the closest enclosing path table entry.
+    for (SdfPath p = primPath; !p.IsEmpty(); p = p.GetParentPath()) {
+        const _InputEntriesByPathTable::const_iterator it =
+            _inputsPathTable.find(p);
+        if (it != _inputsPathTable.end()) {
+            return it->second;
         }
     }
-    // Use the full list.
-    return _inputs;
+
+    static const HdMergingSceneIndex::_InputEntries empty;
+    return empty;
 }
 
 void
