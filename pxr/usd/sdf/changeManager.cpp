@@ -581,6 +581,11 @@ Sdf_ChangeManager::DidAddSpec(const SdfLayerHandle &layer, const SdfPath &path,
         _GetListFor(changes, layer)
             .DidChangeAttributeConnection(path.GetParentPath());
     } 
+    else if (path.IsAbsoluteRootPath()) {
+        // We may end up here when
+        // PCP_ENABLE_MINIMAL_CHANGES_FOR_LAYER_OPERATIONS == 1.
+        // Rather than outputting a coding error, simply do nothing.
+    }
     else {
         TF_CODING_ERROR("Unsupported Spec Type for <" + path.GetString() + ">");
     }
@@ -612,6 +617,11 @@ Sdf_ChangeManager::DidRemoveSpec(const SdfLayerHandle &layer, const SdfPath &pat
         _GetListFor(changes, layer)
             .DidChangeAttributeConnection(path.GetParentPath());
     } 
+    else if (path.IsAbsoluteRootPath()) {
+        // We may end up here when
+        // PCP_ENABLE_MINIMAL_CHANGES_FOR_LAYER_OPERATIONS == 1.
+        // Rather than outputting a coding error, simply do nothing.
+    }
     else {
         TF_CODING_ERROR("Unsupported Spec Type for <" + path.GetString() + ">");
     }
