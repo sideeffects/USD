@@ -75,6 +75,7 @@ pxr_plugin(${PXR_PACKAGE}
         vt
         gf
         hd
+        hdGp
         hdsi
         hio
         usdRi
@@ -150,6 +151,7 @@ pxr_plugin(${PXR_PACKAGE}
         debugUtil
         extComputationPrimvarPruningSceneIndexPlugin
         framebuffer
+        generativeProceduralSceneIndexPlugin
         implicitSurfaceSceneIndexPlugin
         materialPrimvarTransferSceneIndexPlugin
         matfiltSceneIndexPlugins
