@@ -155,16 +155,36 @@ HdMergingSceneIndex::_AddStrictPrefixesOfSceneRoots(
 
         bool hasPrim = true;
 
+        // Before adding the new scene index, check for which prefixes
+        // of the activeInputSceneRoot another scene index was giving
+        // a prim already.
+        // If no other scene index was giving a prim for a prefix,
+        // send message that prim with empty type was added.
+
         // Skip the sceneRoot (and the absolute root path) itself.
         for (const SdfPath &prefix : sceneRoot.GetPrefixes(n - 1)) {
-            hasPrim = hasPrim && _HasPrim(prefix);
-            if (hasPrim) {
+            // Skip if we already know a prim exists here, or it has an
+            // AddedPrimEntry already.
+            if (visited.count(prefix)) {
                 continue;
             }
-            if (!visited.insert(prefix).second) {
-                continue;
+
+            // Record the existence of the sibling paths to avoid n^2
+            // behavior with many siblings.
+            SdfPathVector siblingPaths = GetChildPrimPaths(
+                prefix.GetParentPath());
+            visited.insert(siblingPaths.begin(), siblingPaths.end());
+
+            // Check whether we've found a prefix without an existing prim.
+            if (!visited.count(prefix)) {
+                break;
             }
+        }
+
+        // For this and all following prefixes, add empty prim.
+        for (const SdfPath &prefix : sceneRoot.GetPrefixes(n - 1)) {
             addedEntries->emplace_back(prefix, TfToken());
+            visited.insert(prefix);
         }
     }
 }
@@ -182,6 +202,9 @@ HdMergingSceneIndex::InsertInputScenes(
     HdSceneIndexObserver::AddedPrimEntries addedEntries;
     if (_IsObserved()) {
         // Add strict prefixes of activeInputSceneRoot's.
+        TRACE_SCOPE("Adding prefixes of input scene roots");
+
+        // Add prefixes of activeInputSceneRoot.
         //
         // If adding a scene inde at, e.g., /A/B/C, make
         // AddedPrimEntries for /A and /A/B.
