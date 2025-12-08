@@ -279,7 +279,7 @@ UsdImaging_InstanceProxyPathTranslationSceneIndex::_UpdateInstancerLocations(
         || instancerPrim.primType != HdPrimTypeTokens->instancer)  {
         // Remove all associated instance->prototype mappings.
         auto instancerIt = _instancerToInstancesMap.find(instancerPath);
-        if (TF_VERIFY(instancerIt != _instancerToInstancesMap.end())) {
+        if (instancerIt != _instancerToInstancesMap.end()) {
             for (SdfPath const& instancePath: instancerIt->second) {
                 // Remove this instance->prototype mapping.
                 _instanceToPrototypePathMap.erase(instancePath);
