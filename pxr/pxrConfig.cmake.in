@@ -49,34 +49,15 @@ if(@PXR_ENABLE_PYTHON_SUPPORT@)
     endif()
 endif()
 
-if (NOT DEFINED PXR_FIND_TBB_IN_CONFIG)
-    set(PXR_FIND_TBB_IN_CONFIG "@PXR_FIND_TBB_IN_CONFIG@")
-endif()
-if (PXR_FIND_TBB_IN_CONFIG)
-    find_dependency(TBB @TBB_VERSION@ CONFIG)
-else()
-    add_library(TBB::tbb SHARED IMPORTED)
-
-    macro(_add_property name value)
-        if (NOT "${value}" STREQUAL "")
-            set_target_properties(TBB::tbb PROPERTIES ${name} "${value}")
-        endif()
-    endmacro()
-
-    _add_property(INTERFACE_INCLUDE_DIRECTORIES "@tbb_INTERFACE_INCLUDE_DIRECTORIES@")
-    _add_property(INTERFACE_COMPILE_DEFINITIONS "@tbb_INTERFACE_COMPILE_DEFINITIONS@")
-    _add_property(INTERFACE_LINK_DIRECTORIES "@tbb_INTERFACE_LINK_DIRECTORIES@")
-    _add_property(IMPORTED_IMPLIB "@tbb_IMPORTED_IMPLIB@")
-    _add_property(IMPORTED_LOCATION "@tbb_IMPORTED_LOCATION@")
-endif()
-
-if (@PXR_BUILD_IMAGING@) # if (PXR_BUILD_IMAGING)
-
-    find_dependency(OpenSubdiv @OpenSubdiv_VERSION@ CONFIG)
-    if (@PXR_BUILD_OPENCOLORIO_PLUGIN@) # if (PXR_BUILD_OPENCOLORIO_PLUGIN)
-        find_dependency(OpenColorIO @OpenColorIO_VERSION@ CONFIG)
-    endif()
-endif()
+# Houdini-specific: deliberately not exporting TBB/OpenSubdiv/OpenColorIO
+# find_dependency glue here (module-mode or CONFIG-mode) -- Houdini does
+# not want downstream `find_package(pxr)` consumers (e.g. HDK plugin builds)
+# to have to independently resolve these dependencies; Houdini provides/
+# bundles them directly. This holds regardless of how USD's own build
+# internally discovers OpenSubdiv (see cmake/defaults/Packages.cmake, which
+# now uses upstream's mandatory CONFIG-mode discovery since Houdini's
+# packaged OpenSubdiv satisfies it) -- the question of exported downstream
+# glue is orthogonal to that.
 
 # If MaterialX support was enabled for this USD build, try to find the
 # associated import targets by invoking the same FindMaterialX.cmake

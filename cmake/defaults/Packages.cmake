@@ -128,24 +128,8 @@ if(WIN32)
 endif()
 
 # --TBB
-if (DEFINED PXR_FIND_TBB_IN_CONFIG)
-    if (PXR_FIND_TBB_IN_CONFIG)
-        find_package(TBB CONFIG REQUIRED COMPONENTS tbb)
-    else()
-        find_package(TBB REQUIRED COMPONENTS tbb)
-    endif()
-else()
-    # Set PXR_FIND_TBB_IN_CONFIG appropriately so that downstream
-    # pxrConfig knows how TBB was found and appropriately encodes the 
-    # dependency.
-    find_package(TBB CONFIG COMPONENTS tbb)
-    if (TBB_FOUND)
-        set(PXR_FIND_TBB_IN_CONFIG ON)
-    else()
-        find_package(TBB REQUIRED COMPONENTS tbb)
-        set(PXR_FIND_TBB_IN_CONFIG OFF)
-    endif()
-endif()
+find_package(TBB REQUIRED COMPONENTS tbb)
+set(PXR_FIND_TBB_IN_CONFIG OFF)
 
 # --math
 if(WIN32)
@@ -248,6 +232,16 @@ if (PXR_BUILD_IMAGING)
         endif()
     endif()
     # --Opensubdiv
+    # Houdini-specific note: upstream now mandates CONFIG-mode discovery
+    # (3.6+, must export OpenSubdivConfig.cmake/OpenSubdivTargets.cmake) and
+    # no longer offers a module-mode fallback. Houdini's own packaged
+    # OpenSubdiv (currently 3.7.0-4, see dev_tools/src/opensubdiv recipe)
+    # genuinely exports a real CONFIG package, so this upstream requirement
+    # is satisfied as-is; unlike the TBB case just above, there is no need
+    # to force module-mode here to "ensure our lib is used" -- as long as
+    # the build's CMAKE_PREFIX_PATH points at Houdini's devtools prefix (as
+    # it already must for TBB/other packages), CONFIG-mode will resolve to
+    # Houdini's own OpenSubdiv. Taking upstream's block unmodified.
     find_package(OpenSubdiv 3.6...<4 REQUIRED CONFIG)
     # First check the shared, then the static library, just like find_library() in FindOpenSubdiv.cmake.
     foreach(postfix "" "_static")
