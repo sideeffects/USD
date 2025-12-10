@@ -2090,13 +2090,6 @@ if __name__ == '__main__':
     codeGenPath = os.path.abspath(args.codeGenPath)
     schemaPath = os.path.abspath(args.schemaPath)
 
-    # Check for expected library files
-    expectedFiles = ["__init__.py", "CMakeLists.txt", 'module.cpp']
-    for file in expectedFiles:
-        if not os.path.exists(os.path.join(codeGenPath, file)):
-            Print('WARNING: File {0} is missing. Run usdInitSchema to set up ' 
-                  'build necessities'.format(file))
-
     if args.templatePath:
         templatePath = os.path.abspath(args.templatePath)
     else:
@@ -2147,6 +2140,14 @@ if __name__ == '__main__':
         libTokens, \
         skipCodeGen, \
         classes, classInfos = ParseUsd(schemaPath)
+
+        if not skipCodeGen:
+            # Check for expected library files if doing code gen.
+            expectedFiles = ["__init__.py", "CMakeLists.txt", 'module.cpp']
+            for file in expectedFiles:
+                if not os.path.exists(os.path.join(codeGenPath, file)):
+                    Print('WARNING: File {0} is missing. Run usdInitSchema to set up '
+                          'build necessities'.format(file))
 
         if args.validate:
             Print('Validation on, any diffs found will cause failure.')
