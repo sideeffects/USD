@@ -2782,8 +2782,14 @@ HdDataSourceLegacyPrim::_GetDataSharingDataSource()
     if (sharingId.IsEmpty()) {
         return nullptr;
     }
+    using SharingId = HdDataSharingSchema::SharingId;
+    using DataSource = HdRetainedTypedSampledDataSource<SharingId>;
+    std::vector<TfToken> names =
+        { HdDataSharingSchemaTokens->sharingId };
+    std::vector<HdDataSourceBaseHandle> ids =
+        { DataSource::New(SharingId(sharingId)) };
     return HdDataSharingSchema::BuildRetained(
-        HdRetainedTypedSampledDataSource<SdfPath>::New(sharingId));
+        names.size(), names.data(), ids.data());
 }
 
 HdDataSourceBaseHandle

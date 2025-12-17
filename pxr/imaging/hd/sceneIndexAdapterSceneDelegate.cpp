@@ -2646,10 +2646,7 @@ HdSceneIndexAdapterSceneDelegate::GetDataSharingId(SdfPath const& primId)
 
     if (HdDataSharingSchema dataSharing =
             HdDataSharingSchema::GetFromParent(prim.dataSource)) {
-        if (HdPathDataSourceHandle sharingIdDs =
-                dataSharing.GetSharingId()) {
-            sharingId = sharingIdDs->GetTypedValue(0);
-        }
+        sharingId = dataSharing.GetSharingId();
     }
 
     return sharingId;
