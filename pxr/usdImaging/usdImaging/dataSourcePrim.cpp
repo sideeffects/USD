@@ -16,6 +16,7 @@
 #include "pxr/usdImaging/usdImaging/usdPrimInfoSchema.h"
 
 #include "pxr/imaging/hd/retainedDataSource.h"
+#include "pxr/imaging/hd/dataSharingSchema.h"
 #include "pxr/imaging/hd/extentSchema.h"
 #include "pxr/imaging/hd/purposeSchema.h"
 #include "pxr/imaging/hd/primOriginSchema.h"
@@ -558,6 +559,34 @@ UsdImagingDataSourcePrimOrigin::Get(const TfToken &name)
 
 // ----------------------------------------------------------------------------
 
+UsdImagingDataSourceDataSharing::UsdImagingDataSourceDataSharing(
+        const SdfPath &sharingId)
+  : _sharingId(sharingId)
+{
+}
+
+TfTokenVector
+UsdImagingDataSourceDataSharing::GetNames()
+{
+    return {
+        HdDataSharingSchemaTokens->sharingId
+    };
+}
+
+HdDataSourceBaseHandle
+UsdImagingDataSourceDataSharing::Get(const TfToken &name)
+{ 
+    if (name == HdDataSharingSchemaTokens->sharingId) {
+        using SharingId = HdDataSharingSchema::SharingId;
+        using DataSource = HdRetainedTypedSampledDataSource<SharingId>;
+        return DataSource::New(SharingId(_sharingId));
+    }
+
+    return nullptr;
+}
+
+// ----------------------------------------------------------------------------
+
 /// \class UsdImagingDataSourcePrim_ModelAPI
 ///
 /// Data source representing UsdModelAPI.
@@ -709,6 +738,10 @@ UsdImagingDataSourcePrim::GetNames()
         vec.push_back(UsdImagingExtentsHintSchema::GetSchemaToken());
     }
 
+    if (_GetUsdPrim().IsInPrototype()) {
+        vec.push_back(HdDataSharingSchema::GetSchemaToken());
+    }
+
     return vec;
 }
 
@@ -827,6 +860,12 @@ UsdImagingDataSourcePrim::Get(const TfToken &name)
                         TfToken(TfEnum::GetName(rotOrder))))
                 .Build();
         }
+    } else if (name == HdDataSharingSchema::GetSchemaToken()) {
+        if (_GetUsdPrim().IsInPrototype()) {
+            return UsdImagingDataSourceDataSharing::New(
+                _GetUsdPrim().GetPath());
+        }
+        return nullptr;
     }
     return nullptr;
 }

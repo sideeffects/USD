@@ -28,6 +28,7 @@
 #include "pxr/imaging/hd/dependenciesSchema.h"
 #include "pxr/imaging/hd/dependencySchema.h"
 #include "pxr/imaging/hd/displayFilterSchema.h"
+#include "pxr/imaging/hd/dataSharingSchema.h"
 #include "pxr/imaging/hd/extComputationInputComputationSchema.h"
 #include "pxr/imaging/hd/extComputationOutputSchema.h"
 #include "pxr/imaging/hd/extComputationPrimvarSchema.h"
@@ -2475,6 +2476,7 @@ HdDataSourceLegacyPrim::GetNames()
         result.push_back(HdCoordSysBindingSchemaTokens->coordSysBinding);
         result.push_back(HdPurposeSchemaTokens->purpose);
         result.push_back(HdVisibilitySchemaTokens->visibility);
+        result.push_back(HdDataSharingSchemaTokens->dataSharing);
         result.push_back(HdCategoriesSchemaTokens->categories);
         result.push_back(HdXformSchemaTokens->xform);
         result.push_back(HdExtentSchemaTokens->extent);
@@ -2494,6 +2496,7 @@ HdDataSourceLegacyPrim::GetNames()
 
     if (_type == HdPrimTypeTokens->instancer) {
         result.push_back(HdXformSchemaTokens->xform);
+        result.push_back(HdDataSharingSchemaTokens->dataSharing);
         result.push_back(HdInstancerTopologySchemaTokens->instancerTopology);
         result.push_back(HdInstanceCategoriesSchemaTokens->instanceCategories);
 
@@ -2783,6 +2786,23 @@ HdDataSourceLegacyPrim::_GetInstancedByDataSource()
 }
 
 HdDataSourceBaseHandle
+HdDataSourceLegacyPrim::_GetDataSharingDataSource()
+{
+    SdfPath sharingId = _sceneDelegate->GetDataSharingId(_id);
+    if (sharingId.IsEmpty()) {
+        return nullptr;
+    }
+    using SharingId = HdDataSharingSchema::SharingId;
+    using DataSource = HdRetainedTypedSampledDataSource<SharingId>;
+    std::vector<TfToken> names =
+        { HdDataSharingSchemaTokens->sharingId };
+    std::vector<HdDataSourceBaseHandle> ids =
+        { DataSource::New(SharingId(sharingId)) };
+    return HdDataSharingSchema::BuildRetained(
+        names.size(), names.data(), ids.data());
+}
+
+HdDataSourceBaseHandle
 HdDataSourceLegacyPrim::_GetInstancerTopologyDataSource()
 {
     TRACE_FUNCTION();
@@ -2962,6 +2982,8 @@ HdDataSourceLegacyPrim::Get(const TfToken &name)
             _sceneDelegate);
     } else if (name == HdInstancedBySchemaTokens->instancedBy) {
         return _GetInstancedByDataSource();
+    } else if (name == HdDataSharingSchemaTokens->dataSharing) {
+        return _GetDataSharingDataSource();
     } else if (name == HdInstancerTopologySchemaTokens->instancerTopology) {
         return _GetInstancerTopologyDataSource();
     } else if (name == HdVolumeFieldBindingSchemaTokens->volumeFieldBinding) {
