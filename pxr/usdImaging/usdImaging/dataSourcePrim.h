@@ -410,6 +410,33 @@ HD_DECLARE_DATASOURCE_HANDLES(UsdImagingDataSourcePrimOrigin);
 // ----------------------------------------------------------------------------
 
 ///
+/// \class UsdImagingDataSourceDataSharing
+///
+/// Data source to access the underlying UsdPrim.
+///
+class UsdImagingDataSourceDataSharing : public HdContainerDataSource
+{
+public:
+    HD_DECLARE_DATASOURCE(UsdImagingDataSourceDataSharing);
+
+    TfTokenVector GetNames() override;
+
+    /// Get(HdDataSharingSchemaTokens->sharingId) returns a data source
+    /// containing the SdfPath of the prototype prim.
+    HdDataSourceBaseHandle Get(const TfToken &name) override;
+
+private:
+    UsdImagingDataSourceDataSharing(const SdfPath &sharingId);
+
+private:
+    SdfPath _sharingId;
+};
+
+HD_DECLARE_DATASOURCE_HANDLES(UsdImagingDataSourceDataSharing);
+
+// ----------------------------------------------------------------------------
+
+///
 /// \class UsdImagingDataSourcePrim
 ///
 /// Data source representing a basic USD prim. This class is meant to check for

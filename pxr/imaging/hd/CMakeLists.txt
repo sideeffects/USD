@@ -50,6 +50,7 @@ pxr_library(hd
         coordSysBindingSchema
         cubeSchema
         cylinderSchema
+        dataSharingSchema
         dataSource
         dataSourceHash
         dataSourceLegacyPrim
