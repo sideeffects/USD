@@ -94,7 +94,7 @@ struct SdrShaderNodeDiscoveryResult;
 class SdrOslParserPlugin : public SdrParserPlugin
 {
 public:
-    typedef OSL::OSLQuery::Parameter OslParameter;
+    typedef HOSL::OSLQuery::Parameter OslParameter;
 
     SDROSL_API
     SdrOslParserPlugin();
@@ -122,13 +122,13 @@ private:
     // Gets a vector of properties that are present on the specified OSL
     // query object
     SdrShaderPropertyUniquePtrVec _getNodeProperties(
-        const OSL::OSLQuery &query,
+        const HOSL::OSLQuery &query,
         const SdrShaderNodeDiscoveryResult& discoveryResult,
         const std::string& fallbackprefix) const;
 
     // Gets all metadata for the node that's present on the specified OSL
     // query object
-    SdrTokenMap _getNodeMetadata(const OSL::OSLQuery &query,
+    SdrTokenMap _getNodeMetadata(const HOSL::OSLQuery &query,
                                  const SdrTokenMap &baseMetadata) const;
 
     // Gets all metadata for the specified OSL parameter

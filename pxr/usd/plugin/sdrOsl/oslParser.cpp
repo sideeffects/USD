@@ -90,7 +90,7 @@ SdrOslParserPlugin::~SdrOslParserPlugin()
 
 template <class String>
 static bool
-_ParseFromSourceCode(OSL::OSLQuery* query, const String& sourceCode)
+_ParseFromSourceCode(HOSL::OSLQuery* query, const String& sourceCode)
 {
 #if OSL_LIBRARY_VERSION_CODE < 10701
     TF_WARN("Support for parsing OSL from an in-memory string is only "
@@ -155,9 +155,9 @@ SdrShaderNodeUniquePtr
 SdrOslParserPlugin::ParseShaderNode(
     const SdrShaderNodeDiscoveryResult& discoveryResult)
 {
-    // Each call to `ParseShaderNode` should have its own reference
-    // to an OSL query to prevent multi-threading issues
-    OSL::OSLQuery oslQuery;
+    // Each call to `Parse` should have its own reference to an OSL query to
+    // prevent multi-threading issues
+    HOSL::OSLQuery oslQuery;
 
     bool parseSuccessful = true;
 
@@ -187,7 +187,7 @@ SdrOslParserPlugin::ParseShaderNode(
             }
 
             parseSuccessful = _ParseFromSourceCode(
-                &oslQuery, OSL::string_view(buffer.get(), asset->GetSize()));
+                &oslQuery, HOSL::string_view(buffer.get(), asset->GetSize()));
         }
 
     } else if (!discoveryResult.sourceCode.empty()) {
@@ -297,8 +297,9 @@ SdrOslParserPlugin::_setSdrContext(SdrTokenMap& metadata) const
 
 SdrShaderPropertyUniquePtrVec
 SdrOslParserPlugin::_getNodeProperties(
-    const OSL::OSLQuery &query, 
+    const HOSL::OSLQuery &query,
     const SdrShaderNodeDiscoveryResult& discoveryResult, 
+
     const std::string& fallbackPrefix) const
 {
     SdrShaderPropertyUniquePtrVec properties;
@@ -452,7 +453,7 @@ SdrOslParserPlugin::_injectParserMetadata(SdrTokenMap& metadata,
 
 SdrTokenMap
 SdrOslParserPlugin::_getNodeMetadata(
-    const OSL::OSLQuery &query,
+    const HOSL::OSLQuery &query,
     const SdrTokenMap &baseMetadata) const
 {
     SdrTokenMap nodeMetadata = baseMetadata;
