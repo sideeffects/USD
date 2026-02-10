@@ -1631,5 +1631,17 @@
         ],
     ),
 
-    
+    #--------------------------------------------------------------------------
+    # dataSharing
+    dict(
+        SCHEMA_NAME = 'DataSharing',
+        SCHEMA_TOKEN = 'dataSharing',
+        GENERIC_MEMBER = ('dataSharing', 'HdDataSharingSchema',
+            # We provide a custom getter for the sharing Id. But we need
+            # something in here to create a Builder class.
+            dict(GETTER = False)),
+        EXTRA_TOKENS = [
+            'sharingId',
+        ],
+    ),
 ]
