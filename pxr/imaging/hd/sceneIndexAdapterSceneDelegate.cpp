@@ -2604,10 +2604,6 @@ HdSceneIndexAdapterSceneDelegate::GetInstanceIndices(
     HF_MALLOC_TAG_FUNCTION();
     VtIntArray indices;
 
-    if (!GetVisible(instancerId)) {
-        return indices;
-    }
-
     HdSceneIndexPrim prim = _GetInputPrim(instancerId);
 
     if (HdInstancerTopologySchema instancerTopology =
