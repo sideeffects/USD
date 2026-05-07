@@ -211,6 +211,22 @@ UsdImagingMaterialAdapter::InvalidateImagingSubprim(
 
     // If we dirtied an interface input dirty that terminal
     for (UsdShadeOutput& output : material.GetOutputs()) {
+        bool terminalDirty = false;
+        for (const TfToken& property : properties) {
+            if (output.GetFullName() == property) {
+                // Invalidate the affected terminal.
+                 result.insert(_CreateTerminalLocator(output.GetBaseName()));
+                // Due to the way UsdImagingDataSourceMaterial::Get() returns
+                // a retained nodegraph, and only includes nodes that were
+                // reachable at the time, we must also invalidate the nodes
+                // locator here as well.
+                result.insert(HdMaterialSchema::GetDefaultLocator());
+                break;
+            }
+        }
+        if (terminalDirty) {
+            continue;
+        }
         for (UsdShadeConnectionSourceInfo& connection :
              output.GetConnectedSources()) {
             _ConnectionSet seenConnections;

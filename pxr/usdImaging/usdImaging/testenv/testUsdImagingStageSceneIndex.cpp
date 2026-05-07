@@ -13,6 +13,7 @@
 #include "pxr/usd/usd/stage.h"
 #include "pxr/usd/usdGeom/cube.h"
 #include "pxr/usd/usdGeom/points.h"
+#include "pxr/usd/usdShade/material.h"
 
 #include "pxr/imaging/hd/dataSourceTypeDefs.h"
 #include "pxr/imaging/hd/meshTopologySchema.h"
@@ -407,6 +408,9 @@ void NodeGraphInputChangeTest()
     inputSceneIndex->AddObserver(HdSceneIndexObserverPtr(&primListener));
 
     SdfPath materialPath("/World/Material");
+    UsdPrim matPrim = stage->GetPrimAtPath(materialPath);
+    TF_VERIFY(matPrim);
+    UsdShadeMaterial material(matPrim);
     UsdPrim ngPrim = stage->GetPrimAtPath(SdfPath("/World/Material/NodeGraph"));
     if (!TF_VERIFY(ngPrim)) {
         return;
@@ -437,6 +441,44 @@ void NodeGraphInputChangeTest()
 
     if (!TF_VERIFY(materialDirtied)) {
         return;
+    }
+
+    // Change the terminal connection to a new shader node, that
+    // was not previously part of the material network.
+    material.GetSurfaceAttr().SetConnections(
+        {SdfPath("/World/Material/AlternatePreviewSurface.outputs:surface")});
+
+    primListener.ResetEntries();
+    inputSceneIndex->ApplyPendingUpdates();
+
+    // We expect the material to be dirtied.
+    materialDirtied = false;
+    for (const HdSceneIndexObserver::DirtiedPrimEntry &entry :
+            primListener.GetDirtied()) {
+        if (entry.primPath == materialPath) {
+            if (entry.dirtyLocators.Intersects(
+                    HdMaterialSchema::GetDefaultLocator())) {
+                materialDirtied = true;
+            }
+        }
+    }
+    TF_VERIFY(materialDirtied);
+
+    // We expect the new shader node to exist in the material.
+    {
+        HdSceneIndexPrim prim = inputSceneIndex->GetPrim(materialPath);
+        auto diffuseValueDs = HdTypedSampledDataSource<GfVec3f>::Cast(
+            HdContainerDataSource::Get(
+                prim.dataSource,
+                HdDataSourceLocator(
+                TfToken("material"),
+                TfToken(""), // universal
+                TfToken("nodes"),
+                TfToken("AlternatePreviewSurface"),
+                TfToken("parameters"),
+                TfToken("diffuseColor"))
+                .Append(TfToken("value"))));
+        TF_VERIFY(diffuseValueDs->GetTypedValue(0.0) == GfVec3f(1, 2, 3));
     }
 }
 
