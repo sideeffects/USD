@@ -265,6 +265,17 @@ pxr_build_test(testUsdImagingRootPrim
     CPPFILES
         testenv/testUsdImagingRootPrim.cpp
 )
+pxr_build_test(testUsdImagingPiPrototypeSceneIndex
+    LIBRARIES
+        usdImaging
+        usdGeom
+        usd
+        sdf
+        hd
+        tf
+    CPPFILES
+        testenv/testUsdImagingPiPrototypeSceneIndex.cpp
+)
 pxr_build_test(testUsdImagingStageSceneIndex
     LIBRARIES
         usdImaging
@@ -340,6 +351,10 @@ pxr_register_test(testUsdImagingRerootingSceneIndex
 )
 pxr_register_test(testUsdImagingRootPrim
     COMMAND "${CMAKE_INSTALL_PREFIX}/tests/testUsdImagingRootPrim"
+    EXPECTED_RETURN_CODE 0
+)
+pxr_register_test(testUsdImagingPiPrototypeSceneIndex
+    COMMAND "${CMAKE_INSTALL_PREFIX}/tests/testUsdImagingPiPrototypeSceneIndex"
     EXPECTED_RETURN_CODE 0
 )
 pxr_register_test(testUsdImagingStageSceneIndex
