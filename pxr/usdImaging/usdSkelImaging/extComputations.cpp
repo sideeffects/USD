@@ -35,7 +35,7 @@ TF_DEFINE_PRIVATE_TOKENS(
 
 TF_DEFINE_ENV_SETTING(USDSKELIMAGING_FORCE_CPU_COMPUTE, false,
                       "Use Hydra ExtCPU computations for skinning.");
-TF_DEFINE_ENV_SETTING(USDSKELIMAGING_ENABLE_NORMAL_COMPUTATIONS, false,
+TF_DEFINE_ENV_SETTING(USDSKELIMAGING_ENABLE_NORMAL_COMPUTATIONS, true,
                       "Enable skinning computations for authored normals.");
 
 ///////////////////////////////////////////////////////////////////////////////
