@@ -132,7 +132,17 @@ private:
 
 // Validation code.
 
-using _SceneIndexSet = std::unordered_set<HdSceneIndexBasePtr, TfHash>;
+// Workaround for a libstdc++ bug in gcc 14.2 (https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115285),
+// by using a hash functor which only accepts the unordered_set's key type.
+struct _SceneIndexHash
+{
+    size_t operator()(HdSceneIndexBasePtr const &sceneIndex) const
+    {
+        return TfHash()(sceneIndex);
+    }
+};
+
+using _SceneIndexSet = std::unordered_set<HdSceneIndexBasePtr, _SceneIndexHash>;
 
 void
 _RecurseInputScenes(HdSceneIndexBasePtr const &sceneIndex,
