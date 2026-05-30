@@ -104,13 +104,13 @@ _TranslatePath(
     // Limit iterations just in case.
     int i = 0;
     static const int maxIters = 1000;
-    for (; i < maxIters && !sceneIndex->GetPrim(result).IsDefined(); ++i)
+    for (; i < maxIters && !bool(sceneIndex->GetPrim(result).dataSource); ++i)
     {
         // Work back-to-front, until we find an ancestor prim that exists
         bool loopAgain = false;
         for (SdfPath const& ancestorPath : result.GetAncestorsRange()) {
             if (HdSceneIndexPrim ancestor = sceneIndex->GetPrim(ancestorPath);
-                ancestor.IsDefined()) {
+                bool(ancestor.dataSource)) {
                 HdInstanceSchema instanceSchema = 
                     HdInstanceSchema::GetFromParent(ancestor.dataSource);
                 // If the ancestor has an instanceSchema that provides a new
