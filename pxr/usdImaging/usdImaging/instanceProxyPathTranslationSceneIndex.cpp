@@ -18,7 +18,7 @@
 
 PXR_NAMESPACE_OPEN_SCOPE
 
-TF_DEFINE_ENV_SETTING(USDIMAGING_CORRECT_PROXY_PATH_TRANSLATION, false,
+TF_DEFINE_ENV_SETTING(USDIMAGING_CORRECT_PROXY_PATH_TRANSLATION, true,
                       "Translates certain proxy paths in Usd Imaging correctly "
                       "which is, however, expensive.");
 
@@ -148,6 +148,16 @@ _NewTranslatePath(
 {
     TRACE_FUNCTION();
 
+    // Translate paths identifying instance proxy prims to identify
+    // the corresponding descendant of the prototype:
+    //
+    // - Walk up path ancestors, stopping if we see a defined prim
+    // - For each non-defined prim ancestor, check for an HdInstanceSchema
+    //   indicating that this is an instance proxy prim
+    // - If an instance proxy is found, consult the instance schema's
+    //   prototype path, and prefix-replace the instance root with the
+    //   prototype root
+    //
     // If the provided path refers to a valid scene index prim, no
     // further translation is required:
     // - In the case where the path is not a descendant of an instance
@@ -174,10 +184,16 @@ _NewTranslatePath(
                 // start the loop again with this new path.
                 if (const std::optional<SdfPath> prototypePath =
                         _GetPrototypePath(instanceSchema, sceneIndex)) {
-                    result = result.ReplacePrefix(
-                        ancestorPath, *prototypePath);
-                    loopAgain = true;
-                    break;
+                    // Guard against scenarios where the prototype is
+                    // a descendant of the instance.  This scenario
+                    // has been observed when point instancers use
+                    // native-instanced prototypes; see PRES-102132.
+                    if (!prototypePath->HasPrefix(ancestorPath)) {
+                        result = result.ReplacePrefix(
+                            ancestorPath, *prototypePath);
+                        loopAgain = true;
+                        break;
+                    }
                 }
             }
         }
