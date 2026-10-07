@@ -503,63 +503,43 @@ HdMergingSceneIndex::_PrimsRemoved(
         return;
     }
 
-    HdSceneIndexObserver::RemovedPrimEntries filteredEntries;
-    filteredEntries.reserve(entries.size());
-
-    // Note: if a prim is removed from an input scene, but exists in another
-    // input scene, we trigger that as a resync (signaled by PrimsAdded).
-    HdSceneIndexObserver::AddedPrimEntries addedEntries;
-
-    for (const HdSceneIndexObserver::RemovedPrimEntry &entry : entries) {
-        bool primFullyRemoved = true;
-
+    // Another input having either a data source or children of the path
+    // keeps it alive. The sender itself is ignored: mid-notice it may still
+    // advertise prims it is removing.
+    auto existsInOtherInput = [&](const SdfPath &path) {
         for (const _InputEntry &inputEntry : _inputs) {
             if (get_pointer(inputEntry.sceneIndex) == &sender) {
                 continue;
             }
-
-            // another input having either a data source or children of the
-            // specified prim considers this not a full removal
-            if (inputEntry.sceneIndex->GetPrim(entry.primPath).dataSource
+            if (inputEntry.sceneIndex->GetPrim(path).dataSource
                     || !inputEntry.sceneIndex->GetChildPrimPaths(
-                            entry.primPath).empty()) {
-                primFullyRemoved = false;
-                break;
+                            path).empty()) {
+                return true;
             }
         }
+        return false;
+    };
 
-        if (primFullyRemoved) {
-            filteredEntries.push_back(entry);
-        } else {
-            for (const SdfPath& descendantPath : HdSceneIndexPrimView(
-                     HdMergingSceneIndexRefPtr(this), entry.primPath)) {
-                bool descendantFullyRemoved = true;
+    // The removal is always forwarded: the sender may have lost descendants
+    // that no other input has, and we keep no record of them. What other
+    // inputs still contribute is then re-added; anything the sender still
+    // has, it re-adds itself.
+    HdSceneIndexObserver::AddedPrimEntries addedEntries;
 
-                for (const _InputEntry &inputEntry : _inputs) {
-                    if (get_pointer(inputEntry.sceneIndex) == &sender) {
-                        continue;
-                    }
-
-                    // another input having a data source of the specified
-                    // prim considers this not a full removal
-                    if (inputEntry.sceneIndex->GetPrim(
-                            descendantPath).dataSource) {
-                        descendantFullyRemoved = false;
-                        break;
-                    }
-                }
-
-                if (descendantFullyRemoved) {
-                    filteredEntries.emplace_back(descendantPath);
-                } else {
-                    addedEntries.emplace_back(
-                        descendantPath, GetPrim(descendantPath).primType);
-                }
+    for (const HdSceneIndexObserver::RemovedPrimEntry &entry : entries) {
+        if (!existsInOtherInput(entry.primPath)) {
+            continue;
+        }
+        for (const SdfPath& descendantPath : HdSceneIndexPrimView(
+                 HdMergingSceneIndexRefPtr(this), entry.primPath)) {
+            if (existsInOtherInput(descendantPath)) {
+                addedEntries.emplace_back(
+                    descendantPath, GetPrim(descendantPath).primType);
             }
         }
     }
 
-    _SendPrimsRemoved(filteredEntries);
+    _SendPrimsRemoved(entries);
     _SendPrimsAdded(addedEntries);
 }
 
