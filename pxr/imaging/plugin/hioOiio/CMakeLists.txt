@@ -14,7 +14,11 @@ pxr_plugin(hioOiio
         gf
         hio
         tf
-        OpenImageIO::OpenImageIO
+        ${OIIO_LIBRARIES}
+        Imath::Imath
+
+    INCLUDE_DIRS
+        ${OIIO_INCLUDE_DIRS}
 
     CPPFILES
         oiioImage.cpp
