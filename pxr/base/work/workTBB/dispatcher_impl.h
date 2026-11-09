@@ -10,6 +10,8 @@
 #include "pxr/pxr.h"
 #include "pxr/base/work/api.h"
 
+#include <tbb/version.h>
+
 // Blocked range is not used in this file, but this header happens to pull in
 // the TBB version header in a way that works in all TBB versions.
 #include <tbb/blocked_range.h>
