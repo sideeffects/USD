@@ -209,6 +209,35 @@ _PrimvarsDataSource::Invalidate(
             anyDirtied = true;
             break;
         }
+
+        const TfToken &name = locator.GetFirstElement();
+
+        // Drop the cached constant primvars if they include this one,
+        // so the next query re-fetches it from the input.
+        if (const std::shared_ptr<_PrimvarDsMap> constantPrimvars =
+                std::atomic_load(&_constantPrimvars)) {
+            if (constantPrimvars->count(name)) {
+                _constantPrimvars.reset();
+            }
+        }
+
+        // Report this prim as dirtied unless the primvar is authored on
+        // this prim with non-constant interpolation: such a primvar neither
+        // inherits nor is inherited, so the change cannot affect what this
+        // prim's descendants see. Otherwise the value served here (possibly
+        // inherited from an ancestor's cached primvars) may have changed,
+        // and HdFlatteningSceneIndex only forwards the dirty notice to
+        // descendants of prims whose data sources report a change.
+        if (_primvarsDataSource) {
+            if (HdContainerDataSourceHandle const primvarDs =
+                    HdContainerDataSource::Cast(
+                        _primvarsDataSource->Get(name))) {
+                if (!_IsConstantPrimvar(primvarDs)) {
+                    continue;
+                }
+            }
+        }
+        anyDirtied = true;
     }
 
     return anyDirtied;
