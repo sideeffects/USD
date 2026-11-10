@@ -219,8 +219,14 @@ public:
         const UsdUtilsDependencyInfo &depInfo,
         UsdUtils_DependencyType dependencyType) override
     {
+        // UsdUtilsModifyAssetPathFn is documented to receive the authored
+        // value. Pass the raw authored path rather than the one with variable
+        // expressions evaluated, so that a callback returning its input
+        // unchanged leaves expressions intact instead of baking them.
+        const std::string &rawAssetPath = depInfo.GetRawAssetPath();
         return UsdUtilsDependencyInfo(
-            modifyPathFn(depInfo.GetAssetPath()));
+            modifyPathFn(rawAssetPath.empty() ?
+                depInfo.GetAssetPath() : rawAssetPath));
     }
 
     UsdUtilsModifyAssetPathFn modifyPathFn;
