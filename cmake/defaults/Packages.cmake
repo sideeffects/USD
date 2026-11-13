@@ -186,7 +186,7 @@ if (PXR_BUILD_IMAGING)
     endif()
     # --OpenColorIO
     if (PXR_BUILD_OPENCOLORIO_PLUGIN)
-        find_package(OpenColorIO REQUIRED CONFIG)
+        find_package(OpenColorIO REQUIRED)
         add_definitions(-DPXR_OCIO_PLUGIN_ENABLED)
     endif()
     # --OpenGL
