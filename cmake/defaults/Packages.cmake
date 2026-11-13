@@ -223,31 +223,16 @@ if (PXR_BUILD_IMAGING)
         endif()
     endif()
     # --Opensubdiv
-    # Houdini-specific note: upstream now mandates CONFIG-mode discovery
-    # (3.6+, must export OpenSubdivConfig.cmake/OpenSubdivTargets.cmake) and
-    # no longer offers a module-mode fallback. Houdini's own packaged
-    # OpenSubdiv (currently 3.7.0-4, see dev_tools/src/opensubdiv recipe)
-    # genuinely exports a real CONFIG package, so this upstream requirement
-    # is satisfied as-is; unlike the TBB case just above, there is no need
-    # to force module-mode here to "ensure our lib is used" -- as long as
-    # the build's CMAKE_PREFIX_PATH points at Houdini's devtools prefix (as
-    # it already must for TBB/other packages), CONFIG-mode will resolve to
-    # Houdini's own OpenSubdiv. Taking upstream's block unmodified.
-    find_package(OpenSubdiv 3.6...<4 REQUIRED CONFIG)
-    # First check the shared, then the static library, just like find_library() in FindOpenSubdiv.cmake.
-    foreach(postfix "" "_static")
-        if(NOT TARGET OpenSubdiv::osdCPU${postfix})
-            continue()
-        endif()
-        set(OPENSUBDIV_LIBRARIES OpenSubdiv::osdCPU${postfix})
-        if(${PXR_BUILD_GPU_SUPPORT})
-            list(APPEND OPENSUBDIV_LIBRARIES OpenSubdiv::osdGPU${postfix})
-        endif()
-        break()
-    endforeach()
-    list(GET OPENSUBDIV_LIBRARIES 0 OPENSUBDIV_OSDCPU_LIBRARY)
-    # TODO: Remove in a future version. Nothing internal depends on it anymore.
-    set(PXR_FIND_OPENSUBDIV_IN_CONFIG ON)
+    # Houdini-specific: resolve OpenSubdiv in module mode
+    # (cmake/modules/FindOpenSubdiv.cmake), from the explicit
+    # OPENSUBDIV_* paths the dev_tools usd recipe passes, as for TBB above.
+    # Upstream d408ce6d0 made CONFIG mode mandatory, but the Windows
+    # opensubdiv recipe installs no OpenSubdivConfig.cmake (it copies its
+    # static, CRT-specific libs by hand), and the config CMake 3.29.1
+    # generates on macOS is broken. Never read Houdini's OpenSubdiv config.
+    set(OPENSUBDIV_USE_GPU ${PXR_BUILD_GPU_SUPPORT})
+    find_package(OpenSubdiv 3 REQUIRED)
+    set(PXR_FIND_OPENSUBDIV_IN_CONFIG OFF)
     # --Ptex
     if (PXR_ENABLE_PTEX_SUPPORT)
         find_package(PTex REQUIRED)

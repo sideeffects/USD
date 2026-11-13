@@ -7,6 +7,9 @@ pxr_library(pxOsd
         gf
         vt
         ${OPENSUBDIV_OSDCPU_LIBRARY}
+
+    INCLUDE_DIRS
+        ${OPENSUBDIV_INCLUDE_DIR}
         
     PUBLIC_HEADERS
         api.h
