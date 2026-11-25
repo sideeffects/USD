@@ -71,3 +71,38 @@ def TestDoesNotStripMetadata():
     Test('metadata.usda', 'preserve_metadata.usda', fn)
 
 TestDoesNotStripMetadata()
+
+def TestExpressionsArePassedUnevaluated():
+    # The callback receives the authored asset paths, with variable
+    # expressions unevaluated, so returning them unchanged leaves the
+    # expressions intact.
+    authored = [
+        '`"${ROOT}/sublayer.usda"`',
+        '`"${ROOT}/payload.usda"`',
+        '`"${ROOT}/ref.usda"`',
+        '`"${ROOT}/tex.png"`',
+        '`"${ROOT}/a.png"`',
+        'plain.png',
+    ]
+
+    received = []
+    def fn(s):
+        received.append(s)
+        return s
+
+    layer = Sdf.Layer.FindOrOpen('expressions.usda')
+    UsdUtils.ModifyAssetPaths(layer, fn)
+
+    assert sorted(received) == sorted(authored), received
+
+    prim = layer.GetPrimAtPath('/Prim')
+    assert list(layer.subLayerPaths) == ['`"${ROOT}/sublayer.usda"`']
+    assert [r.assetPath for r in prim.referenceList.GetAddedOrExplicitItems()] \
+        == ['`"${ROOT}/ref.usda"`']
+    assert [p.assetPath for p in prim.payloadList.GetAddedOrExplicitItems()] \
+        == ['`"${ROOT}/payload.usda"`']
+    assert prim.attributes['tex'].default.path == '`"${ROOT}/tex.png"`'
+    assert [a.path for a in prim.attributes['texs'].default] \
+        == ['`"${ROOT}/a.png"`', 'plain.png']
+
+TestExpressionsArePassedUnevaluated()

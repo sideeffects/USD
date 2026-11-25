@@ -1,0 +1,18 @@
+#usda 1.0
+(
+    expressionVariables = {
+        string ROOT = "/root"
+    }
+    subLayers = [
+        @`"${ROOT}/sublayer.usda"`@
+    ]
+)
+
+def "Prim" (
+    payload = @`"${ROOT}/payload.usda"`@
+    references = @`"${ROOT}/ref.usda"`@
+)
+{
+    asset tex = @`"${ROOT}/tex.png"`@
+    asset[] texs = [@`"${ROOT}/a.png"`@, @plain.png@]
+}
